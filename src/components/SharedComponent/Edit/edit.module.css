@@ -1,0 +1,283 @@
+/* Start the edit header section */
+.editHeaderContainer {
+  padding: 20px;
+}
+
+.editHeading {
+  color: #00ffc3;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+/* End the edit header section */
+/* Start the edit content section */
+.editChargerContentSection {
+  padding: 20px;
+  border-radius: 14px;
+  background-color: #000000;
+  color: white;
+}
+.editChargerDropdown{
+  width: 100%;
+  padding: 6px 0px 6px !important;
+  background-color: #000000;
+  border-bottom: 1px solid #ffffff !important;
+  color: #00ffc3;
+  font-size: 18px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  border: none;
+}
+.editChargerDropdown option {
+  background-color: #242424 !important;
+  border: 1px solid #00ffc3!important;
+  border-radius: 8px !important;
+  color: #fff !important;
+  font-size: 16px !important;
+  padding: 10px !important;
+}
+.editChargerContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 4px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.editChargerChargerHeading {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.editChargerContent {
+  font-size: 18px;
+  font-weight: 600;
+  color: #00ffc3;
+  background-color: #000000;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid white;
+  padding: 4px 0px;
+}
+
+/* End the edit content section */
+/* Start the feature section */
+.editfeatureContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0px 10px;
+}
+
+.editfeatureContentSection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.editfeatureHeading {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.editfeatureContent {
+  font-size: 18px;
+  font-weight: 600;
+  color: #00ffc3;
+}
+
+.editfeatureInputContent {
+  width: 100%;
+}
+
+.editFromSection {
+  width: 100%;
+  border: none;
+  background-color: #242424;
+  border-bottom: 1px solid white;
+  padding: 8px;
+  font-size: 18px;
+    font-weight: 600;
+  outline: none;
+  color: #00ffc3;
+}
+
+/* Container for toggle switch */
+.toggleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #242424;
+  padding: 18px 10px;
+  border-radius: 14px;
+  border: 1px solid #00ffc3;
+}
+
+/* Label for status */
+.statusLabel {
+  color: #ffffff;
+  font-size: 18px;
+}
+
+/* Toggle switch area */
+.toggleSwitch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 20px;
+  padding: 5px;
+}
+
+/* Toggle labels for Un-active and Active */
+.toggleLabel {
+  color: #00ffc3;
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.toggleLabel.active {
+  color: #00ffc3;
+}
+
+.toggleLabel.inactive {
+  color: #828282;
+}
+
+/* Toggle button container */
+.toggleButton {
+  position: relative;
+  border: 2px solid #00ffc3;
+  background-color: #242424;
+  border-radius: 6px;
+  width: 60px;
+  height: 28px;
+  margin: 0 6px;
+  transition: background-color 0.3s ease;
+}
+
+/* Active state background */
+.toggleButton.active {
+  border: 2px solid #00ffc3;
+}
+
+/* Slider inside the button */
+.slider {
+  position: absolute;
+  top: 50%;
+  left: 0px;
+  width: 26px;
+  height: 26px;
+  background-color: #00ffc3;
+  border-radius: 4px;
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
+}
+
+.toggleButton.active .slider {
+  left: 30px;
+}
+
+/* End the feature section */
+/* Start the image section */
+.uploadContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: #4e4e4e;
+  padding: 20px;
+  border-radius: 20px;
+  color: #fff;
+  margin-top: 30px;
+}
+.imageGrid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.imageItem {
+  position: relative;
+  display: inline-block;
+}
+
+.image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.deleteButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #00ffc3;
+  border: none;
+  border-radius: 50%;
+  font-size: 30px;
+  width: 26px;
+  padding: 4px !important;
+  height: 26px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagePreview img {
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.dropzone {
+  width: 100%;
+  height: 200px;
+  column-gap: 2rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.uploadIcon img {
+  width: 80px;
+  margin-bottom: 10px;
+}
+
+/* End the Image section */
+/* start the button container */
+.editButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 30px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.editCancelBtn {
+  background-color: #ffffff;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.editSubmitBtn {
+  background-color: #00ffc3;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* End the button container */

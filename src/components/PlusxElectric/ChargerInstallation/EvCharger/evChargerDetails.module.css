@@ -1,0 +1,24 @@
+.appSignupSection {
+  background-color: #f9f9f9;
+  height: 94.2vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.appSignupSection::-webkit-scrollbar {
+  display: none;
+}
+.chargerInstallationSection {
+  background-color: #f9f9f9;
+  height: 94.2vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.chargerInstallationSection::-webkit-scrollbar {
+  display: none;
+}
+.bookingLeftContainer {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 40px;
+}

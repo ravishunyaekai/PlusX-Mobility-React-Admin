@@ -1,0 +1,475 @@
+.addShopContainer {
+  background-color: #f9f9f9;
+  height: 94vh;
+  overflow: scroll;
+  padding: 20px;
+  color: #ffffff;
+}
+.addShopContainer::-webkit-scrollbar {
+  display: none;
+}
+.addShopFormSection {
+  padding: 30px;
+  border-radius: 14px;
+  border: 1px solid #00b26b;
+  background-color: #000000;
+  display: flex;
+  flex-direction: column;
+}
+.addHeading {
+  color: #00b26b;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.addShopInputContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+}
+.formSection {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+.addShopLabel {
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 500;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  column-gap: 20px;
+}
+
+.inputField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  width: 100%;
+}
+.inputFieldFull {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.locationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 20px;
+}
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.selectField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dropdownIcon {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #ffffff;
+}
+.addButton {
+  background-color: #00b26b;
+  display: flex;
+  color: #000000;
+  padding: 0px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  column-gap: 10px;
+}
+.addButton img {
+  width: 16px;
+}
+.addButton span {
+  font-size: 18px;
+  font-weight: 600;
+}
+.scheduleSection {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.alwaysOpen {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.alwaysOpen label {
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 12px;
+  cursor: pointer;
+}
+
+.dayRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.dayLabel {
+  width: 100px;
+}
+.timeField {
+  outline: none;
+  width: 80%;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff !important;
+}
+.textAreaField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  width: 100%;
+}
+.addShopAddressSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  gap: 6px;
+}
+.addShopAddress {
+  display: flex;
+  column-gap: 20px;
+  row-gap: 6px;
+  width: 100%;
+}
+.timeSlotContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 14px;
+}
+.classTimeslot {
+  width: 100px;
+}
+.inputLabel {
+  width: 40%;
+  display: flex;
+  gap: 30px;
+}
+
+.fileUpload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  cursor: pointer;
+  /* width: 50%; */
+}
+
+.fileLabel {
+  width: 100%;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.fileDropZone {
+  position: relative;
+  width: 100%;
+  padding: 40px;
+  border-radius: 14px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+}
+
+.fileUploadLabel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: start;
+  column-gap: 22px;
+  cursor: pointer;
+}
+
+.uploadIcon {
+  width: 60px;
+  height: 60px;
+}
+
+.imageContainer {
+  position: absolute;
+  display: inline-block;
+}
+
+.previewImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.removeButton {
+  position: absolute;
+  background-color: #00b26b;
+  color: #000000 !important;
+  padding: 0px;
+  top: 5px;
+  right: 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 4px;
+}
+
+.galleryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+}
+
+.imageContainer {
+  position: relative;
+  /* width: 150px;
+  height: 150px; */
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.previewImage {
+  background-color: #fff;
+  max-height: 100%;
+  max-width: 100%;
+  position: relative;
+  top: 50%;
+  transform: translate(0);
+  transition: border-color 0.15s linear;
+}
+
+.removesButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 2px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+}
+
+.galleryContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.galleryContainer::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 3px;
+}
+
+.editButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 30px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.editCancelBtn {
+  background-color: #ffffff;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.editSubmitBtn {
+  color: #000000;
+  background-color: #00b26b;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+}
+.editCancelBtn:hover {
+  background-color: #000000;
+  color: #fff;
+  border: 1px solid #00b26b;
+}
+
+.editSubmitBtn:hover {
+  border: 1px solid #00b26b;
+  background-color: #000000;
+  color: #fff;
+}
+
+/* Container for toggle switch */
+.toggleContainer {
+  width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f9f9f9;
+  padding: 18px 10px;
+  border-radius: 14px;
+  border: 1px solid #00b26b;
+}
+
+/* Label for status */
+.statusLabel {
+  color: #ffffff;
+  font-size: 18px;
+}
+
+/* Toggle switch area */
+.toggleSwitch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 20px;
+  padding: 5px;
+}
+
+/* Toggle labels for Un-active and Active */
+.toggleLabel {
+  color: #00b26b;
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.toggleLabel.active {
+  color: #00b26b;
+}
+
+.toggleLabel.inactive {
+  color: #828282;
+}
+
+/* Toggle button container */
+.toggleButton {
+  position: relative;
+  border: 2px solid #00b26b;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  width: 60px;
+  height: 28px;
+  margin: 0 6px;
+  transition: background-color 0.3s ease;
+}
+
+/* Active state background */
+.toggleButton.active {
+  border: 2px solid #00b26b;
+}
+
+/* Slider inside the button */
+.slider {
+  position: absolute;
+  top: 50%;
+  left: 0px;
+  width: 26px;
+  height: 26px;
+  background-color: #00b26b;
+  border-radius: 4px;
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
+}
+
+.toggleButton.active .slider {
+  left: 30px;
+}
+.error {
+  font-size: 12px;
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  text-align: start;
+  color: red !important;
+  width: 100% !important;
+  margin-bottom: 0px !important;
+}
+/* End the feature section */
+
+/* Start the checkmark design */
+.checkboxInput {
+  margin-right: 10px;
+}
+.arrow {
+  font-size: 12px;
+  font-weight: 800;
+}
+.checkboxInput {
+  display: none;
+}
+
+.checkmark {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #00b26b;
+  border-radius: 2px;
+  cursor: pointer;
+  background-color: #000000;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+/* Style when checkbox is checked */
+.checkboxInput:checked + .checkmark {
+  background-color: #00b26b;
+  border-color: #00b26b;
+}
+
+/* Checkmark */
+.checkmark::after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkboxInput:checked + .checkmark::after {
+  display: block;
+}

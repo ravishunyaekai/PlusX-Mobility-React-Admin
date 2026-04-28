@@ -1,0 +1,70 @@
+.appSignupInfoSection {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.shrinkWidth {
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-start;
+}
+
+/* .studentIdCard{
+  background-color: #d3d3d3;
+  color: #fff;
+  padding: 1.2rem;
+  border-radius: 10px;
+  font-weight: 500;
+  text-align: center;
+  flex: 1 1 200px;
+  min-width: 150px;
+} */
+.studentIdCard img{
+  width: 10rem;
+  height: auto;
+  max-height: 10rem;
+}
+
+.infoCardSection {
+  /* flex: 1 1 200px; */
+  /* flex: 0 0 calc(17% - 1rem); */
+  flex: 1 1 160px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.5rem;
+}
+
+.infoTitle {
+  font-size: 14px;
+  color: #000;
+}
+
+.infoValue {
+  color: #00b26b;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .appSignupInfoSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .infoCardSection {
+    flex: 1 1 100%;
+  }
+}

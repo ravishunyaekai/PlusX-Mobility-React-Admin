@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+  <g id="Mobile" transform="translate(23 -21)">
+    <g id="Phone" transform="translate(-23 21)" fill="none" stroke="#fff" stroke-width="1">
+      <rect width="36" height="36" rx="6" stroke="none"/>
+      <rect x="0.5" y="0.5" width="35" height="35" rx="5.5" fill="none"/>
+    </g>
+    <path id="Icon_akar-phone" data-name="Icon akar-phone" d="M9.964,6.451,7.21,3.272a.866.866,0,0,0-1.268,0L3.676,5.546A2.189,2.189,0,0,0,3.2,8.027,23.78,23.78,0,0,0,14.24,19.083a2.184,2.184,0,0,0,2.478-.478L19,16.315a.869.869,0,0,0,0-1.273L15.815,12.3a.877.877,0,0,0-1.187.086L13.517,13.5a.376.376,0,0,1-.45.072A11.852,11.852,0,0,1,8.7,9.2a.377.377,0,0,1,.072-.451L9.882,7.643a.881.881,0,0,0,.082-1.193Z" transform="translate(-16.141 27.859)" fill="#fff"/>
+  </g>
+</svg>

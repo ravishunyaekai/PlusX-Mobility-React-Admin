@@ -1,0 +1,27 @@
+.container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+  color: #636b6f;
+  font-weight: 400;
+  height: 100vh;
+  background-color: #F9F9F9;
+}
+
+.code {
+  font-size: 26px;
+  padding: 0 6px;
+  color: #00B26B;
+}
+
+.seperator {
+  font-size: 30px;
+  padding: 0 6px;
+  color: #00B26B;
+}
+
+.message {
+  font-size: 18px;
+  color: #00B26B;
+}

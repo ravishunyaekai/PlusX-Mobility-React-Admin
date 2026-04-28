@@ -1,0 +1,107 @@
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: "Poppins", sans-serif !important;
+}
+
+/*  
+.select-search-input {
+  background-color: #000000 !important;
+  border: none !important;
+  outline: none !important;
+  border-bottom: 1px solid #ffffff !important;
+  padding: 6px 10px !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  width: 26vw !important;
+}
+ 
+.select-search-container:not(.select-search-is-multiple) .select-search-select {
+  position: absolute;
+  z-index: 9999 !important;
+  top: 58px;
+  right: 0;
+  left: 0;
+  background-color: #000000 !important;
+  max-height: 210px !important;
+  overflow-y: scroll !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-radius: 5px !important;
+  width: 26vw !important;
+  border: 1px solid #00b26b !important;
+}
+ 
+.select-search-option {
+  background-color: #000000 !important;
+  color: #fff !important;
+}
+ 
+.select-search-option:hover {
+  color: #00b26b !important;
+}
+ 
+.select-search-is-selected {
+  font-weight: 400 !important;
+  color: #fff !important;
+}
+ 
+.select-search-container:not(.select-search-is-multiple)
+  .select-search-select::-webkit-scrollbar {
+  display: none;
+} */
+
+.select-search-container {
+  width: 100% !important;
+}
+
+.select-search-input {
+  background-color: #f9f9f9 !important;
+  border: 2px solid #00b26b !important;
+  border-radius: 10px !important;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322) !important;
+  outline: none !important;
+  /* border-bottom: 1px solid #ffffff !important; */
+  padding: 6px 10px !important;
+  color: #000 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  height: 57px !important;
+}
+
+.select-search-container:not(.select-search-is-multiple) .select-search-select {
+  position: absolute;
+  z-index: 9999 !important;
+  top: 65px;
+  right: 0;
+  left: 0;
+  background-color: #f9f9f9 !important;
+  color: #000 !important;
+  max-height: 210px !important;
+  overflow-y: scroll !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-radius: 7px !important;
+  border: 2px solid #00b26b !important;
+}
+
+.select-search-option {
+  background-color: #f9f9f9 !important;
+  color: #000 !important;
+}
+
+.select-search-option:hover {
+  color: #00b26b !important;
+}
+
+.select-search-is-selected {
+  font-weight: 400 !important;
+  color: #000 !important;
+}
+
+.select-search-container:not(.select-search-is-multiple)
+  .select-search-select::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g id="Group_48" data-name="Group 48" transform="translate(0)">
+    <g id="Rectangle_33" data-name="Rectangle 33" transform="translate(0)" fill="none" stroke="#000" stroke-width="2">
+      <rect width="32" height="32" rx="6" stroke="none"/>
+      <rect x="1" y="1" width="30" height="30" rx="5" fill="none"/>
+    </g>
+    <path id="removebutton" d="M.484,1.97A1.051,1.051,0,0,1,1.97.484L8.164,6.678,14.358.484A1.051,1.051,0,0,1,15.844,1.97L9.65,8.164l6.194,6.194a1.051,1.051,0,0,1-1.486,1.486L8.164,9.65,1.97,15.844A1.051,1.051,0,0,1,.484,14.358L6.678,8.164Z" transform="translate(7.836 7.836)" fill-rule="evenodd"/>
+  </g>
+</svg>

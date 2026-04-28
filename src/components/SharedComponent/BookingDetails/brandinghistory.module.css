@@ -1,0 +1,251 @@
+/* Style the brand history Section */
+.brandHistorySection {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.brandHistoryButton {
+    border: 1px solid #00b26b !important;
+    align-items: center;
+    background-color: #00b26b;
+    border: none;
+    border-radius: 10px;
+    color: #ffffff;
+    column-gap: 8px;
+    cursor: pointer;
+    display: flex;
+    padding: 10px 20px;
+}
+
+.brandHistoryButton:hover {
+    background-color: #00b26b;
+    color: #ffffff;
+}
+
+.brandHistoryButton span {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.brandImg {
+    height: auto;
+    width: 24px;
+}
+
+.brandHistoryButton:hover .brandImg {
+    filter: brightness(0) invert(1);
+}
+
+.detailsListSection {
+    background-color: #242424;
+}
+
+.table>thead {
+    vertical-align: top !important;
+}
+
+.addressListContainer {
+    display: flex;
+    background-color: #f9f9f9;
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    flex-direction: column;
+    row-gap: 20px;
+    justify-content: start;
+    align-items: start;
+}
+
+.secondTitle {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.sectionTitle {
+    color: #00b26b;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.customTable {
+    background-color: #f9f9f9 !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+}
+.brandImage{
+    cursor: pointer;
+}
+.customTable thead {
+    background-color: #fff;
+    border: 2px solid #00b26b;
+}
+
+.customTable th {
+    color: #00b26b !important;
+    background-color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    padding: 16px !important;
+    text-align: left;
+}
+.customTable th:first-child {
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.customTable th:last-child {
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.customTable td {
+    /* color: #ffffff !important; */
+    background-color: #f9f9f9 !important;
+    padding: 12px 16px !important;
+    font-size: 13px !important;
+    vertical-align: middle;
+}
+.brandImage {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+.customTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+}
+
+.editContent {
+    display: flex;
+    column-gap: 10px;
+    cursor: pointer;
+}
+
+.editContent img {
+    width: 26px;
+}
+/* Start the Modal Icon */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 1000;
+}
+
+.modalContent {
+    color: #ffffff;
+    border-radius: 5px;
+    width: 650px;
+    max-width: 90%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.modalHeading{
+    font-size: 24px;
+    font-weight: 600;
+    color: #ffffff;
+}
+.closeButton {
+    color: #fff;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.assignButton {
+    background-color: #00b26b;
+    color: #000000;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.assignButton:hover,
+.closeModalButton:hover {
+    background-color: #000;
+    border: 1px solid #00b26b;
+    color: #ffffff;
+}
+
+.closeModalButton {
+    background-color: #ffffff;
+    color: #000;
+    border: none;
+    padding: 8px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+}
+.inputField{
+    background-color: #242424;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    padding: 16px 10px;
+    width: 100%;
+}
+/* Style the PODZONE modal class */
+.modalContainer{
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+}
+.mapResponsive{
+    height: 300px !important;
+    width: 100%;
+    border-radius: 14px;
+    border: 2px solid #00b26b;
+}
+.descriptionCell {
+    max-width: 400px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    z-index: 0 !important;
+    cursor: pointer;
+  }
+  
+  .tooltip {
+    display: none;
+    position: relative;
+    background-color: #00b26b;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 100;
+    bottom: -5px; /* Adjust to position below */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: normal; /* Allows multi-line text */
+  }
+  
+  .descriptionCell:hover .tooltip {
+    display: block;
+  }
+  

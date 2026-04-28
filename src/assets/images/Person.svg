@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+  <g id="Person" transform="translate(23 -21)">
+    <g id="Icon_akar-person" data-name="Icon akar-person" transform="translate(-17.144 27.705)">
+      <path id="Path_84" data-name="Path 84" d="M18.795,7.147A4.147,4.147,0,1,1,14.647,3a4.147,4.147,0,0,1,4.147,4.147Z" transform="translate(-2.504 0)" fill="#fff"/>
+      <path id="Path_85" data-name="Path 85" d="M16.291,21h.292a2.488,2.488,0,0,1,2.468,2.18l.324,2.591a1.659,1.659,0,0,1-1.646,1.865H6.558a1.659,1.659,0,0,1-1.646-1.865l.323-2.591A2.488,2.488,0,0,1,7.7,21H8" transform="translate(0 -8.046)" fill="#fff"/>
+    </g>
+    <g id="Rectangle_34" data-name="Rectangle 34" transform="translate(-23 21)" fill="none" stroke="#fff" stroke-width="1">
+      <rect width="36" height="36" rx="6" stroke="none"/>
+      <rect x="0.5" y="0.5" width="35" height="35" rx="5.5" fill="none"/>
+    </g>
+  </g>
+</svg>

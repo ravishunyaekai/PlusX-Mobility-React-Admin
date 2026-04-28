@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+  <g id="profile" transform="translate(-1738 -279)">
+    <g id="Rectangle_31" data-name="Rectangle 31" transform="translate(1738 279)" fill="none" stroke="#fff" stroke-width="1">
+      <rect width="36" height="36" rx="6" stroke="none"/>
+      <rect x="0.5" y="0.5" width="35" height="35" rx="5.5" fill="none"/>
+    </g>
+    <path id="profile-2" data-name="profile" d="M17.173,9.467A5.022,5.022,0,0,0,12,4.267a5.022,5.022,0,0,0-5.173,5.2A5.326,5.326,0,0,0,12,14.667,5.326,5.326,0,0,0,17.173,9.467ZM19.787,19.68v-.453A3.7,3.7,0,0,0,16.08,15.52H7.947A3.7,3.7,0,0,0,4.24,19.227v.453a10.913,10.913,0,0,0,15.547,0ZM12,22.933A10.933,10.933,0,1,1,22.933,12,10.948,10.948,0,0,1,12,22.933ZM12,24A12,12,0,1,0,0,12,11.984,11.984,0,0,0,12,24Z" transform="translate(1744.196 285.284)" fill="#fff"/>
+  </g>
+</svg>

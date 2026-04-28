@@ -1,0 +1,179 @@
+/* start the details header section */
+.emergencyContainer {
+    background-color: #f9f9f9;
+    height: 94.2vh;
+    overflow: scroll;
+    padding: 20px 0px;
+}
+.emergencyContainer::-webkit-scrollbar {
+    display: none;
+}
+.infoCard {
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+.detailsHeaderSection {
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+    border: 2px solid #00b26b;
+    padding: 18px 16px;
+    border-radius: 14px;
+    color: white;
+}
+.detailsHeaderSection:hover {
+    background-color: #00b26b;
+    color: #000000;
+    cursor: pointer;
+}
+.detailsHeaderSection:hover .detailsImageSection img {
+    filter: brightness(0) saturate(100%);
+}
+.detailsImageSection img {
+    width: 40px;
+    height: auto;
+}
+.infoBlock {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: 4px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
+}
+.infoText {
+    display: block;
+    white-space: normal;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 16px;
+}
+.infoHeading {
+    font-size: 12px;
+}
+/* end the details header section */
+/* start the details section */
+.infoSection {
+    padding: 20px;
+    border-radius: 14px;
+    background-color: #000000;
+    color: white;
+}
+.Detailshead {
+    font-size: 18px;
+    font-weight: 600;
+    color: #00b26b;
+}
+/* end the details section */
+/* start the list section */
+.detailsListSection {
+    background-color: #f9f9f9;
+}
+.table > thead {
+    vertical-align: top !important;
+}
+.addressListContainer {
+    padding: 20px;
+    display: flex;
+    background-color: #f9f9f9;
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    flex-direction: column;
+    row-gap: 20px;
+    justify-content: start;
+    align-items: start;
+}
+.sectionTitle {
+    color: #00b26b;
+    font-size: 26px;
+    font-weight: 600;
+}
+.customTable {
+    background-color: #fff !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 14px !important;
+    overflow: hidden;
+    padding: 12px !important;
+}
+.customTable thead {
+    background-color: #fff;
+    border-bottom: #000 !important;
+}
+.customTable th {
+    color: #00b26b !important;
+    background-color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    padding: 10px !important;
+    text-align: left;
+}
+.customTable td {
+    color: #000 !important;
+    background-color: #fff !important;
+    padding: 12px 10px !important;
+    font-size: 13px !important;
+}
+.customTable {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+}
+.editContent {
+    display: flex;
+    column-gap: 10px;
+    cursor: pointer;
+}
+.editContent img {
+    width: 30px;
+}
+/* start the list section */
+
+.mapContainer {
+    border: 2px solid red;
+    height: 100px !important;
+}
+
+.headerCharger {
+    display: flex;
+    justify-content: space-between !important;
+    align-items: center;
+    width: 100%;
+}
+
+.addButtonSection {
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+    background-color: #00b26b;
+    border: 2px solid #00b26b !important;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.addButtonSection:hover {
+    background-color: #fff;
+    color: #00b26b;
+    border: 2px solid #00b26b !important;
+}
+
+.addButtonSection:hover .addButtonImg img {
+    filter: invert(52%) sepia(94%) saturate(527%) hue-rotate(103deg) brightness(96%) contrast(94%);
+}
+
+.addButtonImg img {
+    width: 24px;
+    height: auto;
+}
+.addButtonText {
+    font-size: 16px;
+    font-weight: 600;
+}
+.accordian {
+    width: 100%;
+    box-sizing: border-box;
+}

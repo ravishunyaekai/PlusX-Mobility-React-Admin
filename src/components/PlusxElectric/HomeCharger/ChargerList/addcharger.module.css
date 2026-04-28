@@ -1,0 +1,654 @@
+.addStationContainer {
+  background-color: #f9f9f9;
+  height: 94vh;
+  overflow: scroll;
+  padding: 20px;
+  color: #ffffff;
+}
+.addStationContainer::-webkit-scrollbar {
+  display: none;
+}
+.addHeading {
+  color: #00b26b;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.addShopInputContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+}
+.formSection {
+  display: flex;
+  flex-direction: column;
+  row-gap: 40px;
+}
+
+.labelText {
+  font-size: 1.5rem;
+  color: #000;
+  margin-bottom: 10px;
+}
+.addShopLabel {
+  font-size: 18px;
+  color: #00b26b;
+  font-weight: 500;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  column-gap: 20px;
+}
+.openSection {
+  width: 100px;
+  color: #00b26b;
+}
+.featureDivision {
+  position: relative;
+  margin-bottom: 5px;
+}
+.inputField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  width: 100%;
+  border: 2px solid #00b26b;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+}
+.inputFieldFull {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.uploadContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid #00b26b;
+  background-color: #f9f9f9;
+  padding: 10px 10px;
+  border-radius: 10px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  width: 100%;
+}
+
+.uploadLabel {
+  font-size: 16px;
+  color: #242424b6;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uploadButton {
+  flex-shrink: 0;
+  background-color: #00b26b;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.uploadButton:hover {
+  background-color: #01985c;
+}
+
+.uploadIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.locationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 20px;
+}
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.selectField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dropdownIcon {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #ffffff;
+}
+.addButton {
+  background-color: #00b26b;
+  display: flex;
+  color: #000000;
+  padding: 0px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  column-gap: 10px;
+}
+.addButton img {
+  width: 16px;
+}
+.addButton span {
+  font-size: 18px;
+  font-weight: 600;
+}
+.scheduleSection {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.alwaysOpen {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.alwaysOpen label {
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 12px;
+  cursor: pointer;
+  color: #00b26b;
+}
+
+.dayRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.dayLabel {
+  width: 100px;
+  color: #00b26b;
+}
+.timeField {
+  outline: none;
+  width: 80%;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: #000 !important;
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+}
+.textAreaField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  width: 100%;
+}
+.addShopAddressSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  gap: 6px;
+}
+.addShopAddress {
+  display: flex;
+  column-gap: 20px;
+  row-gap: 6px;
+  width: 100%;
+}
+.timeSlotContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 14px;
+}
+.classTimeslot {
+  width: 100px;
+}
+.inputLabel {
+  width: 40%;
+  display: flex;
+  gap: 30px;
+}
+
+/* Start the file upload section code */
+.fileUpload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  cursor: pointer;
+  /* width: 50%; */
+}
+
+.fileLabel {
+  width: 100%;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #00b26b;
+}
+
+.fileDropZone {
+  position: relative;
+  width: 100%;
+  padding: 40px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid #00b26b;
+}
+
+.fileUploadLabel {
+  display: block;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: start;
+  column-gap: 22px;
+  cursor: pointer;
+  color: #00b26b;
+}
+
+/* .uploadIcon {
+  width: 60px;
+  height: 60px;
+} */
+
+.previewImage {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  /* top: 50%; */
+  transform: translate(0, 0%);
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  background-color: #fff;
+  transition: border-color 0.15s linear;
+}
+
+.removeButton {
+  position: absolute;
+  background-color: #00b26b;
+  color: #fff !important;
+  padding: 0px;
+  top: 5px;
+  right: 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 4px;
+}
+/* End the file upload section */
+
+.galleryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0px;
+  width: 100%;
+}
+
+.imageContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+/* .previewImage {
+  width: 200px;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 8px;
+} */
+
+.removesButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 2px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+}
+
+.galleryContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.galleryContainer::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 3px;
+}
+
+.editButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 30px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.editCancelBtn {
+  background-color: #f9f9f9;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  color: #00b26b;
+  border: 2px solid #00b26b;
+}
+
+.editSubmitBtn {
+  color: #fff;
+  background-color: #00b26b;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: none;
+  font-size: 18px;
+  font-weight: 600;
+  border: 2px solid #00b26b;
+}
+.editCancelBtn:hover {
+  background-color: #f9f9f9;
+  color: #00b26b;
+  border: 2px solid #00b26b;
+}
+
+.editSubmitBtn:hover {
+  border: 2px solid #00b26b;
+  background-color: #f9f9f9;
+  color: #00b26b;
+}
+
+/* Container for toggle switch */
+.toggleContainer {
+  width: 230px;
+  display: flex;
+  gap: 20px;
+  padding: 18px 10px;
+  border-radius: 14px;
+  background-color: #f9f9f9;
+  border: 2px solid #00b26b;
+}
+
+/* Label for status */
+.statusLabel {
+  color: #00b26b;
+  font-size: 18px;
+}
+
+/* Toggle switch area */
+.toggleSwitch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px; /* Space between the slider and text */
+}
+
+/* Toggle button area */
+.toggleButton {
+  position: relative;
+  border: 2px solid;
+  border-radius: 6px;
+  width: 60px;
+  height: 34px;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+.toggleButton.activeToggle {
+  border-color: #00b26b;
+}
+
+.toggleButton.inactiveToggle {
+  border-color: #000;
+}
+
+.slider {
+  position: absolute;
+  top: 50%;
+  left: 0px;
+  width: 28px;
+  height: 30px;
+  background-color: #000;
+  border-radius: 0px;
+  transform: translateY(-50%);
+  transition: left 0.3s ease, background-color 0.3s ease;
+}
+
+.toggleButton.activeToggle .slider {
+  left: 28px;
+  background-color: #00b26b;
+}
+
+.toggleButton.inactiveToggle .slider {
+  background-color: #000;
+}
+
+.toggleText {
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.toggleText.activeText {
+  color: #00b26b;
+}
+
+.toggleText.inactiveText {
+  color: #000;
+  width: 70px;
+}
+
+/* end the toggle section */
+.error {
+  margin-top: 5px;
+  font-size: 13px;
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  text-align: start;
+  color: red !important;
+  width: 100% !important;
+  margin-bottom: 0px !important;
+}
+
+.timeLabel {
+  color: #000;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+
+.mapButton {
+  background-color: #f9f9f9;
+  width: 100%;
+  height: auto;
+  padding: 17px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #00b26b;
+  border: 2px solid #00b26b;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  outline: none;
+}
+
+.featureLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.5rem;
+  color: #000;
+  margin-bottom: 10px;
+}
+
+.featureButton {
+  color: #fff;
+  background-color: #00b26b;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 10px;
+  cursor: pointer;
+}
+
+.addImg {
+  filter: brightness(0) saturate(100%) invert(1);
+  height: 12px;
+}
+
+@media (max-width: 1250px) {
+  .mapButton {
+    padding: 17px 5px;
+    font-size: 14px;
+  }
+}
+
+.labelContent {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.checkboxText {
+  color: #000;
+  font-size: 16px;
+}
+
+.checkboxInput {
+  display: none;
+}
+
+.checkmark {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #00b26b;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: transparent;
+  vertical-align: middle;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* Green dot inside when checked */
+.checkboxInput:checked + .checkmark::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #00b26b;
+}
+
+@media (max-width: 1440px) {
+  .labelText {
+    font-size: 1.2rem;
+  }
+  .featureLabel {
+    font-size: 1.2rem;
+  }
+  .featureButton {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 1360px) {
+  .previewImage {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .labelText {
+    font-size: 1rem;
+  }
+  .featureLabel {
+    font-size: 1rem;
+  }
+  .featureButton {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .checkboxText {
+    font-size: 0.9rem;
+  }
+  .labelText {
+    font-size: 0.9rem;
+  }
+  .featureLabel {
+    font-size: 0.9rem;
+  }
+  .featureButton {
+    font-size: 0.9rem;
+  }
+}

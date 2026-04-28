@@ -1,0 +1,74 @@
+.containerCharger {
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #000;
+}
+.editContent {
+  display: flex;
+  column-gap: 10px;
+  cursor: pointer;
+}
+.editContent img {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.table thead {
+  background-color: #f9f9f9 !important;
+  color: #000 !important;
+  border-radius: 10px !important;
+  outline: 2px solid #00b26b;
+  box-shadow: 5px 3px 10px rgba(0, 0, 0, 0.322);
+}
+
+.table th {
+  padding: 20px;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.table td {
+  padding: 20px;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+  border-bottom: 1px solid #000;
+}
+
+.table thead th:first-child {
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.table thead th:last-child {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.editButton,
+.deleteButton {
+  background-color: #2e2e2e;
+  border: none;
+  color: #00b26b;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin-right: 5px;
+  border-radius: 3px;
+}
+
+.listSpan {
+  padding: 0px 20px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #00b26b !important;
+  border-bottom: none !important;
+  position: relative;
+  top: 12px;
+}

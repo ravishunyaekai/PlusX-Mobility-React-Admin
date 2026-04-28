@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
+  <g id="Calender" transform="translate(-1738 -279)">
+    <g id="Rectangle_31" data-name="Rectangle 31" transform="translate(1738 279)" fill="none" stroke="#64ffc5" stroke-width="1">
+      <rect width="44" height="44" rx="6" stroke="none"/>
+      <rect x="0.5" y="0.5" width="43" height="43" rx="5.5" fill="none"/>
+    </g>
+    <path id="Icon_material-date-range" data-name="Icon material-date-range" d="M11.98,14.221H9.487v2.493H11.98Zm4.987,0H14.474v2.493h2.493Zm4.987,0H19.461v2.493h2.493Zm2.493-8.727H23.2V3H20.708V5.493H10.734V3H8.24V5.493H6.993A2.482,2.482,0,0,0,4.512,7.987L4.5,25.441a2.493,2.493,0,0,0,2.493,2.493H24.448a2.5,2.5,0,0,0,2.493-2.493V7.987A2.5,2.5,0,0,0,24.448,5.493Zm0,19.948H6.993V11.727H24.448Z" transform="translate(1744.279 285.533)" fill="#64ffc5"/>
+  </g>
+</svg>

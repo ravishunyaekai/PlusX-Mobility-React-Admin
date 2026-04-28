@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="341.196" height="173.8" viewBox="0 0 341.196 173.8">
+  <g id="Truck_filled_icon" data-name="Truck filled icon" transform="translate(-3.609 -5.879)">
+    <path id="Path_361" data-name="Path 361" d="M111.41,25.42S69.57,5.99,61.156,5.879V30.441h54.839S116.757,27.275,111.41,25.42Z" transform="translate(179.696 0)"/>
+    <rect id="Rectangle_1" data-name="Rectangle 1" width="15.921" height="77.27" transform="translate(218.26 49.797)"/>
+    <rect id="Rectangle_2" data-name="Rectangle 2" width="15.921" height="25.292" transform="translate(218.26 131.96)"/>
+    <path id="Path_362" data-name="Path 362" d="M86.982,36.749a23.268,23.268,0,1,0,23.289,23.28A23.26,23.26,0,0,0,86.982,36.749Zm0,35.417A12.147,12.147,0,1,1,99.127,60.033,12.122,12.122,0,0,1,86.982,72.166Z" transform="translate(187.659 96.395)"/>
+    <path id="Path_363" data-name="Path 363" d="M160.073,118.384V86.071L130.58,22.859s-5.615-10.306-15.452-10.306H61.155V136.416h6.468c-.021-.449-.07-.9-.07-1.36a26.984,26.984,0,0,1,53.969,0c0,.458-.058.911-.082,1.36h40.847s2.812.342,2.812-3.867V121.315C165.106,121.311,165.589,118.6,160.073,118.384ZM89.63,77.814H80.972V74.479H89.63Zm17.756-19.368H74.149V21.462h48.923l28.557,60.4H130.555Zm48.069,56.2h-8.781V93.57h8.781Z" transform="translate(179.693 20.84)"/>
+    <path id="Path_364" data-name="Path 364" d="M40.458,36.749a23.268,23.268,0,1,0,23.284,23.28A23.261,23.261,0,0,0,40.458,36.749Zm0,35.417A12.147,12.147,0,1,1,52.6,60.033,12.126,12.126,0,0,1,40.458,72.166Z" transform="translate(42.358 96.395)"/>
+    <path id="Path_365" data-name="Path 365" d="M90.9,36.462H27.153L38.75,49.11V61.754H139.766V36.462Z" transform="translate(73.518 95.498)"/>
+    <path id="Path_366" data-name="Path 366" d="M31.322,36.462H8.549V61.754h28.5V49.11L48.641,36.462Z" transform="translate(15.426 95.498)"/>
+    <rect id="Rectangle_3" data-name="Rectangle 3" width="209.671" height="121.188" transform="translate(3.609 5.879)"/>
+    <rect id="Rectangle_4" data-name="Rectangle 4" width="15.53" height="25.292" transform="translate(3.609 131.96)"/>
+  </g>
+</svg>

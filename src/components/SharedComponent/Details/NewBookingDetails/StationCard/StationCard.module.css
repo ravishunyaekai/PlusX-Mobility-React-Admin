@@ -1,0 +1,29 @@
+.card {
+  border: 2px solid #00b26b;
+  border-radius: 12px;
+  padding: 16px;
+  background: #f9f9f9;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  white-space: pre-line;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: #242424;
+}
+
+.value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000;
+  line-height: 1.5;
+  word-break: break-word;
+}

@@ -1,0 +1,37 @@
+.dashboardCardItem {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  color: #fff;
+}
+
+@media (min-width: 1400px) {
+  .dashboardCardItem {
+    /* grid-template-columns: repeat(6, 1fr); */
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1100px) and (max-width: 1399px) {
+  .dashboardCardItem {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .dashboardCardItem {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .dashboardCardItem {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboardCardItem {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

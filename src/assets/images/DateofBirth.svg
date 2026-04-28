@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+  <g id="DateofBirth" transform="translate(23 -21)">
+    <g id="DateofBirth-2" data-name="DateofBirth" transform="translate(-23 21)" fill="none" stroke="#fff" stroke-width="1">
+      <rect width="36" height="36" rx="6" stroke="none"/>
+      <rect x="0.5" y="0.5" width="35" height="35" rx="5.5" fill="none"/>
+    </g>
+    <path id="Icon_material-date-range" data-name="Icon material-date-range" d="M9.583,10.624H7.888v1.694H9.583Zm3.388,0H11.277v1.694h1.694Zm3.388,0H14.665v1.694H16.36Zm1.694-5.93h-.847V3H15.513V4.694H8.736V3H7.041V4.694H6.194A1.687,1.687,0,0,0,4.508,6.388L4.5,18.248a1.694,1.694,0,0,0,1.694,1.694h11.86a1.7,1.7,0,0,0,1.694-1.694V6.388A1.7,1.7,0,0,0,18.054,4.694Zm0,13.554H6.194V8.93h11.86Z" transform="translate(-17.124 27.529)" fill="#fff"/>
+  </g>
+</svg>

@@ -1,0 +1,288 @@
+/* start the details header section */
+.infoCard {
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #000;
+}
+
+/* .imageMainContainer{
+  margin-top: 40px;
+} */
+.detailsHeaderSection {
+  display: flex;
+  align-items: center;
+  column-gap: 12px;
+  border: 2px solid #00b26b;
+  padding: 18px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.322);
+}
+
+.detailsHeaderSection:hover,
+.detailsHeaderSection:hover .infoHeadText {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+.detailsHeaderSection:hover .detailsImageSection img {
+  filter: brightness(0) saturate(100%);
+}
+
+.detailsImageSection img {
+  width: 40px;
+  height: auto;
+}
+
+.infoBlock {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 4px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.infoHeadText {
+  display: block;
+  white-space: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 16px;
+  color: #00b26b;
+  text-transform: capitalize;
+}
+
+.infoText {
+  display: block;
+  white-space: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 16px;
+  text-transform: capitalize;
+}
+
+.sectionsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* end the details header section */
+/* start the details section */
+.infoSection {
+  padding: 20px;
+  border-radius: 14px;
+  background-color: #f9f9f9;
+  color: #000;
+  border: 2px solid #00b26b;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.322);
+}
+
+.Detailshead {
+  font-size: 18px;
+  font-weight: 600;
+  color: #00b26b;
+}
+
+/* end the details section */
+/* start the list section */
+.detailsListSection {
+  background-color: #f9f9f9;
+}
+
+.table > thead {
+  vertical-align: top !important;
+}
+
+.addressListContainer {
+  display: flex;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-direction: column;
+  row-gap: 20px;
+  justify-content: start;
+  align-items: start;
+}
+
+.secondTitle {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.sectionTitle {
+  color: #00b26b;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.customTable {
+  background-color: #000 !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  padding: 12px !important;
+}
+
+.customTable thead {
+  background-color: #000000;
+  border-bottom: #000 !important;
+}
+
+.customTable th {
+  color: #00b26b !important;
+  background-color: #000000 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  padding: 10px !important;
+  text-align: left;
+}
+
+.customTable td {
+  color: #ffffff !important;
+  background-color: #000000 !important;
+  padding: 12px 10px !important;
+  font-size: 13px !important;
+}
+
+.customTable {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+}
+
+/* start the list section */
+.editContent {
+  display: flex;
+  column-gap: 10px;
+  cursor: pointer;
+}
+
+.editContent img {
+  width: 26px;
+}
+
+/* Start the image section */
+.galleryImages {
+  width: 300px;
+  height: auto;
+  margin-top: 10px;
+  display: flex;
+  gap: 24px;
+  position: relative;
+}
+
+.galleryImage {
+  width: 100%;
+  border-radius: 8px;
+  height: auto;
+}
+
+.ImageMainSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoContainer {
+  padding: 20px;
+  border-radius: 14px;
+  background-color: #000000;
+  color: white;
+}
+
+/* Style the multiple image container  */
+.multipleImageMainSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.multipleinfoContainer {
+  position: relative;
+  padding: 20px;
+  border-radius: 14px;
+  background-color: #f9f9f9;
+  color: #000;
+  border: 2px solid #00b26b;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.322);
+}
+.multiplegalleryImages {
+  width: 100%;
+  height: auto;
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.imageContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.gallerymultipleImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transform: translate(0, 0%);
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  background-color: #fff;
+  transition: border-color 0.15s linear;
+}
+.galleryImagesCloseButton {
+  position: absolute;
+  background-color: #00b26b;
+  color: #fff !important;
+  padding: 0px;
+  top: 5px;
+  right: 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 4px;
+}
+.removeButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.removeButton:hover {
+  background: darkred;
+}
+/* End the multiple image container */
+
+.offerHeadText {
+  color: #00b26b;
+}
+
+.detailsHeaderSection:hover .offerHeadText {
+  color: #000;
+}
+
+.offerHeading {
+  display: inline;
+}
+.detailsHeaderSection:hover .infoHeadText svg {
+  color: #000000 !important;
+}
+
+.pdfIcon {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  transition: border-color 0.15s linear;
+}

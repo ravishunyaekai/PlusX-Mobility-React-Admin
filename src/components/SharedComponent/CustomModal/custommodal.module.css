@@ -1,0 +1,187 @@
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+}
+
+.modal {
+  position: absolute;
+  background: #f9f9f9;
+  border: 2px solid #00b26b;
+  padding: 34px 24px;
+  border-radius: 8px;
+  width: 650px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.modalHead {
+  font-size: 20px;
+  font-weight: 600;
+  color: #00b26b;
+}
+.modalHead span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #00b26b;
+}
+.driverSelect {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.driverSelect select {
+  width: 100%;
+  padding: 12px;
+  color: #00b26b;
+  border: none;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  border: 2px solid #00b26b;
+  font-size: 16px;
+  font-weight: 500;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.dropdownIcon {
+  position: absolute;
+  right: 12px;
+  transform: translateY(-50%);
+  color: #ffffff;
+  pointer-events: none;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.assignBtn {
+  background-color: #00b26b;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.closeBtn {
+  background-color: #ffffff;
+  color: #00b26b;
+  border: 2px solid #00b26b;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.inputField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  width: 100%;
+  border: 2px solid #00b26b;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+}
+.labelText{
+  color: #00b26b;
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+
+/* 14 APr Ravi comment code */
+.statusWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+ 
+.statusCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: #fff;
+}
+ 
+.statusCard:hover {
+  border-color: #00b26b;
+}
+ 
+/* Active */
+.activeStatus {
+  border: 1px solid #00b26b;
+  background-color: #f0fdf4;
+}
+ 
+/* Radio */
+.radioCircle {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #00b26b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+.radioInner {
+  width: 10px;
+  height: 10px;
+  background-color: #00b26b;
+  border-radius: 50%;
+}
+ 
+/* Content */
+.statusContent {
+  display: flex;
+  flex-direction: column;
+}
+ 
+.statusTitle {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+ 
+.statusDesc {
+  font-size: 13px;
+  color: #777;
+}
+ 
+/* Colored dot */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

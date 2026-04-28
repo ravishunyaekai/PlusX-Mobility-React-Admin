@@ -1,0 +1,447 @@
+/* @font-face {
+  font-family: 'Nexa';
+  src: url('/public/font/Nexa-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+} */
+.container-fluid {
+  padding: 20px !important;
+  background-color: #f9f9f9;
+  color: #000;
+}
+.row {
+  row-gap: 20px !important;
+}
+.table > thead {
+  vertical-align: top !important  ;
+}
+/* Style the multi dropdown section */
+.rmsc .dropdown-container {
+  outline: none !important;
+  background-color: #f9f9f9 !important;
+  border: 2px solid #00b26b !important;
+  min-height: 45px !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  color: #000 !important;
+  font-size: 16px !important;
+  width: 100% !important;
+  position: relative !important;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322) !important;
+}
+.rmsc .dropdown-heading .dropdown-heading-value {
+  width: 0px !important;
+}
+.rmsc .dropdown-heading {
+  padding: 0px !important;
+  cursor: pointer !important;
+}
+.rmsc .dropdown-container:focus-within {
+  /* box-shadow: unset !important; */
+  border-left: 2px solid #00b26b !important;
+  border-bottom: 2px solid #00b26b !important;
+  border-right: 2px solid #00b26b !important;
+}
+.rmsc .dropdown-content .panel-content {
+  overflow: hidden !important;
+  outline: none !important;
+  border: none !important;
+  /* border-radius: 14px !important; */
+  background-color: #f9f9f9 !important;
+  /* box-shadow: rgba(0, 255, 195, 0.02) 0px 1px 3px 0px,
+    rgba(0, 255, 195, 0.15) 0px 0px 0px 1px !important; */
+}
+.rmsc .select-item {
+  padding: 0 !important;
+  background: transparent !important;
+}
+.rmsc .select-item:hover {
+  background-color: #00b26b !important;
+  color: #ffffff !important;
+}
+.rmsc .select-item.selected {
+  background-color: #00b26b !important;
+  color: #ffffff !important;
+}
+.rmsc .search input:focus {
+  background-color: #f9f9f9 !important;
+}
+.rmsc .dropdown-content {
+  width: 100.5% !important;
+  position: absolute !important;
+  right: -2px !important;
+  top: 85% !important;
+  border-top: none !important;
+  border-left: 2px solid #00b26b !important;
+  border-bottom: 2px solid #00b26b !important;
+  border-right: 2px solid #00b26b !important;
+  border-radius: 0 0 10px 10px !important;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322) !important;
+  overflow: hidden !important;
+  padding-top: 0px !important;
+  background: #f9f9f9 !important;
+}
+/* End the multi dropdown section */
+.accordion-button:not(.collapsed) {
+  padding: 16px !important;
+  color: #000 !important;
+  background-color: #fff !important;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+  /* box-shadow: unset !important; */
+}
+.accordion-button {
+  padding: 16px !important;
+  color: #000 !important;
+  background-color: #fff !important;
+  border-radius: 4px !important;
+  /* border: 1px solid #00b26b !important; */
+}
+.accordion-item {
+  color: #00b26b !important;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+  /* background-color: #00b26b !important;
+  border: 1px solid #00b26b !important; */
+}
+.accordion-button::after {
+  display: none !important;
+}
+.accordion-button:not(.collapsed)::after {
+  transform: rotate(-180deg) !important;
+}
+.accordion-button::after {
+  transition: rotate(-180deg) !important;
+}
+.accordion-button {
+  justify-content: space-between !important;
+}
+.accordion-button:focus {
+  /* box-shadow: unset !important; */
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+}
+.logo {
+  width: 24px !important;
+  cursor: pointer !important;
+}
+
+/* Designed the clock range wise calendar */
+.css-10o2lyd-MuiStack-root {
+  padding-top: 0px !important;
+}
+.css-113d811-MuiFormLabel-root-MuiInputLabel-root {
+  color: #242424 !important;
+  font-size: 0rem !important;
+  line-height: 0px !important;
+  letter-spacing: 0px !important;
+}
+.css-1b1fjlj-MuiFormControl-root-MuiTextField-root {
+  background-color: #242424 !important;
+  font-size: 16px !important;
+  border-radius: 6px !important;
+  outline: none !important;
+  color: #ffffff !important;
+  width: 100% !important;
+}
+.css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root {
+  display: none !important;
+}
+.css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input {
+  color: #ffffff !important;
+  outline: none !important;
+}
+.css-jupps9-MuiInputBase-root-MuiOutlinedInput-root {
+  color: #ffffff !important;
+  border-radius: 0px !important;
+  outline: none !important;
+  border: none !important;
+  outline: none !important;
+}
+.css-113d811-MuiFormLabel-root-MuiInputLabel-root.Mui-focused {
+  color: #242424 !important ;
+}
+
+/* Designed the select component */
+/* .css-b62m3t-container {
+  border: 2px solid #00b26b !important;
+  border-radius: 10px !important;
+}
+
+.css-t3ipsp-control {
+  padding: 10px !important;
+  height: 0px !important;
+  outline: 0 !important;
+  background-color: #f9f9f9 !important;
+  border-color: none !important;
+  outline: none !important;
+  border-radius: 6px !important;
+}
+
+.css-13cymwt-control:hover {
+  border-color: none !important;
+}
+.css-13cymwt-control {
+  min-height: 0px !important;
+  background-color: #f9f9f9 !important;
+  border-color: none !important;
+  outline: none !important;
+  padding: 10px !important;
+  border-radius: 10px !important;
+  border-width: 0px !important;
+  box-sizing: border-box;
+  border: 2px solid #00b26b;
+  color: #000 !important;
+}
+.css-1nmdiq5-menu {
+  background-color: #f9f9f9 !important;
+  color: #000 !important;
+  border-radius: 10px;
+  box-shadow: unset !important;
+  margin-bottom: 8px;
+  margin-top: 8px;
+  box-sizing: border-box;
+  border: 2px solid #00b26b !important;
+  border-radius: 10px !important;
+}
+.css-10wo9uf-option:active {
+  background-color: #00b26b !important;
+  color: #fff !important;
+}
+.css-d7l1ni-option {
+  background-color: none !important;
+}
+.css-19bb58m {
+  color: #ffffff !important;
+  visibility: visible;
+  -webkit-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  display: inline-grid;
+  grid-area: 1 / 1 / 2 / 3;
+  grid-template-columns: 0 min-content;
+  margin: 0px !important;
+  padding-bottom: 0px !important;
+  padding-top: 0px !important;
+}
+.css-hlgwow {
+  padding: 0px !important;
+}
+.css-t3ipsp-control {
+  min-height: 54px !important;
+  padding: 10px !important;
+  outline: none !important;
+  background-color: #242424 !important;
+  border-color: none !important;
+  border-radius: 4px;
+  border-width: 0px !important;
+  box-shadow: unset !important;
+  background-color: #f9f9f9 !important;
+  color: #000 !important;
+}
+.css-1dimb5e-singleValue {
+  color: #000 !important;
+}
+.css-tr4s17-option {
+  background-color: #00b26b !important;
+  color: #000000 !important;
+} */
+/* unused css code */
+/* .css-t3ipsp-control:hover {
+  border-color: #00b26b !important;
+} */
+/* start the time slot conatiner */
+.css-oeq6yz-MuiButtonBase-root-MuiIconButton-root {
+  background-color: #000000 !important;
+  font-size: 1.2rem !important;
+  color: #ffffff !important;
+  margin-right: 0px !important;
+}
+.css-1ll44ll-MuiOutlinedInput-notchedOutline {
+  outline: none !important;
+  border: none !important;
+}
+.css-qr46ko {
+  border-radius: 8px !important;
+  box-shadow: rgba(0, 255, 195, 0.02) 0px 1px 3px 0px,
+    rgba(0, 255, 195, 0.15) 0px 0px 0px 1px !important;
+}
+
+/* Style the invoice table  */
+table {
+  width: 100% !important;
+}
+
+/* react Select Date deisgned */
+.react-datepicker-wrapper {
+  width: 100% !important;
+}
+.react-datepicker-popper {
+  transform: translate(0px, 70px) !important;
+}
+.react-datepicker__day--disabled,
+.react-datepicker__month-text--disabled,
+.react-datepicker__quarter-text--disabled,
+.react-datepicker__year-text--disabled {
+  cursor: default;
+  color: #000 !important;
+}
+.react-datepicker__day {
+  color: inherit !important;
+}
+.react-datepicker__day-name {
+  color: #000 !important;
+}
+.react-datepicker__header {
+  text-align: center;
+  /* background-color: #000000 !important; */
+  color: #000 !important;
+  border-bottom: 1px solid #aeaeae;
+  border-top-left-radius: 0.3rem;
+  padding: 8px 0;
+  position: relative;
+}
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  color: #000 !important;
+}
+/* .react-datepicker__day-name, .react-datepicker__day, .react-datepicker__time-name {
+  color: #ffffff !important;
+} */
+.react-datepicker {
+  font-size: 0.8rem;
+  /* background-color: #000000 !important; */
+  color: #000 !important;
+  border: 1px solid #aeaeae;
+  border-radius: 0.3rem;
+  display: inline-block;
+  position: relative;
+  line-height: initial;
+}
+.react-datepicker__day:not([aria-disabled="true"]):hover,
+.react-datepicker__month-text:not([aria-disabled="true"]):hover,
+.react-datepicker__quarter-text:not([aria-disabled="true"]):hover,
+.react-datepicker__year-text:not([aria-disabled="true"]):hover {
+  background-color: #00b26b !important;
+  color: #fff !important;
+}
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__month-text--keyboard-selected,
+.react-datepicker__quarter-text--keyboard-selected,
+.react-datepicker__year-text--keyboard-selected {
+  background-color: #ccc !important;
+  color: #fff !important;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range,
+.react-datepicker__month-text--selected,
+.react-datepicker__month-text--in-selecting-range,
+.react-datepicker__month-text--in-range,
+.react-datepicker__quarter-text--selected,
+.react-datepicker__quarter-text--in-selecting-range,
+.react-datepicker__quarter-text--in-range,
+.react-datepicker__year-text--selected,
+.react-datepicker__year-text--in-selecting-range,
+.react-datepicker__year-text--in-range {
+  border-radius: 0.3rem;
+  background-color: #00b26b !important;
+  color: #fff !important;
+}
+
+/* Style the main container on entire website */
+.main-container {
+  background-color: #f9f9f9;
+  height: 94vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.main-container::-webkit-scrollbar {
+  display: none;
+}
+/* End the main container on entire website */
+/* Style the error message in form section */
+.error {
+  font-size: 13px;
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  text-align: start;
+  color: red !important;
+  width: 100% !important;
+  margin-bottom: 0px !important;
+}
+/* End the error message in form section */
+/* Style the all booking details button */
+.editButtonSection {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+}
+.viewButton {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+/* end the all booking details button */
+/* Style the Assign Modal Css */
+.modalHeading {
+  font-size: 22px;
+  font-weight: 600;
+  color: #00b26b;
+}
+.modal-textarea {
+  background-color: #f9f9f9;
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  outline: none;
+  padding: 16px 10px;
+  width: 100%;
+  border: 2px solid #00b26b;
+}
+/* End the assign modal css */
+/* Start the react repsonsive modal */
+.react-responsive-modal-closeButton {
+  position: absolute;
+  top: 4px !important;
+  right: 4px !important;
+  width: 16px !important;
+  height: 16px !important;
+  border: none;
+  padding: 0px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center !important;
+  align-items: center !important;
+}
+.react-responsive-modal-closeButton svg {
+  fill: #000 !important;
+}
+.react-responsive-modal-modal {
+  text-align: center !important;
+  background: #fff !important;
+  border-radius: 10px !important;
+  /* border: 1px solid #00b26b !important; */
+}
+/* End the react resposnsive modal */
+/* Style the table section */
+.listAction {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+  cursor: pointer;
+}
+.listAction img {
+  width: 24px;
+}
+.linkSection {
+  font-weight: 600;
+  color: #00b26b !important;
+  font-size: 16px;
+}
+/* End the table Section */
+/* Style the details container */
+.Details-container-section {
+  padding: 20px;
+}
+/* End the details Container */

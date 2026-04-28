@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32.282" height="30.815" viewBox="0 0 32.282 30.815">
+  <g id="Charger_Installation" data-name="Charger Installation" transform="translate(-390.089 -457.964)">
+    <g id="Rectangle_16" data-name="Rectangle 16" transform="translate(390.089 457.964)" fill="none" stroke="#fff" stroke-width="1">
+      <rect width="32.282" height="30.815" rx="4" stroke="none"/>
+      <rect x="0.5" y="0.5" width="31.282" height="29.815" rx="3.5" fill="none"/>
+    </g>
+    <g id="noun-wallbox-6696476" transform="translate(373.003 451.532)">
+      <g id="Group_36" data-name="Group 36" transform="translate(27.687 12.539)">
+        <path id="Path_40" data-name="Path 40" d="M37.773,12.539H28.657a.96.96,0,0,0-.97.97V23.4a.96.96,0,0,0,.97.97h9.116a.96.96,0,0,0,.97-.97V13.509A.96.96,0,0,0,37.773,12.539Zm-4.546,8.414a2.59,2.59,0,1,1,2.591-2.591A2.591,2.591,0,0,1,33.226,20.953Z" transform="translate(-27.687 -12.539)" fill="#fff"/>
+        <path id="Path_41" data-name="Path 41" d="M46.517,32.891l.283-1.53h-.683l1.53-2-.283,1.53h.683Z" transform="translate(-41.542 -25.183)" fill="#fff"/>
+        <path id="Path_42" data-name="Path 42" d="M43.106,67.094h-1v-.7h1a.351.351,0,1,0,0-.7h-1v-.353h-1.73a.64.64,0,0,0-.65.65v.559h-.813a.377.377,0,0,1-.376-.376V64.5a.958.958,0,1,0-1.916,0v2.667a.377.377,0,0,1-.376.376h-.07a.377.377,0,0,1-.376-.376V62.743h.656a.572.572,0,0,0,.582-.582v-.388h-3.1v.388a.572.572,0,0,0,.582.582h.7v4.426a.96.96,0,0,0,.958.958h.07a.959.959,0,0,0,.958-.958V64.5a.376.376,0,1,1,.753,0v1.664a.959.959,0,0,0,.958.958h.813V67.5a.64.64,0,0,0,.65.65H42.1V67.8h1a.351.351,0,1,0,0-.7Z" transform="translate(-32.38 -49.55)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

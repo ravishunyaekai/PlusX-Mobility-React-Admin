@@ -1,0 +1,23 @@
+.portableChargerContainer {
+  height: 94.3vh;
+  background-color: #f9f9f9;
+  overflow: scroll;
+}
+.portableChargerContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.chargerBookingContainer {
+  background-color: #f9f9f9;
+  padding: 20px 0px;
+}
+.addDriver {
+  width: 24px;
+  cursor: pointer;
+}
+.bookingDetailsSection {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 3rem;
+}

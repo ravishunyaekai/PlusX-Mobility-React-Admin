@@ -1,0 +1,83 @@
+.subHeaderContainer {
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #00b26b;
+}
+
+.headerCharger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.subHeaderButtonSection {
+  display: flex;
+  column-gap: 14px;
+}
+
+.headingList {
+  font-size: 20px;
+  font-weight: 600;
+  color: #00b26b;
+}
+.headCardSection {
+  background-color: #f9f9f9;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  column-gap: 10px;
+  /* border: 1px solid #00b26b;
+  padding: 20px; */
+}
+.headCardNumber {
+  border: 1px solid #00b26b;
+  background-color: #00b26b;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  padding: 5px;
+}
+.headCardText {
+  font-size: 20px;
+  color: #00b26b;
+  font-weight: 600;
+}
+.addButtonSection {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  background-color: #00b26b;
+  border: 2px solid #00b26b !important;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.addButtonSection:hover {
+  background-color: #F9F9F9;
+  /* border: 1px solid #00B26B; */
+  color: #00b26b;
+}
+
+.addButtonSection:hover .addButtonImg img {
+  /* filter: brightness(0) invert(1); */
+  filter: invert(52%) sepia(94%) saturate(527%) hue-rotate(103deg) brightness(96%) contrast(94%);
+}
+
+.addButtonImg img {
+  width: 24px;
+  height: auto;
+}
+
+.addButtonText {
+  font-size: 16px;
+  font-weight: 600;
+}

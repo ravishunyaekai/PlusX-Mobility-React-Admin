@@ -1,0 +1,19 @@
+.dashboard {
+  background-color: #F9F9F9;
+  height: 94.2vh;
+  overflow: scroll;
+}
+.dashboard::-webkit-scrollbar {
+  display: none;
+}
+.row {
+  padding: 20px;
+}
+.mapContainer{
+  border: 2px solid #00B26B;
+  height: 100px !important;
+}
+
+.mapResponsive div {
+  border-radius: 20px !important;
+}

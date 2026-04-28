@@ -1,0 +1,24 @@
+.stationContainer {
+  background-color: #f9f9f9;
+  height: 94.2vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.stationContainer::-webkit-scrollbar {
+  display: none;
+}
+.appSignupSection {
+  background-color: #f9f9f9;
+  height: 94.2vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.appSignupSection::-webkit-scrollbar {
+  display: none;
+}
+.ChargerDetailsSection {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 40px;
+}

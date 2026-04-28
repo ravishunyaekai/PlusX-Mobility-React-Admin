@@ -1,0 +1,169 @@
+.accordionContainer {
+  margin-top: 10px !important;
+  background-color: #fff !important;
+  border: none;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  /* border: 2px solid #00b26b !important; */
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 10px !important;
+  border-radius: 10px !important;
+}
+.accordionCard {
+  background-color: #fff !important;
+  border: none !important;
+}
+.accordionBody {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.1s ease;
+}
+
+.open .accordionBody {
+  max-height: 1000px !important;
+}
+.filterForm {
+  display: flex;
+  justify-content: start;
+  flex-wrap: wrap;
+  color: #000;
+  row-gap: 20px;
+}
+
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  padding: 0px 10px;
+}
+.filterLabel {
+  font-size: 16px;
+}
+.filterInput {
+  /* background-color: #f9f9f9;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid #ffffff;
+  padding: 6px 10px;
+  color: #000;
+  font-size: 14px;
+  cursor: pointer;
+  border: 2px solid #00b26b !important;
+  border-radius: 10px; */
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  width: 100%;
+  border: 2px solid #00b26b;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+}
+.filterSelect {
+  background-color: #f9f9f9;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid #ffffff;
+  padding: 6px 10px;
+  color: #000;
+  font-size: 14px;
+  cursor: pointer;
+  border: 2px solid #00b26b !important;
+  border-radius: 10px;
+}
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 200px;
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 200px;
+    opacity: 1;
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+  }
+}
+
+.slideDown {
+  animation: slideDown 0.3s ease forwards;
+}
+
+.slideUp {
+  animation: slideUp 0.3s ease forwards;
+}
+
+.customSelectWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.customSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 35px;
+  width: 100%;
+  position: relative;
+}
+
+.customSelectWrapper {
+  position: relative;
+}
+
+.customSelectIcon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 18px;
+  color: white;
+  transition: transform 0.3s ease;
+}
+.customSelectWrapper.open .customSelectIcon {
+  transform: translateY(-50%) rotate(180deg);
+}
+/* 
+.accordionBody, .accordionContainer, .yourPanelWrapper {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 0;
+}
+.selectItem {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 0px 10px;
+} */
+
+.accordionBody,
+.accordionContainer {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 0;
+}
+.selectSearch {
+  width: 100%;
+}
+.selectItem {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0px 10px;
+  position: relative;
+  width: 100%;
+}

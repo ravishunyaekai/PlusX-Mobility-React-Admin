@@ -1,0 +1,177 @@
+.invoiceMainContainer {
+  background-color: #f9f9f9;
+  height: 94.3vh;
+  overflow: scroll;
+  padding: 20px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+}
+.invoiceMainContainer::-webkit-scrollbar {
+  display: none;
+}
+.invoiceHeading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #00b26b;
+}
+.invoiceSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+}
+.invoiceDownloadSection {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.downloadButton {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  background-color: #00b26b;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.downloadButton img {
+  width: 20px;
+  height: auto;
+}
+.downloadButton span {
+  font-size: 16px;
+  font-weight: 600;
+}
+.container {
+  border: 2px solid #00b26b;
+  background-color: #fff;
+  padding: 20px;
+  width: 100%;
+  margin: auto;
+}
+
+.table {
+  width: 100% !important;
+  font-size: 16px;
+  color: #000;
+}
+
+.logoSection {
+  width: 60%;
+  vertical-align: baseline;
+}
+
+.logoImage {
+  max-width: 150px;
+  margin-bottom: 20px;
+}
+
+.companyInfo p,
+.billTo p,
+.invoiceDetails p,
+.serviceItem td,
+.totalAmount p {
+  font-size: 16px;
+}
+.serviceHeader th {
+  font-size: 16px;
+  padding: 18px;
+  color: #00b26b;
+}
+.serviceItem td {
+  font-size: 16px;
+  padding: 18px;
+}
+.invoiceTitle {
+  font-size: 38px;
+  line-height: 38px;
+  font-weight: 500;
+  text-align: right;
+}
+.invoiceTitle p {
+  color: #00b26b;
+}
+.bookingId {
+  font-size: 16px;
+  font-weight: bold;
+  text-align: right;
+}
+.bookingId p {
+  color: #000;
+}
+.billTo {
+  width: 40%;
+  padding-right: 20px;
+}
+
+.billToName {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.invoiceDetails {
+  text-align: right;
+}
+
+.serviceHeader {
+  background-color: #f9f9f9;
+  border-radius: 4px !important;
+  color: #00b26b;
+  font-size: 16px;
+  padding: 12px 10px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+}
+
+.serviceItem {
+  border-bottom: 1px solid #5e676f;
+}
+
+.totalAmountLabel {
+  font-size: 16px;
+  margin-bottom: 0px !important;
+  font-weight: bold;
+  color: #00b26b;
+}
+.totalAmountValue {
+  font-size: 16px;
+  margin-bottom: 0px !important;
+  font-weight: bold;
+}
+
+.amountRightAlign {
+  text-align: right;
+}
+
+
+
+/* Ride Invoice details  */
+
+.logoSection {
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.logoImage {
+    height: 60px;
+}
+
+.invoiceBar {
+    background: #10b26c;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 10px !important;
+    margin-top: 10px;
+}
+
+.invoiceText {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.bookingText {
+    font-size: 14px;
+}

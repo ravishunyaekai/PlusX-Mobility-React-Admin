@@ -1,0 +1,79 @@
+@import "rsuite/dist/rsuite.css";
+.rs-picker-popup {
+    top: 246px !important;
+    left: 300px !important;
+    border-radius: 4px !important;
+    border: 2px solid #00b26b;
+}
+.rs-picker-daterange-panel {
+    /* right:-61% !important ;
+     left: 0% !important;
+     top: 246px !important; */
+     background-color: #F9F9F9 !important;
+     color: #000 !important;
+ }
+.rs-btn-link {
+    color: #000 !important;
+    text-decoration: none !important;
+}
+
+.rs-input {
+    width: 17vw !important;
+    background-color: #F9F9F9 !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 16px 10px !important;
+    color: #000 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    /* border: 1px solid #00b26b !important; */
+}
+
+.rs-input-group.rs-input-group-inside {
+    width: 100% !important;
+    background-color: #F9F9F9 !important;
+    border: none !important;
+    border: 2px solid #00b26b !important;
+    outline: none !important;
+    border-radius: 10px !important;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322) !important;
+}
+.rs-calendar-table-cell-content:hover {
+  background-color: #F9F9F9 !important;
+  color: #000 !important;
+}
+.rs-picker-popup .rs-calendar .rs-calendar-table-cell:hover .rs-calendar-table-cell-content {
+    background-color: #00b26b !important;
+    color: #ffffff !important;
+}
+.rs-btn-subtle {
+    background-color: #00b26b !important;
+    color: #ffffff !important;
+}
+.rs-calendar-table-header-cell-content {
+   color: #ffffff !important;
+}
+/* .rs-btn {
+    background-color: #F9F9F9 !important;
+    color: #00b26b !important;
+    border: 2px solid #00b26b;
+} */
+.rs-btn:hover, .rs-btn:focus {
+  color: #fff !important;
+  background-color: #00b26b !important;
+}
+@media(max-width:1700px){
+    .rs-input {
+        width: 16vw !important;
+}
+}
+@media(max-width:1500px){
+    .rs-input {
+        width: 15vw !important;
+    }
+}
+@media(max-width:1250px){
+    .rs-input {
+        width: 100% !important;
+    }
+}

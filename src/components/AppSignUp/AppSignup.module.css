@@ -1,0 +1,43 @@
+.appSignupContainer {
+  background-color: #f9f9f9;
+  height: 94.3vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.appSignupContainer::-webkit-scrollbar {
+  display: none;
+}
+.DetailsMainHeading {
+  color: #00b26b;
+  font-size: 28px;
+  font-weight: 600;
+}
+.appSignupSection {
+  background-color: #f9f9f9;
+  height: 94vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.appSignupSection::-webkit-scrollbar {
+  display: none;
+}
+.bookingDetailsSection {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 1.5rem;
+}
+
+.bookingHeading {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.button {
+  padding: 10px 20px;
+  background-color: #00b26b;
+  color: #fff;
+  border-radius: 10px;
+  border: 2px solid #00b26b !important;
+}
