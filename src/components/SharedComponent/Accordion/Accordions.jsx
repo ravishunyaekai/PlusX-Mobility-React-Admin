@@ -125,7 +125,18 @@ const AccordionFilter = ({ type, isOpen, fetchFilteredData, dynamicFilters, filt
                                                             <CustomDropdown options={filter.options} placeholder={`${filter.label}`} isLoading={isLoading?.[filter.name] || false}
                                                                 value={filter.options.find(option => option.value === filterValues?.[filter.name]) || null}
                                                                 onChange={(selectedOption) => {
-                                                                    const value = selectedOption ? selectedOption.value : "";
+                                                                    
+                                                                    console.log(filter.name)
+                                                                let value = "";
+                                                                    if(selectedOption){
+                                                                             if (filter.name === "station_id") {
+                                                                                value = selectedOption.label;   
+                                                                            } else {
+                                                                                value = selectedOption.value;  
+                                                                            }
+                                                                    }
+                                                                    console.log("line no 136",selectedOption)
+                                                                    // const value = selectedOption ? selectedOption.value : "";
                                                                     handleInputChange({ target: { name: filter.name, value } });
 
                                                                     if (onFilterChange) {
