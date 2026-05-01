@@ -240,6 +240,7 @@ const RideList = () => {
 
         if (newCity && newCity !== oldCity) {
             getStationsByCity(newCity);
+            
         }
 
         setFilters(newFilters);

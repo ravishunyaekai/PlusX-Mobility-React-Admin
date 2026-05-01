@@ -127,15 +127,7 @@ const AccordionFilter = ({ type, isOpen, fetchFilteredData, dynamicFilters, filt
                                                                 onChange={(selectedOption) => {
                                                                     
                                                                     console.log(filter.name)
-                                                                let value = "";
-                                                                    if(selectedOption){
-                                                                             if (filter.name === "station_id") {
-                                                                                value = selectedOption.label;   
-                                                                            } else {
-                                                                                value = selectedOption.value;  
-                                                                            }
-                                                                    }
-                                                                    console.log("line no 136",selectedOption)
+                                                                let value = selectedOption.value;
                                                                     // const value = selectedOption ? selectedOption.value : "";
                                                                     handleInputChange({ target: { name: filter.name, value } });
 
