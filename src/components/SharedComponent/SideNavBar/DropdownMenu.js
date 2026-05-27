@@ -48,4 +48,7 @@ export const menuItems = {
         { id: "universitiesList",  label: "List of Universities",   path: "/mobility/universities/university-list" },
         { id: "studentList",       label: "List of Students",       path: "/mobility/universities/student-list" },
     ],
+     coupon: [
+        { id: "couponList",       label: "List of Coupon",           path: "/coupon/coupon-list/coupon-list" },
+    ],
 };

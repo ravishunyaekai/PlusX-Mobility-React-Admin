@@ -126,11 +126,13 @@ const RideDetails = () => {
     const rideInfoSection = [
         { label: "Pick Up Time",            value: bookingDetails?.cycle_booking?.pick_time || "" },
         { label: "Dropping Time",           value:  bookingDetails?.cycle_booking?.drop_time || "" },
-        // { label: "Handover Type",              value:  bookingDetails?.cycle_booking.handover_type ? bookingDetails?.cycle_booking.handover_type.charAt(0).toUpperCase() + bookingDetails.cycle_booking.handover_type.slice(1)  : "" },
-        { label: "Handover Type",              value:  bookingDetails?.cycle_booking?.handover_type ? bookingDetails.cycle_booking.handover_type.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()): ""},
+        // { label: "Handover Type",        value:  bookingDetails?.cycle_booking.handover_type ? bookingDetails?.cycle_booking.handover_type.charAt(0).toUpperCase() + bookingDetails.cycle_booking.handover_type.slice(1)  : "" },
+        { label: "Handover Type",           value:  bookingDetails?.cycle_booking?.handover_type ? bookingDetails.cycle_booking.handover_type.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()): ""},
         
-        { label: "Total Time",                 value:  bookingDetails?.cycle_booking.time_taken? bookingDetails?.cycle_booking.time_taken+" MIN":"" },
-        { label: "Hand Over Station",  value: bookingDetails?.cycle_booking.handover_station},
+        { label: "Total Time",              value:  bookingDetails?.cycle_booking.time_taken? bookingDetails?.cycle_booking.time_taken+" MIN":"" },
+        { label: "Hand Over Station",       value: bookingDetails?.cycle_booking.handover_station},
+        { label: "Locker Number",           value: bookingDetails?.cycle_booking.lock_number},
+
     ];
     const ManualAdminBookingFields = [
         { 

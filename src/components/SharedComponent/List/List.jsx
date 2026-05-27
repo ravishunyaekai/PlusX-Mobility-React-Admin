@@ -320,6 +320,20 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                             )} */}
                                         </>
                                     )}
+                                    
+                                    { pageHeading === "List of Coupon" && (
+                                        <>
+                                            { access.includes('view') &&  (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/coupon/coupon-list/coupon-details', data.coupon_id)} />
+                                            )}
+                                            { access.includes('edit') && (
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/coupon/coupon-list/edit-coupon', data.coupon_id)} />
+                                            )}
+                                            {/* { access.includes('delete') && (
+                                                <img src={Delete} alt='delete' onClick={() => onDeleteSlot(data.cycle_id)} />
+                                            )} */}
+                                        </>
+                                    )}
 
                                 </div>
                             </td>

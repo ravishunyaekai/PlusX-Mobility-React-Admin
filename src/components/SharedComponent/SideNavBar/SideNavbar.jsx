@@ -89,9 +89,23 @@ const SideNavbar = () => {
                 ? prevState.signupList : { activeUser: false, deletedUser: false },
             mobilityStation: location.pathname.includes("/mobility/mobility-station")
                 ? prevState.mobilityStation : { staionList: false, cycleList : false },
-            riderList: location.pathname.includes("/mobility/ride") 
-                ? prevState.riderList : { rideList : false, failedRiding : false, invoiceList : false, issueList : false },
-            universities: location.pathname.includes("/mobility/universities") 
+            // riderList: location.pathname.includes("/mobility/ride") 
+            //     ? prevState.riderList : { rideList : false, failedRiding : false, invoiceList : false, issueList : false },
+            riderList: location.pathname.includes("/mobility/ride")
+                ? {
+                    rideList      : location.pathname.includes("/mobility/ride/ride-booking-list"),
+                    failedRiding  : location.pathname.includes("/mobility/ride/ride-incomplete-booking-list"),
+                    invoiceList   : location.pathname.includes("/mobility/ride/ride-invoice-list"),
+                    issueList     : location.pathname.includes("/mobility/ride/support-request-list"),
+                }
+                : {
+                    rideList: false,
+                    failedRiding: false,
+                    invoiceList: false,
+                    issueList: false,
+                },
+
+             universities: location.pathname.includes("/mobility/universities") 
                 ? prevState.universities : { universitiesList : false, studentList : false },
         }));
         const dropdownPaths = [
@@ -249,6 +263,14 @@ const SideNavbar = () => {
                                 toggleDropdown={toggleDropdown}
                                 checkedItems={checkedItems.universities}
                             />
+                            {/* <SidebarDropdown
+                                menuName="Coupon"
+                                menuItems={menuItems.coupon}
+                                openDropdown={openDropdown}
+                                handleItemClick={(id, e) => handleItemClicked("coupon", id, e)}
+                                toggleDropdown={toggleDropdown}
+                                checkedItems={checkedItems.coupon}
+                            /> */}
                             {/* <SideBarLinkItem label="Coupon" path="/mobility/coupon" isActive={isActive("/mobility/coupon")} /> */}
                         </>
                     )}
