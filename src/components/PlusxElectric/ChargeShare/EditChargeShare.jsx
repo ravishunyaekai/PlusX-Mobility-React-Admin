@@ -388,7 +388,11 @@ const handledays = (selectedOptions) =>{
                         navigate('/electric/charge-share/charge-share-list');
                     }, 1000);
                 } else {
-                    toast(response.message || response.message[0], {type:'error'})
+           toast.error(
+            response.message?.[0] ||
+            response.message ||
+            'Something went wrong'
+        );
                     console.log('Error in charge-share-edit:', response);
                     setLoading(false);
                 }
@@ -515,6 +519,15 @@ const handledays = (selectedOptions) =>{
                     }, 1000)
 
               
+            }else{
+
+                toast.error(
+                    response.message?.[0] ||
+                    response.message ||
+                    'Something went wrong'
+                );
+
+                setLoading(false);
             }
         
         })

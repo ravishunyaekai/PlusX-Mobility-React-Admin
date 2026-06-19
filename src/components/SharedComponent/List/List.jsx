@@ -6,7 +6,7 @@ import View from '../../../assets/images/ViewEye.svg'
 import { useNavigate } from 'react-router-dom';
 import { statusMapping } from '../../../utils/statusMapping';
 
-const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteSlot }) => {
+const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteSlot, handleApprove }) => {
     const userDetails  = JSON.parse(sessionStorage.getItem('userDetails')); 
     const departmentId = userDetails.departmentId;
     const navigate         = useNavigate();
@@ -143,6 +143,29 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                                 <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/drivers/edit-driver', data.rsa_id)} />
                                             )}
                                         </>
+                                    )}
+
+                            { pageHeading === 'Refund Request List' && (
+                                        data.status?.toLowerCase() !== 'approved' ? (
+                                            <button
+                                                className={styles.approveBtn}
+                                                style={{
+                                                    border: "1px solid #00C16E",
+                                                    color: "#00C16E",
+                                                    background: "#fff",
+                                                    padding: "4px 10px",
+                                                    borderRadius: "6px",
+                                                    cursor: "pointer",
+                                                    fontSize: "12px",
+                                                    fontWeight: "500"
+                                                }}
+                                                onClick={() => handleApprove(data.id)}
+                                            >
+                                                ✓ Approve
+                                            </button>
+                                        ) : (
+                                            "-"
+                                        )
                                     )}
 
                                     { pageHeading === 'Ev Road Assistance Invoice List' && (

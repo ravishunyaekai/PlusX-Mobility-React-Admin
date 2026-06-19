@@ -43,6 +43,7 @@ export const menuItems = {
         { id: "failedRiding",   label: "Incomplete Bookings", path: "/mobility/ride/ride-incomplete-booking-list" },
         { id: "invoiceList",    label: "Invoices",    path: "/mobility/ride/ride-invoice-list" },
         { id: "issueList",      label: "Support Request",      path: "/mobility/ride/support-request-list" },
+        { id: "refundList",     label: "Refund Request",       path: "/mobility/ride/refund-requests-list" },
     ],
     universities: [
         { id: "universitiesList",  label: "List of Universities",   path: "/mobility/universities/university-list" },

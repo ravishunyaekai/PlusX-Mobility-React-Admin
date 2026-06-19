@@ -8,6 +8,8 @@ import AppSignUpImage from "../../../assets/images/DashboardCardIcons/Total App 
 import NoOfRides from "../../../assets/images/DashboardCardIcons/NoOfRide.svg";
 import Stations from "../../../assets/images/DashboardCardIcons/TotalNoOfStation.svg";
 import Support from "../../../assets/images/DashboardCardIcons/Support.svg";
+import Customer from "../../../assets/images/DashboardCardIcons/download.svg";
+
 // import ChargerInstallationImage from "../../../assets/images/DashboardCardIcons/Charger Installation.svg";
 // import EVRiderClubImage from "../../../assets/images/DashboardCardIcons/EV Rider Club.svg";
 // import EVSpecializedShopsImage from "../../../assets/images/DashboardCardIcons/EV Specialized Shops.svg";
@@ -25,14 +27,16 @@ import Support from "../../../assets/images/DashboardCardIcons/Support.svg";
 // import PODBooking from "../../../assets/images/DashboardCardIcons/POD Booking.svg";
 // import PublicChargersImage from "../../../assets/images/DashboardCardIcons/Total Public Chargers.svg";
 // import TotalRegisterYourInterestImage from "../../../assets/images/DashboardCardIcons/Total Register Your Intrest.svg";
-
 const DashboardCard = ({ details }) => {
+    
     const dispatch = useDispatch();
     const activeCardIndex = useSelector((state) => state.dashboard.activeCardIndex);
 
     const handleCardClick = (index) => {
         dispatch(setActiveCardIndex(index));
     };
+        console.log("Dashboard Details =>", details);
+
     const cardData = [
         {
             icon  : AppSignUpImage,
@@ -50,15 +54,22 @@ const DashboardCard = ({ details }) => {
             title : "No. On Going Rides",
             route : "/mobility/ride/ride-booking-list",
         }, {
-            icon  : Support,
-            count : details?.find((item) => item.module === "No Of Support")?.count || 0,
-            title : "No. Of Support Request",
-            route : "/mobility/ride/support-request-list",
-        },  {
             icon  : NoOfRides,
             count : details?.find((item) => item.module === "Incomplete Booking")?.count || 0,
             title : "No. Incomplete Booking",
             route : "/mobility/ride/ride-incomplete-booking-list",
+        }, 
+         {
+            icon  : Support,
+            count : details?.find((item) => item.module === "No Of Support")?.count || 0,
+            title : "No. Of Support Request",
+            route : "/mobility/ride/support-request-list",
+        }, 
+         {
+            icon  : Customer,
+            count : details?.find((item) => item.module === "No Of Customer")?.count || 0,
+            title : "No. Of Customer Request",
+            route : "/mobility/ride/refund-requests-list",
         }, 
     ];
     return (

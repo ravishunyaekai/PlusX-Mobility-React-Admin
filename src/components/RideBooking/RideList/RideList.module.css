@@ -22,7 +22,26 @@
   padding: 20px;
   gap: 2rem;
 }
- 
+.feedbackTag{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 90px;
+  height: 32px;
+
+  padding: 0 12px;
+  margin-top: 8px;
+
+  border: 1px solid #CFE8D9;
+  border-radius: 6px; /* oval nahi */
+
+  background: #FFFFFF;
+
+  color: #00C16E;
+  font-size: 12px;
+  font-weight: 500;
+}
 .mobilityContainer {
   padding: 20px;
   display: grid;
@@ -77,7 +96,72 @@
   padding-bottom: 10px;
   border-bottom: 1px solid #e8e8e8;
 }
- 
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modalContainer {
+    width: 650px;
+    background: #fff;
+    border: 2px solid #00C16E;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.modalTitle {
+    color: #00C16E;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.descriptionInput {
+    width: 100%;
+    min-height: 120px;
+    border: 2px solid #00C16E;
+    border-radius: 10px;
+    padding: 12px;
+    outline: none;
+    resize: none;
+    font-size: 16px;
+}
+
+.buttonSection {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.closeBtn {
+    min-width: 100px;
+    height: 42px;
+    border: 2px solid #00C16E;
+    background: #fff;
+    color: #00C16E;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.submitBtn {
+    min-width: 100px;
+    height: 42px;
+    border: none;
+    background: #00C16E;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+}
 .completeIcon {
   width: 34px;
   height: 34px;
@@ -176,6 +260,41 @@
   cursor: not-allowed;
 }
  
+.pendingStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 12px;
+  border: 1px solid #F5C26B;
+  border-radius: 4px;
+
+  background: #FFF;
+  color: #F5A623;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* .approvedStatus {
+  background: #E8F5E9;
+  color: #2E7D32;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+} */
+/* 
+.approveBtn {
+  border: 1px solid #00C16E !important;
+  color: #00C16E !important;
+  background: #fff !important;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+} */
+
 @media (max-width: 768px) {
   .actionButtons {
     flex-direction: column;

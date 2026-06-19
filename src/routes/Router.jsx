@@ -47,6 +47,10 @@ import InvoiceList from "../components/RideBooking/RideList/InvoiceList.jsx";
 import RideInvoiceDetails from "../components/RideBooking/Invoice/InvoiceDetails.jsx";
 import SupportRequestList from "../components/RideBooking/RideList/SupportRequestList.jsx"; 
 import SupportRequestDetails from "../components/RideBooking/RideDetails/SupportRequestDetails.jsx";
+import RefundRequestList from "../components/RideBooking/RideList/RefundRequestList.jsx"; 
+import RefundRequestDetails from "../components/RideBooking/RideDetails/RefundRequestDetails.jsx";
+
+
 
 // University
 import University from "../components/University/index.jsx";
@@ -294,7 +298,10 @@ const router = createBrowserRouter([
                     }, {
                         path: "support-request-details/:bookingId",
                         element: <SupportRequestDetails />,
-                    },
+                    }, {
+                        path: "refund-requests-list",
+                        element: <RefundRequestList />,
+                    }, 
                 ],
             },
             // University  

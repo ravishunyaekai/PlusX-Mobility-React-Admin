@@ -97,12 +97,14 @@ const SideNavbar = () => {
                     failedRiding  : location.pathname.includes("/mobility/ride/ride-incomplete-booking-list"),
                     invoiceList   : location.pathname.includes("/mobility/ride/ride-invoice-list"),
                     issueList     : location.pathname.includes("/mobility/ride/support-request-list"),
+                    refundList    : location.pathname.includes("/mobility/ride/refund-requests-list"),
                 }
                 : {
                     rideList: false,
                     failedRiding: false,
                     invoiceList: false,
                     issueList: false,
+                    refundList: false,
                 },
 
              universities: location.pathname.includes("/mobility/universities") 

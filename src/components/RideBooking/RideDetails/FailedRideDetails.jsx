@@ -57,13 +57,15 @@ const FailedRideDetails = () => {
         });
     };
     const getStations = () => {
+        console.log("GET STATION CALLED");
         const userObj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
-            cycle_id: "cycleId",
-            latitude: bookingDetails?.cycle_booking.start_lat,
-            longitude: bookingDetails?.cycle_booking.start_long,
+            cycle_id: bookingDetails?.cycle_booking?.cycle_id,
+            latitude: bookingDetails?.cycle_booking?.start_lat,
+            longitude: bookingDetails?.cycle_booking?.start_long,
         };
+        
         setLoadingStation(true);
         postRequestWithToken('station-list-locker-assign', userObj, (response) => {
             if (response.code === 200) {

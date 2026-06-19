@@ -73,9 +73,10 @@ const RideList = () => {
     const [scheduleFilters, setScheduleFilters] = useState({ start_date: null, end_date: null });
     const [areaSelected, setAreaSelected] = useState('');
     const [rowSelected, setARowSelected] = useState(10);
+
     const [stationOption, setStationOption] = useState([]);
     const [lockerOption, setLockerOption] = useState([]);
-
+    const [selectedBooking, setSelectedBooking] = useState(null);
     // Modal Form States
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -134,26 +135,47 @@ const RideList = () => {
     };
 
     const getStations = () => {
+
+        console.log("selectedBooking", selectedBooking);
+
         const userObj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
-            cycle_id: cycleId,
+            cycle_id: selectedBooking?.cycle_id,
+            latitude: Number(selectedBooking?.start_lat),
+            longitude: Number(selectedBooking?.start_long),
         };
+
+        console.log("PAYLOAD", userObj);
+
         setLoadingStation(true);
-        postRequestWithToken('station-list-locker-assign', userObj, (response) => {
-            if (response.code === 200) {
-                const stationsList = (response?.data || []).map(item => ({
-                    label: item.station_name,
-                    value: item.station_id,
-                    city_id: item.city_id
-                }));
-                setStationOption(stationsList);
-                setLoadingStation(false);
-            } else {
-                console.log('error in station-list-locker-assign API', response);
+
+        postRequestWithToken(
+            'station-list-locker-assign',
+            userObj,
+            (response) => {
+
+                if (response.code === 200) {
+
+                    const stationsList = (response?.data || []).map(item => ({
+                        label: item.station_name,
+                        value: item.station_id,
+                        city_id: item.city_id
+                    }));
+
+                    setStationOption(stationsList);
+
+                } else {
+
+                    console.log(
+                        'error in station-list-locker-assign API',
+                        response
+                    );
+                }
+
                 setLoadingStation(false);
             }
-        });
+        );
     };
 
     const getLockers = () => {
@@ -252,13 +274,20 @@ const RideList = () => {
         setCurrentPage(1);
     };
     const openModal = (item) => {
+
+        console.log("SELECTED ITEM", item);
+
+        setSelectedBooking(item);
+
         setCycleId(item.cycle_id);
         setBookingId(item.booking_id);
+
         setForm({
             cycle_id: item.cycle_id || "",
             station_id: item.station_id || null,
             lock_number: item.lock_number || null,
         });
+
         setIsModalOpen(true);
     };
     const closeModal = () => {
@@ -319,7 +348,29 @@ const RideList = () => {
                             listData={chargerBookingList}
                             keyMapping={[
                                 { key: 'created_at', label: 'Date & Time', format: (date) => moment(date).format('DD MMM YYYY') },
-                                { key: 'booking_id', label: 'BOOKING ID' },
+                                {
+                                    key: 'booking_id',
+                                    label: 'BOOKING ID',
+                                    relatedKeys: ['rating'],
+                                    format: (data) => (
+                                        <>
+                                            {data.booking_id}
+                                            {data.rating > 0 && (
+                                                <span
+                                                title={`Rating: ${data.rating}`}
+                                                style={{
+                                                    marginLeft: "6px",
+                                                    fontSize: "16px",
+                                                    cursor: "pointer"
+                                                }}
+                                                >
+                                                ⭐
+                                                </span>
+                                            )}
+                                        </>
+                                    )
+                                },                       
+                                   
                                 { key: 'user_name', label: 'Customer Name' },
                                 { key: 'station_name', label: 'Station Name' },
                                 { key: 'handover_type', label: 'Handover Type', format: (value) => value ? value.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : '-' },

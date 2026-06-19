@@ -113,7 +113,27 @@ const RideDetails = () => {
         { label: 'Rider Name',  icon: profile,  value: bookingDetails?.cycle_booking.user_name },
         { label: 'Mobile No.',  icon: mobile,   value: `${bookingDetails?.cycle_booking.country_code ?bookingDetails?.cycle_booking.country_code :"+91"} ${bookingDetails?.cycle_booking.contact_no}` },
         { label: 'City',        icon: city,     value: bookingDetails?.cycle_booking.city },
-    ];
+        ...(bookingDetails?.cycle_booking?.rating
+                ? [{
+                    label: 'Rating',
+                    icon: contact,
+                    value: (
+                        <div>
+                            <div>
+                                {`${"⭐".repeat(bookingDetails.cycle_booking.rating)} (${bookingDetails.cycle_booking.rating}/5)`}
+                            </div>
+
+                            {bookingDetails?.cycle_booking?.feedback_text && (
+                                <div className={styles.feedbackTag}>
+                                    {bookingDetails.cycle_booking.feedback_text.replaceAll(',', ', ')}
+                                </div>
+                            )}
+                        </div>
+                    )
+                }]
+                : [])
+        ];
+
 
     const userInfoSection = [
         { label: "Pick Up Station",   value: bookingDetails?.cycle_booking.pickup_station},
