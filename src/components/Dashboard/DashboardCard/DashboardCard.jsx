@@ -67,8 +67,8 @@ const DashboardCard = ({ details }) => {
         }, 
          {
             icon  : Customer,
-            count : details?.find((item) => item.module === "No Of Customer")?.count || 0,
-            title : "No. Of Customer Request",
+            count : details?.find((item) => item.module === "No Of Refund")?.count || 0,
+            title : "No. of Refund Requests.",
             route : "/mobility/ride/refund-requests-list",
         }, 
     ];

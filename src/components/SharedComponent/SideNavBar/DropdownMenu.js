@@ -5,6 +5,7 @@ export const menuItems = {
         { id: "homeChargerBooking", label: "Charger Bookings",   path: "/electric/home-charger/charger-booking-list" },
         { id: "invoiceList",        label: "Invoice List",      path: "/electric/home-charger/charger-booking-invoice-list" },
         { id: "timeSlot",           label: "Time Slot",         path: "/electric/home-charger/charger-booking-time-slot-list" },
+        { id: "chargingpackage",    label: "charging Packages", path: "/electric/home-charger/charging-package-list" },
         { id: "deviceList",         label: "Device List",       path: "/electric/home-charger/device-list" },
         // { id: "areaList",           label: "Area List",         path: "/electric/home-charger/area-list" },
         { id: "failedList",         label: "Failed Booking",    path: "/electric/home-charger/failed-booking-list" },

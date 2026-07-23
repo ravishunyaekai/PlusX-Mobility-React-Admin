@@ -146,6 +146,7 @@ import EditPortableChargerTimeSlot from "../components/PlusxElectric/HomeCharger
 import EditPortableCharger from "../components/PlusxElectric/HomeCharger/ChargerList/EditCharger.jsx";
 import CustomerChargerBookingList from "../components/PlusxElectric/HomeCharger/ChargerBooking/CustomerChargerBookingList.js";
 import ChargerBookingList from "../components/PlusxElectric/HomeCharger/ChargerBooking/ChargerBookingList.js";
+import ChargingPackageList from "../components/PlusxElectric/HomeCharger/ChargingPackages/packageList.jsx";
 import ChargerBookingInvoiceList from "../components/PlusxElectric/HomeCharger/InvoiceList/InvoiceList.js";
 import PortableChargerTimeSlotList from "../components/PlusxElectric/HomeCharger/TimeSlotLIst/PortableChargerTimeSlotList.js";
 import AddPortableChargerTimeSlot from "../components/PlusxElectric/HomeCharger/TimeSlotLIst/AddTimeSlot.jsx";
@@ -448,6 +449,10 @@ const router = createBrowserRouter([
                     {
                         path: "charger-booking-invoice-list",
                         element: <ChargerBookingInvoiceList />,
+                    },
+                    {
+                        path: "charging-package-list",
+                        element: <ChargingPackageList />,
                     },
                     {
                         path: "charger-booking-time-slot-list",
