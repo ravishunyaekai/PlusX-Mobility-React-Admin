@@ -190,7 +190,8 @@ const handleApprove = (refundRequestId) => {
                                 { key: 'user_name', label: 'Customer Name' },
                                 { key: 'contact_no', label: 'Mobile No.' },
 
-                                { key: 'requested_amount', label: 'Refundable Amount' },
+                                // { key: 'requested_amount', label: 'Refundable Amount' },
+                                { key: 'refund_amount', label: 'Refundable Amount' },
                                 {
                                 key: 'status',
                                 label: 'Status',
