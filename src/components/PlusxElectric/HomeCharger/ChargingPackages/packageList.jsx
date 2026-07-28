@@ -25,40 +25,12 @@ const ChargingPackageList = () => {
     const [refresh, setRefresh] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    //     const initialForm = {
-    //     package_name: "",
-    //     charging_capacity: "",
-    //     price_per_unit: "",
-    //     service_fee: ""
-    // };
+    const [enableForm, setEnableForm] = useState(false);
 
-    // const [formData, setFormData] = useState(initialForm);
-    // const [editingId, setEditingId] = useState(null);
-
-    // const handleEdit = (row) => {
-    //     setEditingId(row.package_id);
-
-    //     setFormData({
-    //         package_name: row.package_name,
-    //         charging_capacity: row.charging_capacity,
-    //         price_per_unit: row.price_per_unit,
-    //         service_fee: row.service_fee,
-    //     });
-
-    //     window.scrollTo({
-    //         top: document.body.scrollHeight,
-    //         behavior: "smooth",
-    //     });
-    // };
     const handleEdit = (row) => {
-        console.log("Row =>", row);
-
+        setEnableForm(true);
         setEditingData(row);
-
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth",
-        });
+        window.scrollTo({ top : document.body.scrollHeight, behavior : "smooth" });
     };
     const searchTerm = [
         {
@@ -68,16 +40,12 @@ const ChargingPackageList = () => {
         }
     ]
     const addButtonProps = {
-        heading: "Add New Package",
+        heading : "Add New Package",
+        // link    : "/electric/home-charger/add-package"
         onClick: () => {
-
+            setEnableForm(true);
             setEditingData(null);
-
-            window.scrollTo({
-                top: document.body.scrollHeight,
-                behavior: "smooth"
-            });
-
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
         }
     };
     const fetchPackages = (page, appliedFilters = {}) => {
@@ -86,14 +54,12 @@ const ChargingPackageList = () => {
         } else {
             setLoading(true);
         }
-
         const obj = {
-            userId: userDetails?.user_id,
-            email: userDetails?.email,
-            page_no: page,
+            userId  : userDetails?.user_id,
+            email   : userDetails?.email,
+            page_no : page,
             ...appliedFilters,
         };
-
         postRequestWithToken('charging-package-list', obj, (response) => {
             if (response.code === 200) {
                 setChargerList(response?.data || []);
@@ -122,9 +88,6 @@ const ChargingPackageList = () => {
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
-
-
-
     const handleDeleteSlot = (packageId) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this?");
 
@@ -152,19 +115,19 @@ const ChargingPackageList = () => {
 
     return (
         <div className='main-container'>
-<SubHeader
-    heading="Home EV Charging Package List"
-    addButtonProps={addButtonProps}
-    filterValues={filters}
-    fetchFilteredData={fetchFilteredData}
-    searchTerm={searchTerm}
-    count={totalCount}
-    hideSearch={true}
-    hideFilter={true}
-/>
+            <SubHeader
+                heading="Home EV Charging Package List"
+                addButtonProps={addButtonProps}
+                filterValues={filters}
+                fetchFilteredData={fetchFilteredData}
+                searchTerm={searchTerm}
+                count={totalCount}
+                hideSearch={true}
+                hideFilter={true}
+            />
             <ToastContainer />
 
-            {loading ? <Loader /> :
+            { loading ? <Loader /> :
                 chargerList.length === 0 ? (
                     <EmptyList
                         tableHeaders={["Package Name", "Charging Capacity(KW)", "Price Per Unit", "Service Fee", "Status", "Action"]}
@@ -223,15 +186,18 @@ const ChargingPackageList = () => {
                                 }
                             ]}
                         />
-                        <AddEditChargingPackage
-                            editingData={editingData}
-                            userDetails={userDetails}
-                            refreshList={() => setRefresh(prev => !prev)}
-                            clearEdit={() => setEditingData(null)}
-                        />
                         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
                     </>
-                )}
+                )
+            }
+            { enableForm && (
+                <AddEditChargingPackage
+                    editingData={editingData}
+                    userDetails={userDetails}
+                    refreshList={() => setRefresh(prev => !prev)}
+                    clearEdit={() => setEditingData(null)}
+                />
+            )}
         </div>
     );
 };

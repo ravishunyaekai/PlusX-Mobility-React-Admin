@@ -108,12 +108,21 @@ const SubHeader = ({ heading, fetchFilteredData, dynamicFilters, filterValues, a
                 )}
                 <div className={styles.subHeaderButtonSection}>
                     {shouldShowAddButton && (
-                        (heading === "Brands") ? (
+                        ( heading === "Brands") ? (
                             <div className={styles.addButtonSection} onClick={handleAddClick}>
                                 <div className={styles.addButtonImg}>
                                     <img src={Plus} alt='plus' />
                                 </div>
                                 <div className={styles.addButtonText}>{addButtonProps?.heading}</div>
+                            </div>
+                        ) :  heading === "Home EV Charging Package List" ? (
+                            <div className={styles.addButtonSection} onClick={addButtonProps?.onClick}>
+                                <div className={styles.addButtonImg}>
+                                    <img src={Plus} alt="plus" />
+                                </div>
+                                <div className={styles.addButtonText}>
+                                    {addButtonProps?.heading}
+                                </div>
                             </div>
                         ) : (
                             <Link to={addButtonProps?.link}>

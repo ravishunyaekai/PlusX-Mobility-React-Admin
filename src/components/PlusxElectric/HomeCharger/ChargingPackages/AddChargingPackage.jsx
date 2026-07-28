@@ -123,32 +123,22 @@ const AddEditChargingPackage = ({
 
     };
     const handleCancel = () => {
-
         clearEdit();
-
         setFormData({
-            package_name: "",
-            charging_capacity: "",
-            price_per_unit: "",
-            service_fee: "",
+            package_name      : "",
+            charging_capacity : "",
+            price_per_unit    : "",
+            service_fee       : "",
         });
-
         setErrors({});
     };
     return (
         <div className={styles.packageCard}>
-
             <h3 className={styles.heading}>Add / Edit Package</h3>
-
             <form onSubmit={handleSubmit}>
-
                 <div className="row">
-
                     <div className="col-lg-3">
-                        <label className={styles.labelText}>
-                            Package Name <span>*</span>
-                        </label>
-
+                        <label className={styles.labelText}> Package Name <span>*</span> </label>
                         <input
                             type="text"
                             className={styles.inputField}
@@ -161,13 +151,10 @@ const AddEditChargingPackage = ({
                                 })
                             }
                         />
+                        { (errors.package_name && formData.package_name == "") && <span className="error">{errors.package_name}</span>}
                     </div>
-
                     <div className="col-lg-3">
-                        <label className={styles.labelText}>
-                            Charging Capacity (kW) <span>*</span>
-                        </label>
-
+                        <label className={styles.labelText}> Charging Capacity (kW) <span>*</span> </label>
                         <input
                             type="text"
                             className={styles.inputField}
@@ -180,13 +167,10 @@ const AddEditChargingPackage = ({
                                 })
                             }
                         />
+                        { (errors.charging_capacity && formData.charging_capacity == "") && <span className="error">{errors.charging_capacity}</span>}
                     </div>
-
                     <div className="col-lg-3">
-                        <label className={styles.labelText}>
-                            Price per unit (₹) <span>*</span>
-                        </label>
-
+                        <label className={styles.labelText}> Price per unit (₹) <span>*</span> </label>
                         <input
                             type="text"
                             className={styles.inputField}
@@ -199,13 +183,10 @@ const AddEditChargingPackage = ({
                                 })
                             }
                         />
+                        { (errors.price_per_unit && formData.price_per_unit == "") && <span className="error">{errors.price_per_unit}</span>}
                     </div>
-
                     <div className="col-lg-3">
-                        <label className={styles.labelText}>
-                            Service Fee (₹) <span>*</span>
-                        </label>
-
+                        <label className={styles.labelText}> Service Fee (₹) <span>*</span> </label>
                         <input
                             type="text"
                             className={styles.inputField}
@@ -218,32 +199,16 @@ const AddEditChargingPackage = ({
                                 })
                             }
                         />
+                        { (errors.service_fee && formData.service_fee == "") && <span className="error">{errors.service_fee}</span>}
                     </div>
-
                 </div>
-
                 <div className={styles.buttonSection}>
-                    <button
-                        type="button"
-                        className={styles.cancelBtn}
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </button>
-
-                    <button
-                        type="submit"
-                        className={styles.saveBtn}
-                        disabled={loading}
-                    >
-                        {loading
-                            ? "Saving..."
-                            : editingData
-                                ? "Update Package"
-                                : "Save Package"}
+                    <button type="button" className={styles.cancelBtn} onClick={handleCancel}> Cancel </button>
+                    <button type="submit" className={styles.saveBtn} disabled={loading} >
+                        { loading ? "Saving..." : "Save Package" }
+                        {/* editingData ? "Update Package" :  */}
                     </button>
                 </div>
-
             </form>
 
         </div>

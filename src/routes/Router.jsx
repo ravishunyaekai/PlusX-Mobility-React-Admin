@@ -450,10 +450,7 @@ const router = createBrowserRouter([
                         path: "charger-booking-invoice-list",
                         element: <ChargerBookingInvoiceList />,
                     },
-                    {
-                        path: "charging-package-list",
-                        element: <ChargingPackageList />,
-                    },
+                    
                     {
                         path: "charger-booking-time-slot-list",
                         element: <PortableChargerTimeSlotList />,
@@ -513,6 +510,10 @@ const router = createBrowserRouter([
                     {
                         path: "failed-charger-booking-details/:bookingId",
                         element: <FailedBookingDetails />,
+                    },
+                    {
+                        path: "charging-package-list",
+                        element: <ChargingPackageList />,
                     },
                     // End Pod Device Route  
                 ],
