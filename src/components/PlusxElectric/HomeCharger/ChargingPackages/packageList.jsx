@@ -193,6 +193,8 @@ const ChargingPackageList = () => {
             { enableForm && (
                 <AddEditChargingPackage
                     editingData={editingData}
+                    enableForm={enableForm} 
+                    setEnableForm={setEnableForm}
                     userDetails={userDetails}
                     refreshList={() => setRefresh(prev => !prev)}
                     clearEdit={() => setEditingData(null)}
