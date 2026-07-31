@@ -10,11 +10,11 @@ const Invoice = ({ title, service, details }) => {
     const handleDownload = () => {
         const invoiceElement = document.getElementById('invoiceToDownload');
         const options = {
-            margin:       0.5,
-            filename:     'Invoice.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas : { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            margin: 0.5,
+            filename: 'Invoice.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
         html2pdf().set(options).from(invoiceElement).save();
     };
@@ -36,13 +36,13 @@ const Invoice = ({ title, service, details }) => {
                                 <td colSpan="2">
                                     <table>
                                         <tr>
-                                            <td className={styles.logoSection}>
+                                            <td className={title == 'Home Charger Invoice Details' ? styles.logoSection2 : styles.logoSection}>
                                                 <img src={logo} alt="company logo" className={styles.logoImage} />
                                                 <p>D55-PBU</p>
                                                 <p>DUBAI PRODUCTION CITY</p>
                                                 <p>Dubai-United Arab Emirates</p>
                                                 <p>+971 54279 6424</p>
-                                               
+
                                             </td>
                                             <td className={styles.invoiceTitle}>
                                                 <p>INVOICE</p>
@@ -75,9 +75,9 @@ const Invoice = ({ title, service, details }) => {
                                 </td>
                             </tr>
                             <tr>
-                                { title == 'Pick And Drop Invoice Details' && (
+                                {title == 'Pick And Drop Invoice Details' && (
                                     <td colSpan="2">
-                                        <table style={{ width: '100%', borderSpacing: 0, marginTop:"16px" }}>
+                                        <table style={{ width: '100%', borderSpacing: 0, marginTop: "16px" }}>
                                             <thead>
                                                 <tr className={styles.serviceHeader}>
                                                     <th>Item Name</th>
@@ -87,13 +87,13 @@ const Invoice = ({ title, service, details }) => {
                                             <tbody>
                                                 <tr className={styles.serviceItem}>
                                                     <td>{service}</td>
-                                                    <td className={styles.amountRightAlign}>{details?.currency?.toUpperCase() || 'INR'} { details?.servicePrice.toFixed(2) || 39}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.currency?.toUpperCase() || 'INR'} {details?.servicePrice.toFixed(2) || 39}</td>
                                                 </tr>
                                                 <tr className={styles.serviceItem}>
                                                     <td>VAT 5%</td>
                                                     <td className={styles.amountRightAlign}>{details?.t_vat_amt.toFixed(2)}</td>
                                                 </tr>
-                                                { details?.dis_price > 0 && (
+                                                {details?.dis_price > 0 && (
                                                     <tr className={styles.serviceItem}>
                                                         <td>Coupon </td>
                                                         <td className={styles.amountRightAlign}>{details?.dis_price.toFixed(2)}</td>
@@ -103,9 +103,9 @@ const Invoice = ({ title, service, details }) => {
                                         </table>
                                     </td>
                                 )}
-                                { ( title == 'Portable Charger Invoice Details' || title == 'Road Assistance Invoice Details' ) && (
+                                {(title == 'Portable Charger Invoice Details' || title == 'Road Assistance Invoice Details') && (
                                     <td colSpan="2">
-                                        <table style={{ width: '100%', borderSpacing: 0, marginTop:"16px" }}>
+                                        <table style={{ width: '100%', borderSpacing: 0, marginTop: "16px" }}>
                                             <thead>
                                                 <tr className={styles.serviceHeader}>
                                                     <th>Item Name</th>
@@ -127,14 +127,14 @@ const Invoice = ({ title, service, details }) => {
                                                     <td>{details?.kw.toFixed(2)}</td>
                                                     <td className={styles.amountRightAlign}>{details?.kw_cpo_amt.toFixed(2)}</td>
                                                 </tr>
-                                                
+
                                                 <tr className={styles.serviceItem}>
                                                     <td>Delivery Charge</td>
                                                     <td></td>
                                                     <td></td>
                                                     <td className={styles.amountRightAlign}>{details?.delv_charge.toFixed(2)}</td>
                                                 </tr>
-                                                { details?.current_percent == 0 && (
+                                                {details?.current_percent == 0 && (
                                                     <tr className={styles.serviceItem}>
                                                         <td>Jump Start </td>
                                                         {/* ({details?.discount+'%'}) */}
@@ -149,7 +149,7 @@ const Invoice = ({ title, service, details }) => {
                                                     <td></td>
                                                     <td className={styles.amountRightAlign}>{details?.t_vat_amt.toFixed(2)}</td>
                                                 </tr>
-                                                { details?.dis_price > 0 && (
+                                                {details?.dis_price > 0 && (
                                                     <tr className={styles.serviceItem}>
                                                         <td>Coupon </td>
                                                         {/* ({details?.discount+'%'}) */}
@@ -158,6 +158,71 @@ const Invoice = ({ title, service, details }) => {
                                                         <td className={styles.amountRightAlign}>{details?.dis_price.toFixed(2)}</td>
                                                     </tr>
                                                 )}
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                )}
+                                {title === "Home Charger Invoice Details" && (
+                                    <td colSpan="2">
+                                        <table
+                                            style={{
+                                                width: "100%",
+                                                borderSpacing: 0,
+                                                marginTop: "16px",
+                                            }}
+                                        >
+                                            <thead>
+                                                <tr className={styles.serviceHeader}>
+                                                    <th>Item Name</th>
+                                                    <th className={styles.amountRightAlign}>Amount</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+
+                                                <tr className={styles.serviceItem}>
+                                                    <td>
+                                                        Charging Cost ({details?.charging_capacity} KW ×
+                                                        {details?.currency || "₹"}
+                                                        {details?.price_per_unit} per unit)
+                                                    </td>
+
+                                                    <td className={styles.amountRightAlign}>
+                                                        {details?.currency || "₹"} {(details?.charging_fee|| 0)?.toFixed(2)}
+                                                    </td>
+                                                </tr>
+
+                                                <tr className={styles.serviceItem}>
+                                                    <td>Service Fee (as per package)</td>
+
+                                                    <td className={styles.amountRightAlign}>
+                                                        {details?.currency || "₹"} {(details?.service_fee|| 0)?.toFixed(2)}
+                                                    </td>
+                                                </tr>
+
+                                                <tr className={styles.serviceItem}>
+                                                    <td>
+                                                        {details?.currency === "AED"
+                                                            ? "VAT (5%)"
+                                                            : "GST (18%)"}
+                                                    </td>
+
+                                                    <td className={styles.amountRightAlign}>
+                                                        {details?.currency || "₹"} {(details?.t_vat_amt|| 0)?.toFixed(2)}
+                                                    </td>
+                                                </tr>
+
+                                                {details?.dis_price > 0 && (
+                                                    <tr className={styles.serviceItem}>
+                                                        <td>Discount</td>
+
+                                                        <td className={styles.amountRightAlign}>
+                                                            -{details?.currency || "₹"}{" "}
+                                                            {(details?.dis_price|| 0)?.toFixed(2)}
+                                                        </td>
+                                                    </tr>
+                                                )}
+
                                             </tbody>
                                         </table>
                                     </td>

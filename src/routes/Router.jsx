@@ -450,6 +450,10 @@ const router = createBrowserRouter([
                         path: "charger-booking-invoice-list",
                         element: <ChargerBookingInvoiceList />,
                     },
+                    {
+                        path: "charger-booking-invoice-details/:invoiceId",
+                        element: <InvoiceDetails />,
+                    },
                     
                     {
                         path: "charger-booking-time-slot-list",
