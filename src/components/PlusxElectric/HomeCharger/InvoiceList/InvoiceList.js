@@ -98,7 +98,7 @@ const ChargerBookingInvoiceList = () => {
                                 { key: 'invoice_date', label: 'Invoice Date', format: (date) => moment(date).format('DD MMM YYYY ') },
                                 { key: 'invoice_id', label: 'Invoice ID' },
                                 { key: 'riderDetails', label: 'Customer Name', format: (riderDetails) => { return riderDetails ? riderDetails.split(',')[0] : ''; } },
-                                { key: 'amount', label: 'Amount', format: (amount) => (`${(amount).toFixed(2)} INR`) },
+                                { key: 'amount', label: 'Amount', format: (amount) => (`${(Number(amount)).toFixed(2)} INR`) },
                                 { key: 'payment_status', label: 'Status', format: (status) => (status === "succeeded" ? "Completed" : "Approved") },
                                 {
                                     key: 'action', label: 'Action', relatedKeys: ['status'],

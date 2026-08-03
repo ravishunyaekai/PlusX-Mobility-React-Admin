@@ -182,13 +182,13 @@ const Invoice = ({ title, service, details }) => {
 
                                                 <tr className={styles.serviceItem}>
                                                     <td>
-                                                        Charging Cost ({details?.charging_capacity} KW ×
-                                                        {details?.currency || "₹"}
-                                                        {details?.price_per_unit} per unit)
+                                                        Charging Cost ({Number(details?.package_data?.charging_capacity || 0)} KW ×
+                                                        {"₹"}
+                                                        {Number(details?.package_data?.price_per_unit || 0)} per unit)
                                                     </td>
 
                                                     <td className={styles.amountRightAlign}>
-                                                        {details?.currency || "₹"} {(details?.charging_fee|| 0)?.toFixed(2)}
+                                                        {"₹"} {Number(Number(details?.package_data?.charging_capacity) * Number(details?.package_data?.price_per_unit) || 0)?.toFixed(2)}
                                                     </td>
                                                 </tr>
 
@@ -196,7 +196,7 @@ const Invoice = ({ title, service, details }) => {
                                                     <td>Service Fee (as per package)</td>
 
                                                     <td className={styles.amountRightAlign}>
-                                                        {details?.currency || "₹"} {(details?.service_fee|| 0)?.toFixed(2)}
+                                                        {"₹"} {Number(details?.package_data?.service_fee || 0)?.toFixed(2)}
                                                     </td>
                                                 </tr>
 
@@ -208,7 +208,7 @@ const Invoice = ({ title, service, details }) => {
                                                     </td>
 
                                                     <td className={styles.amountRightAlign}>
-                                                        {details?.currency || "₹"} {(details?.t_vat_amt|| 0)?.toFixed(2)}
+                                                        {"₹"} {(details?.t_vat_amt || 0)?.toFixed(2)}
                                                     </td>
                                                 </tr>
 
@@ -217,8 +217,8 @@ const Invoice = ({ title, service, details }) => {
                                                         <td>Discount</td>
 
                                                         <td className={styles.amountRightAlign}>
-                                                            -{details?.currency || "₹"}{" "}
-                                                            {(details?.dis_price|| 0)?.toFixed(2)}
+                                                            -{"₹"}{" "}
+                                                            {(details?.dis_price || 0)?.toFixed(2)}
                                                         </td>
                                                     </tr>
                                                 )}
@@ -234,7 +234,8 @@ const Invoice = ({ title, service, details }) => {
                                 </td>
                                 <td className={styles.amountRightAlign}>
                                     <p className={styles.totalAmountValue}>
-                                        {details?.currency?.toUpperCase() || 'INR'} {details?.price.toFixed(2) || 0}
+                                        {/* {details?.currency?.toUpperCase() || '₹'} {Number(details?.package_data?.amount || 0).toFixed(2)} */}
+                                        {'₹'} {Number(details?.package_data?.amount || 0).toFixed(2)}
                                     </p>
                                 </td>
                             </tr>
