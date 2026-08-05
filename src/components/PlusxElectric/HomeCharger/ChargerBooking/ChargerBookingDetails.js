@@ -66,50 +66,57 @@ const ChargerBookingDetails = () => {
     }, [bookingId]);
 
     const headerTitles = {
-        bookingIdTitle       : "Booking ID",
-        customerDetailsTitle : "Customer Details",
-        driverDetailsTitle   : "Driver Details",
+        bookingIdTitle: "Booking ID",
+        customerDetailsTitle: "Customer Details",
+        driverDetailsTitle: "Driver Details",
+        packageDetailsTitle: "Package Details",
     };
-    let rsa_data  = (bookingDetails?.rsa_data != null) ? bookingDetails?.rsa_data.split(",") : [];
+    let rsa_data = (bookingDetails?.rsa_data != null) ? bookingDetails?.rsa_data.split(",") : [];
     const content = {
-        bookingId       : bookingDetails?.booking_id,
-        customerId      : bookingDetails?.rider_id,
-        createdAt       : moment(bookingDetails?.created_at).format('DD MMM YYYY h:mm A'),
-        customerName    : bookingDetails?.user_name,
-        customerContact : `${bookingDetails?.country_code} ${bookingDetails?.contact_no}`,
-        driverName      : rsa_data ? rsa_data[0] : '',
-        driverContact   : rsa_data ? rsa_data[1] : '',
-        imageUrl        : bookingDetails?.imageUrl,
-        podId           : bookingDetails?.pod_id,
-        podName         : bookingDetails?.pod_name,
-        custBookingCount : bookingDetails?.cust_booking_count || 0,
+        bookingId: bookingDetails?.booking_id,
+        customerId: bookingDetails?.rider_id,
+        createdAt: moment(bookingDetails?.created_at).format('DD MMM YYYY h:mm A'),
+        customerName: bookingDetails?.user_name,
+        customerContact: `${bookingDetails?.country_code} ${bookingDetails?.contact_no}`,
+        driverName: rsa_data ? rsa_data[0] : '',
+        driverContact: rsa_data ? rsa_data[1] : '',
+        imageUrl: bookingDetails?.imageUrl,
+        podId: bookingDetails?.pod_id,
+        podName: bookingDetails?.pod_name,
+        custBookingCount: bookingDetails?.cust_booking_count || 0,
+        packageName: bookingDetails?.package_data?.package_name,
+        packageId: bookingDetails?.package_data?.package_id,
+        chargingFee: `₹ ${bookingDetails?.package_data?.charging_fee}`,
+        chargingCapacity: `${bookingDetails?.package_data?.charging_capacity}`,
+        pricePerUnit: `₹ ${bookingDetails?.package_data?.price_per_unit}`,
+        serviceFee: `₹ ${bookingDetails?.package_data?.service_fee}`,
     };
     const sectionTitles1 = {
-        bookingStatus : "Booking Status",
-        price         : "Price",
-        serviceName   : "Service Name",
+        bookingStatus: "Booking Status",
+        price: "Price",
+        serviceName: "Service Name",
     }
     const sectionContent1 = {
-        bookingStatus : statusMapping[bookingDetails?.status] || bookingDetails?.status,
-        serviceName   : bookingDetails?.service_name,
-        price         : bookingDetails?.service_price ? `${ ( bookingDetails?.service_price) } INR` : '0 INR',
+        bookingStatus: statusMapping[bookingDetails?.status] || bookingDetails?.status,
+        serviceName: bookingDetails?.service_name,
+        price: bookingDetails?.service_price ? `${(bookingDetails?.service_price)} INR` : '0 INR',
     }
     const sectionTitles2 = {
-        vehicle        : "Vehicle",
-        serviceType    : "Service Type",
+        vehicle: "Vehicle",
+        serviceType: "Service Type",
         // serviceFeature : "Service Feature",
     }
     const sectionContent2 = {
-        vehicle        : bookingDetails?.vehicle_data,
-        serviceType    : bookingDetails?.service_type,
+        vehicle: bookingDetails?.vehicle_data,
+        serviceType: bookingDetails?.service_type,
         // serviceFeature :  bookingDetails?.service_feature?.replace(/AED\s*/i, '')  ?.replace(/\b30\b/, '30 INR'),
     }
     const sectionTitles3 = {
-        address       : "Address",
-        slotDate      : "Slot Date",
-        slotTime      : "Slot Time",
-        parkingNumber : "Parking No.",
-        parkingFloor  : "Parking Floor",
+        address: "Address",
+        slotDate: "Slot Date",
+        slotTime: "Slot Time",
+        parkingNumber: "Parking No.",
+        parkingFloor: "Parking Floor",
         // are           : "Area Name",
         current_percent: "Vehicle Battery %"
     }
@@ -118,26 +125,43 @@ const ChargerBookingDetails = () => {
         // address: bookingDetails?.address
         address: (
             <a
-                href    = {`https://www.google.com/maps?q=${bookingDetails?.latitude},${bookingDetails?.longitude}`}
-                target    = "_blank"
-                rel       = "noopener noreferrer"
-                className = 'linkSection'
+                href={`https://www.google.com/maps?q=${bookingDetails?.latitude},${bookingDetails?.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className='linkSection'
             >
                 {bookingDetails?.address || 'View on Map'}
             </a>
         ),
-        slotDate      : moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
-        slotTime      : moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
-        parkingNumber : bookingDetails?.parking_number,
-        parkingFloor  : bookingDetails?.parking_floor,
+        slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
+        slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
+        parkingNumber: bookingDetails?.parking_number,
+        parkingFloor: bookingDetails?.parking_floor,
         // are           : bookingDetails?.area,
-        current_percent:bookingDetails?.current_percent >0 ?"More than 5%" :"0"
-    } 
+        current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0"
+    }
+    const packageContent = {
+        packageName: bookingDetails?.package_data?.package_name,
+        packageId: bookingDetails?.package_data?.package_id,
+        chargingFee: `₹ ${parseFloat(bookingDetails?.package_data?.charging_fee).toFixed(2)}`,
+        chargingCapacity: `${bookingDetails?.package_data?.charging_capacity}kW`,
+        pricePerUnit: `₹ ${parseFloat(bookingDetails?.package_data?.price_per_unit).toFixed(2)}`,
+        serviceFee: `₹ ${parseFloat(bookingDetails?.package_data?.service_fee).toFixed(2)}`,
+    };
+    const packageTitles = {
+        packageName: "Package Name",
+        packageId: "Package ID",
+        chargingFee: "Charging Fee",
+        chargingCapacity: "Charging Capacity",
+        pricePerUnit: "Price / Unit",
+        serviceFee: "Service Fee",
+    };
     return (
         <div className='main-container'>
-            {loading ? <Loader/> : 
+            {loading ? <Loader /> :
                 <>
-                    <BookingDetailsHeader content={content} titles={headerTitles} sectionContent={sectionContent1} type='portableChargerBooking' feedBack={feedBack}/>
+
+                    <BookingDetailsHeader content={content} packageTitles={packageTitles} packageContent={packageContent} titles={headerTitles} sectionContent={sectionContent1} type='portableChargerBooking' feedBack={feedBack} />
                     <div className={styles.bookingDetailsSection}>
                         <BookingLeftDetails titles={sectionTitles1} content={sectionContent1}
                             sectionTitles2={sectionTitles2} sectionContent2={sectionContent2}
