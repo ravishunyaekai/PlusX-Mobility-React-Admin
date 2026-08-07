@@ -200,6 +200,17 @@ const Invoice = ({ title, service, details }) => {
                                                     </td>
                                                 </tr>
 
+
+                                                {details?.package_data?.discount > 0 && (
+                                                    <tr className={styles.serviceItem}>
+                                                        <td>Discount</td>
+
+                                                        <td className={styles.amountRightAlign}>
+                                                            -{"₹"}{" "}
+                                                            {(details?.package_data?.discount || 0)?.toFixed(2)}
+                                                        </td>
+                                                    </tr>
+                                                )}
                                                 <tr className={styles.serviceItem}>
                                                     <td>
                                                         {details?.currency === "AED"
@@ -208,20 +219,9 @@ const Invoice = ({ title, service, details }) => {
                                                     </td>
 
                                                     <td className={styles.amountRightAlign}>
-                                                        {"₹"} {(details?.t_vat_amt || 0)?.toFixed(2)}
+                                                        {"₹"} {(details?.package_data?.gst_amount || 0)?.toFixed(2)}
                                                     </td>
                                                 </tr>
-
-                                                {details?.dis_price > 0 && (
-                                                    <tr className={styles.serviceItem}>
-                                                        <td>Discount</td>
-
-                                                        <td className={styles.amountRightAlign}>
-                                                            -{"₹"}{" "}
-                                                            {(details?.dis_price || 0)?.toFixed(2)}
-                                                        </td>
-                                                    </tr>
-                                                )}
 
                                             </tbody>
                                         </table>
