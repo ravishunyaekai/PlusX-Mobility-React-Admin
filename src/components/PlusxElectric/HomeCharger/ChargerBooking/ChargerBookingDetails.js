@@ -93,36 +93,28 @@ const ChargerBookingDetails = () => {
     };
     const sectionTitles1 = {
         bookingStatus: "Booking Status",
+        // serviceName: "Service Name",
         price: "Price",
-        serviceName: "Service Name",
+        slotDate: "Slot Date",
+        slotTime: "Slot Time",
+        // serviceName: "Service Name",
+        current_percent: "Vehicle Battery %",
+        vehicle: "Vehicle",
+        parkingNumber: "Parking No.",
+        parkingFloor: "Parking Floor",
+        address: "Address",
     }
     const sectionContent1 = {
         bookingStatus: statusMapping[bookingDetails?.status] || bookingDetails?.status,
-        serviceName: bookingDetails?.service_name,
+        // serviceName: bookingDetails?.service_name,
+        // serviceType: bookingDetails?.service_type,
         price: bookingDetails?.service_price ? `${(bookingDetails?.service_price)} INR` : '0 INR',
-    }
-    const sectionTitles2 = {
-        vehicle: "Vehicle",
-        serviceType: "Service Type",
-        // serviceFeature : "Service Feature",
-    }
-    const sectionContent2 = {
+        slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
+        slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
         vehicle: bookingDetails?.vehicle_data,
-        serviceType: bookingDetails?.service_type,
-        // serviceFeature :  bookingDetails?.service_feature?.replace(/AED\s*/i, '')  ?.replace(/\b30\b/, '30 INR'),
-    }
-    const sectionTitles3 = {
-        address: "Address",
-        slotDate: "Slot Date",
-        slotTime: "Slot Time",
-        parkingNumber: "Parking No.",
-        parkingFloor: "Parking Floor",
-        // are           : "Area Name",
-        current_percent: "Vehicle Battery %"
-    }
-    const sectionContent3 = {
-
-        // address: bookingDetails?.address
+        current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0",
+        parkingNumber: bookingDetails?.parking_number,
+        parkingFloor: bookingDetails?.parking_floor,
         address: (
             <a
                 href={`https://www.google.com/maps?q=${bookingDetails?.latitude},${bookingDetails?.longitude}`}
@@ -133,12 +125,28 @@ const ChargerBookingDetails = () => {
                 {bookingDetails?.address || 'View on Map'}
             </a>
         ),
-        slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
-        slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
-        parkingNumber: bookingDetails?.parking_number,
-        parkingFloor: bookingDetails?.parking_floor,
+    }
+    const sectionTitles2 = {
+        // serviceType: "Service Type",
+        // serviceFeature : "Service Feature",
+    }
+    const sectionContent2 = {
+        // serviceType: bookingDetails?.service_type,
+        // serviceFeature :  bookingDetails?.service_feature?.replace(/AED\s*/i, '')  ?.replace(/\b30\b/, '30 INR'),
+    }
+    const sectionTitles3 = {
+        // slotDate: "Slot Date",
+        // slotTime: "Slot Time",
+        // are           : "Area Name",
+        // current_percent: "Vehicle Battery %"
+    }
+    const sectionContent3 = {
+
+        // address: bookingDetails?.address
+        // slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
+        // slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
         // are           : bookingDetails?.area,
-        current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0"
+        // current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0"
     }
     const packageContent = {
         packageName: bookingDetails?.package_data?.package_name,

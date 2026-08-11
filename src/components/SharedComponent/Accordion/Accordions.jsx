@@ -106,13 +106,13 @@ const AccordionFilter = ({ type, isOpen, fetchFilteredData, dynamicFilters, filt
                                 >
                                     <Card.Body>
                                         <form className={styles.filterForm}>
-                                            { (type === 'Driver Details' || type === "Failed Charger Booking List" || type === "Home Charger Area List" || type === "Home Charger Device List" || type === "Home Charger Booking List" || type ==="Invoice List") && (
+                                            { (type === 'Driver Details' || type === "Failed Charger Booking List" || type === "Mobile EV Charging Area List" || type === "Mobile EV Charging Device List" || type === "Mobile EV Charging Booking List" || type ==="Invoice List") && (
                                                 <div className={`col-xl-3 col-lg-6 col-12 ${styles.filterItem}`}>
                                                     {/* <label className={styles.filterLabel} htmlFor="date_filter">Schedule Date</label> */}
                                                     <Calendar handleDateChange={handleScheduleDateChange} placeholder={type.includes('Booking') || type === 'Driver Details' ? 'Schedule Date' : 'Select  Date'} />
                                                 </div>  
                                             )}
-                                            { (type === 'Drivers List' || type === "EV Road Assistance Booking List" || type === "EV Road Assistance Invoice List" || type === "Failed RSA Booking List" || type === "Total Public Chargers List" || type === "EV Charger List" || type === "EV Chargers" || type === "EV Product List" ||  type === "EV Accessories" || type === "Charger Installation List" || type === "Charger Installation Booking" || type === "Driver Location" || type === "Driver Details" || type === "Coupon List" || type === "Offer Details" || type === "EV Charger Bookings" || type === "EV Accessories Bookings" || type === "Failed Charger Booking List" || type === "Home Charger Slot List" || type === "Home Charger Invoice List" || type === "Home Charger Booking List" || type === "EV Products & Installation" ) && (
+                                            { (type === 'Drivers List' || type === "EV Road Assistance Booking List" || type === "EV Road Assistance Invoice List" || type === "Failed RSA Booking List" || type === "Total Public Chargers List" || type === "EV Charger List" || type === "EV Chargers" || type === "EV Product List" ||  type === "EV Accessories" || type === "Charger Installation List" || type === "Charger Installation Booking" || type === "Driver Location" || type === "Driver Details" || type === "Coupon List" || type === "Offer Details" || type === "EV Charger Bookings" || type === "EV Accessories Bookings" || type === "Failed Charger Booking List" || type === "Mobile EV Charging Slot List" || type === "Mobile EV Charging Invoice List" || type === "Mobile EV Charging Booking List" || type === "EV Products & Installation" ) && (
                                                 <div className={`col-xl-3 col-lg-6 col-12 ${styles.filterItem}`}>
                                                     <Calendar handleDateChange={handleDateChange} placeholder={type.includes('Booking') || type === 'Driver Details' ? 'Booking Date' : 'Select  Date'} />
                                                 </div> 
@@ -149,7 +149,7 @@ const AccordionFilter = ({ type, isOpen, fetchFilteredData, dynamicFilters, filt
                                                     )}
                                                 </div>
                                             ))}
-                                            { (type === 'Home Charger Booking Lists' ) && (
+                                            { (type === 'Mobile EV Charging Booking Lists' ) && (
                                                 <div className={`col-xl-3 col-lg-6 col-12 ${styles.selectItem}`} >
                                                     {/* <label className={styles.filterLabel} htmlFor="date_filter">Search Area</label> */}
                                                     <div className={styles.selectSearch}>
@@ -158,7 +158,7 @@ const AccordionFilter = ({ type, isOpen, fetchFilteredData, dynamicFilters, filt
                                                     </div>
                                                 </div>  
                                             )}
-                                            { (type === 'Home Charger Booking List' || type === "Pick & Drop Booking List" || type === "EV Road Assistance Booking List") && (
+                                            { (type === 'Mobile EV Charging Booking List' || type === "Pick & Drop Booking List" || type === "EV Road Assistance Booking List") && (
                                                 <div className={`col-xl-3 col-lg-6 col-12 ${styles.selectItem}`}  style={{ position: 'relative', }}>
                                                     <CustomDropdown placeholder="Select No. of Records" options={rowOptions.map(option => ({ value: option, label: option }))} 
                                                         value={rowOptions

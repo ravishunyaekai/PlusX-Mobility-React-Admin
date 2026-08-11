@@ -205,7 +205,7 @@ const ChargerBookingList = () => {
         const rsaObj = {
             userId       : userDetails?.user_id,
             email        : userDetails?.email,
-            service_type : 'Portable Charger',
+            service_type : 'Mobile EV Charging',
         };
         postRequestWithToken('all-rsa-list', rsaObj, async(response) => {
             if (response.code === 200) {
@@ -292,7 +292,7 @@ const ChargerBookingList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading              = "Home Charger Booking List"
+                heading              = "Mobile EV Charging Booking List"
                 fetchFilteredData    = {fetchFilteredData}
                 dynamicFilters       = {dynamicFilters}
                 filterValues         = {filters}
@@ -322,7 +322,7 @@ const ChargerBookingList = () => {
                     <List
                         tableHeaders={["Booking Date", "Schedule Date", "Schedule Time", "Booking ID", "Customer Name", "City", "Status", "Driver Name", "Driver Assign", "Action",""]}
                         listData={chargerBookingList}
-                        pageHeading="Home Charger Booking List"
+                        pageHeading="Mobile EV Charging Booking List"
                         keyMapping={[
                             { key: 'created_at', label: 'Date & Time',   format: (date) => moment(date).format('DD MMM YYYY') },
                             { key: 'slot_date',  label: 'Schedule Date', format: (date) => moment(date).format('DD MMM YYYY') },

@@ -83,7 +83,7 @@ const PodDeviceList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading="Home Charger Device List"
+                heading="Mobile EV Charging Device List"
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 searchTerm = {searchTerm}
@@ -101,7 +101,7 @@ const PodDeviceList = () => {
                         <List
                             tableHeaders={[ "POD ID", "POD Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}  //  "Inverter", 
                             listData={chargerBookingList}
-                            pageHeading="Home Charger Device List"
+                            pageHeading="Mobile EV Charging Device List"
                             keyMapping={[
                                 { key : 'pod_id', label: 'POD ID' },
                                 { key : 'pod_name', label: 'POD Name' },

@@ -155,7 +155,7 @@ const CustomerChargerBookingList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading             = "Customer Home Charger Booking List"
+                heading             = "Customer Mobile EV Charging Booking List"
                 fetchFilteredData   = {fetchFilteredData}
                 dynamicFilters      = {dynamicFilters}
                 filterValues        = {filters}

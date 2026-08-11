@@ -137,7 +137,7 @@ import EditCoupon from "../components/PlusxElectric/Coupon/EditCoupon.jsx";
 import CouponList from "../components/PlusxElectric/Coupon/CouponList.jsx";
 // import EditUniversity from "../components/University/University/EditUninversity/editUniversiyt.jsx";
 
-//Home Charger
+//Mobile EV Charging
 import HomeCharger from "../components/PlusxElectric/HomeCharger/index.jsx";
 import AddPod from "../components/PlusxElectric/HomeCharger/AddPod/AddPod.js";
 import ChargerList from "../components/PlusxElectric/HomeCharger/ChargerList/ChargerList.jsx";
@@ -413,7 +413,7 @@ const router = createBrowserRouter([
                     // }, 
                 ],
             },
-            //Home Charger
+            //Mobile EV Charging
             {
                 path: "home-charger",
                 element: <HomeCharger />,

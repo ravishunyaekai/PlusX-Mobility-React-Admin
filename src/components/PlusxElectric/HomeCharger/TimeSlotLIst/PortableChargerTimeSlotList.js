@@ -132,7 +132,7 @@ const PortableChargerTimeSlotList = () => {
         <div className='main-container'>
             <ToastContainer />
             <SubHeader
-                heading="Home Charger Slot List"
+                heading="Mobile EV Charging Slot List"
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 fetchFilteredData={fetchFilteredData}

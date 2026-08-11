@@ -37,8 +37,8 @@ const DashboardCard = ({ details }) => {
   const cardData = [
     {
       icon  : HomeCharging,
-      count : details?.find((item) => item.module === "Home Charging Bookings")?.count || 0,
-      title : "Home Charging Bookings",
+      count : details?.find((item) => item.module === "Mobile EV Charging Bookings")?.count || 0,
+      title : "Mobile EV Charging Bookings",
       route : "/electric/home-charger/charger-booking-list",
     },
     {

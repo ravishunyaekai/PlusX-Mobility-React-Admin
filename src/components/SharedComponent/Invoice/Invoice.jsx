@@ -36,7 +36,7 @@ const Invoice = ({ title, service, details }) => {
                                 <td colSpan="2">
                                     <table>
                                         <tr>
-                                            <td className={title == 'Home Charger Invoice Details' ? styles.logoSection2 : styles.logoSection}>
+                                            <td className={title == 'Mobile EV Charging Invoice Details' ? styles.logoSection2 : styles.logoSection}>
                                                 <img src={logo} alt="company logo" className={styles.logoImage} />
                                                 <p>D55-PBU</p>
                                                 <p>DUBAI PRODUCTION CITY</p>
@@ -103,7 +103,7 @@ const Invoice = ({ title, service, details }) => {
                                         </table>
                                     </td>
                                 )}
-                                {(title == 'Portable Charger Invoice Details' || title == 'Road Assistance Invoice Details') && (
+                                {(title == 'Mobile EV Charging Invoice Details' || title == 'Road Assistance Invoice Details') && (
                                     <td colSpan="2">
                                         <table style={{ width: '100%', borderSpacing: 0, marginTop: "16px" }}>
                                             <thead>
@@ -162,7 +162,7 @@ const Invoice = ({ title, service, details }) => {
                                         </table>
                                     </td>
                                 )}
-                                {title === "Home Charger Invoice Details" && (
+                                {title === "Mobile EV Charging Invoice Details" && (
                                     <td colSpan="2">
                                         <table
                                             style={{

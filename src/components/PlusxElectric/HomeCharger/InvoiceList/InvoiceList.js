@@ -75,7 +75,7 @@ const ChargerBookingInvoiceList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading="Home Charger Invoice List"
+                heading="Mobile EV Charging Invoice List"
                 filterValues={filters}
                 fetchFilteredData={fetchFilteredData}
                 searchTerm={searchTerm}
@@ -93,7 +93,7 @@ const ChargerBookingInvoiceList = () => {
                         <List
                             tableHeaders={["Invoice Date", "Invoice ID", "Customer Name", "Amount", "Status", "Action"]}
                             listData={invoiceList}
-                            pageHeading="Home Charger Invoice List"
+                            pageHeading="Mobile EV Charging Invoice List"
                             keyMapping={[
                                 { key: 'invoice_date', label: 'Invoice Date', format: (date) => moment(date).format('DD MMM YYYY ') },
                                 { key: 'invoice_id', label: 'Invoice ID' },

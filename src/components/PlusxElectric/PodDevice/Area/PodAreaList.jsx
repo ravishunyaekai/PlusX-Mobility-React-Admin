@@ -75,7 +75,7 @@ const PodAreaList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading="Home Charger Area List"
+                heading="Mobile EV Charging Area List"
                 fetchFilteredData={fetchFilteredData}
                 addButtonProps={addButtonProps}
                 filterValues={filters}
@@ -93,7 +93,7 @@ const PodAreaList = () => {
                     <List
                         tableHeaders={[ "Area ID", "Area Name", "Created Date", "Status", "Action"]}
                         listData={areaList}
-                        pageHeading="Home Charger Area List"
+                        pageHeading="Mobile EV Charging Area List"
                         keyMapping={[
                             { key: 'area_id', label: 'Area ID' },
                             { key: 'area_name', label: 'Area Name' },

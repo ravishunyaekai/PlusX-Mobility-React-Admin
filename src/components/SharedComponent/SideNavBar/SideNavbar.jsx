@@ -180,7 +180,7 @@ const SideNavbar = () => {
                             <SideBarLinkItem label="Dashboard" path="/electric/dashboard" isActive={isActive("/electric/dashboard")} />
                             <SideBarLinkItem label="Drivers" path="/electric/drivers/driver-list" isActive={isActive("/electric/drivers")} />
                             <SidebarDropdown
-                                menuName="Home Charger"
+                                menuName="Mobile EV Charging"
                                 menuItems={menuItems.homeCharger}
                                 openDropdown={openDropdown}
                                 handleItemClick={(id, e) => handleItemClicked("homeCharger", id, e)}
