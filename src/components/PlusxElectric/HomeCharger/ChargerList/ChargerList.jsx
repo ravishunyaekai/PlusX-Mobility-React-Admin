@@ -29,7 +29,7 @@ const ChargerList = () => {
     ]
     const addButtonProps = {
         heading: "Add Charger", 
-        link: "/electric/home-charger/add-charger"
+        link: "/electric/mobile-ev-charging/add-charger"
     };
     const fetchChargers = (page, appliedFilters = {}) => {
         if (page === 1 && Object.keys(appliedFilters).length === 0) {

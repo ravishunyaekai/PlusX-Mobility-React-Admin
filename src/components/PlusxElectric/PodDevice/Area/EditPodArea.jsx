@@ -23,7 +23,7 @@ const EditPodDevice = () => {
     const [showLoader, setShowLoader]   = useState(false);
 
     const backButtonClick = () => {
-        navigate('/home-charger/area-list')
+        navigate('/mobile-ev-charging/area-list')
     };
     
     const validateForm = () => {
@@ -75,7 +75,7 @@ const EditPodDevice = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/home-charger/area-list')
+                        navigate('/mobile-ev-charging/area-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})

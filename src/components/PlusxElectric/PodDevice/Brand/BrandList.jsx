@@ -26,7 +26,7 @@ const PodBrandList = () => {
     }]
     const addButtonProps = {
         heading : "Add Brand", 
-        link    : "/home-charger/add-brand"
+        link    : "/mobile-ev-charging/add-brand"
     };
     const fetchChargers = (page, appliedFilters = {}) => {
         const obj = {

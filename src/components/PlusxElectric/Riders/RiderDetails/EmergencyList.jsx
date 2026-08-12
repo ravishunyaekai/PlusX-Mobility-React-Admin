@@ -101,7 +101,7 @@ import AccordionFilter from '../../../SharedComponent/Accordion/Accordions';
         };
         const renderBooking = (e) => {
             const id = e.target.textContent.trim();
-            navigate(`/home-charger/charger-booking-details/${id}`); 
+            navigate(`/mobile-ev-charging/charger-booking-details/${id}`); 
         }
         return (
             <div className={styles.addressListContainer}>
@@ -163,7 +163,7 @@ import AccordionFilter from '../../../SharedComponent/Accordion/Accordions';
                                                         <img src={Eye} alt="View" />
                                                     </Link>
                                                 ) : (
-                                                    <Link to={`/home-charger/charger-booking-details/${item?.booking_id}`}>
+                                                    <Link to={`/mobile-ev-charging/charger-booking-details/${item?.booking_id}`}>
                                                         <img src={Eye} alt="View" />
                                                     </Link>
                                                 )}

@@ -70,7 +70,7 @@ const ChargerBookingInvoiceList = () => {
         setCurrentPage(pageNumber);
     };
     
-    const handleInvoiceDetails = (id) => navigate(`/electric/home-charger/charger-booking-invoice-details/${id}`)
+    const handleInvoiceDetails = (id) => navigate(`/electric/mobile-ev-charging/charger-booking-invoice-details/${id}`)
 
     return (
         <div className='main-container'>

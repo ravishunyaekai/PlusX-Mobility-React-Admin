@@ -33,7 +33,7 @@ const AddPortableCharger = () => {
         }
     };
     const backButtonClick = () => {
-        navigate('/home-charger/charger-list')
+        navigate('/mobile-ev-charging/charger-list')
     };
     const handleRemoveImage = () => {
         setFile(null);
@@ -117,7 +117,7 @@ const AddPortableCharger = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/home-charger/charger-list')
+                        navigate('/mobile-ev-charging/charger-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})

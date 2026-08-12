@@ -72,7 +72,7 @@ const EditPortableChargerTimeSlot = () => {
     }, []);
 
     const handleCancel = () => {
-        navigate('/electric/home-charger/charger-booking-time-slot-list');
+        navigate('/electric/mobile-ev-charging/charger-booking-time-slot-list');
     };
 
     const handleTimeInput = (e) => {
@@ -189,7 +189,7 @@ const EditPortableChargerTimeSlot = () => {
                     toast(response.message || response.message, { type: "success" });
                     setTimeout(() => {
                         setLoading(false);
-                        navigate('/electric/home-charger/charger-booking-time-slot-list');
+                        navigate('/electric/mobile-ev-charging/charger-booking-time-slot-list');
                     }, 2000)
 
                 } else {

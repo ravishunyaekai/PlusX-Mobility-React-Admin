@@ -78,7 +78,7 @@ const FailedChargerBookingList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading           = "Failed RSA Booking List"
+                heading           = "EV Road Assistance Failed Booking List"
                 fetchFilteredData = {fetchFilteredData}
                 filterValues      = {filters}
                 searchTerm        = {searchTerm}

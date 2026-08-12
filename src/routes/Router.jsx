@@ -415,7 +415,7 @@ const router = createBrowserRouter([
             },
             //Mobile EV Charging
             {
-                path: "home-charger",
+                path: "mobile-ev-charging",
                 element: <HomeCharger />,
                 children: [
                     {
@@ -435,11 +435,11 @@ const router = createBrowserRouter([
                         element: <EditPortableCharger />,
                     },
                     {
-                        path: "customer-charger-booking-list/:customerId",
+                        path: "customer-charging-booking-list/:customerId",
                         element: <CustomerChargerBookingList />,
                     },
                     {
-                        path: "charger-booking-list",
+                        path: "charging-booking-list",
                         element: <ChargerBookingList />,
                     },
                     {
@@ -473,15 +473,15 @@ const router = createBrowserRouter([
                     },
                     // Pod Device Route
                     {
-                        path: "device-list",
+                        path: "charging-van-list",
                         element: <PodDeviceList />,
                     },
                     {
-                        path: "add-device",
+                        path: "add-charging-van",
                         element: <AddPodDevice />,  
                     },
                     {
-                        path: "edit-device/:podId",
+                        path: "edit-charging-van/:podId",
                         element: <EditPodDevice />,  
                     }, {
                         path: "device-details/:podId",

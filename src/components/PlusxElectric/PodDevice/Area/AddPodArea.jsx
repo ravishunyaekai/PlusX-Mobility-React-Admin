@@ -18,7 +18,7 @@ const AddPodArea = () => {
     const [loading, setLoading]     = useState(false);
     
     const backButtonClick = () => {
-        navigate('/electric/home-charger/area-list')
+        navigate('/electric/mobile-ev-charging/area-list')
     };
 
     const validateForm = () => {
@@ -71,11 +71,11 @@ const AddPodArea = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/electric/home-charger/area-list')
+                        navigate('/electric/mobile-ev-charging/area-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})
-                    console.log('error in add-device api', response);
+                    console.log('error in add-charging-van api', response);
                 }
                 setLoading(false)
             })

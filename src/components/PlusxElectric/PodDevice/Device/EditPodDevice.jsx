@@ -31,7 +31,7 @@ const EditPodDevice = () => {
         { id : '', batteryId : '', capacity : '' }
     ]);
     const backButtonClick = () => {
-        navigate('/electric/home-charger/device-list')
+        navigate('/electric/mobile-ev-charging/charging-van-list')
     };
     
     const validateForm = () => {
@@ -124,7 +124,7 @@ const EditPodDevice = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/home-charger/device-list')
+                        navigate('/mobile-ev-charging/charging-van-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})

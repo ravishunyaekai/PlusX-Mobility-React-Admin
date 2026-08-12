@@ -160,7 +160,7 @@ const Header = () => {
         //     break;
         
         // case "Home Charging Booking":
-        //     navigate(`/home-charger/charger-booking-details/${extractedId}`);
+        //     navigate(`/mobile-ev-charging/charger-booking-details/${extractedId}`);
         //     break;       
 
         // case "Charging Service":

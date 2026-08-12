@@ -39,7 +39,7 @@ const DashboardCard = ({ details }) => {
       icon  : HomeCharging,
       count : details?.find((item) => item.module === "Mobile EV Charging Bookings")?.count || 0,
       title : "Mobile EV Charging Bookings",
-      route : "/electric/home-charger/charger-booking-list",
+      route : "/electric/mobile-ev-charging/charging-booking-list",
     },
     {
       icon  : EVRoadAssitanceImage,
@@ -63,7 +63,7 @@ const DashboardCard = ({ details }) => {
       icon  : EVChargerBooking,
       count : details?.find((item) => item.module === "EV Chargers Booking")?.count || 0,
       title : "EV Chargers Bookings",
-      route : "/electric/charger-installation/ev-charger-booking-list",
+      route : "/electric/charger-installation/ev-charging-booking-list",
     }
     ,
     {

@@ -151,7 +151,7 @@ const RoadAssistanceTimeSlotList = () => {
         <div className='main-container'>
             <ToastContainer />
             <SubHeader
-                heading="Roadside Assistance Slot List"
+                heading="EV Road Assistance Slot List"
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 dynamicFilters = {dynamicFilters}

@@ -5,7 +5,7 @@ import { StarRating } from '../../StarRating/StarRating';
 const BookingDetailsHeader = ({ content, titles, packageTitles, packageContent, sectionContent1, type, deviceBatteryData, feedBack }) => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
-    const handleBookingDetails = (id) => navigate(`/electric/home-charger/customer-charger-booking-list/${id}`)
+    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/customer-charging-booking-list/${id}`)
     return (
         <div className={styles.infoCard}>
             <div className="row">

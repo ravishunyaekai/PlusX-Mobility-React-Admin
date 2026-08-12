@@ -30,7 +30,7 @@ const AddPodDevice = () => {
     ]);
 
     const backButtonClick = () => {
-        navigate('/electric/home-charger/device-list')
+        navigate('/electric/mobile-ev-charging/charging-van-list')
     };
     const validateForm = () => {
         const fields = [
@@ -127,7 +127,7 @@ const AddPodDevice = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/electric/home-charger/device-list')
+                        navigate('/electric/mobile-ev-charging/charging-van-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})
@@ -172,7 +172,7 @@ const AddPodDevice = () => {
 
     return (
         <div className={styles.addStationContainer}>
-            <h2 className={styles.addHeading}>Add Device</h2>
+            <h2 className={styles.addHeading}>Add Charging Van</h2>
             <div className={styles.addStationFormSection}>
                 <ToastContainer />
                 <form className={styles.formSection} onSubmit={handleSubmit}>

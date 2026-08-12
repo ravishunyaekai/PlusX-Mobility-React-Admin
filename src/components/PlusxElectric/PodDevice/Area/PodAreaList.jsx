@@ -70,7 +70,7 @@ const PodAreaList = () => {
     };
     const addButtonProps = {
         heading : "Add Area", 
-        link    : "/electric/home-charger/add-area"
+        link    : "/electric/mobile-ev-charging/add-area"
     };
     return (
         <div className='main-container'>

@@ -75,7 +75,7 @@ const SideNavbar = () => {
 
     useEffect(() => {
         setCheckedItems((prevState) => ({
-            homeCharger: location.pathname.includes("/electric/home-charger")
+            homeCharger: location.pathname.includes("/electric/mobile-ev-charging")
                 ? prevState.homeCharger : { homeChargerList: false, homeChargerBooking: false, invoiceList: false, timeSlot: false, deviceList: false, areaList: false, failedList: false },
             evRoadAssistance: location.pathname.includes("/electric/ev-road-assistance")
                 ? prevState.evRoadAssistance : { bookingList: false, invoiceList: false, failedBookingList: false },
@@ -111,7 +111,7 @@ const SideNavbar = () => {
                 ? prevState.universities : { universitiesList : false, studentList : false },
         }));
         const dropdownPaths = [
-            "/electric/home-charger",
+            "/electric/mobile-ev-charging",
             "/electric/ev-road-assistance",
             "/electric/charger-installation",
             // "/electric/ev-charger",

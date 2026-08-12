@@ -40,7 +40,7 @@ const FailedChargerBookingList = () => {
     const [loading, setLoading]                       = useState(false);
     const [downloadClicked, setDownloadClicked]       = useState(false)
 
-    const handleBookingDetails = (id) => navigate(`/electric/home-charger/failed-charger-booking-details/${id}`)
+    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/failed-charger-booking-details/${id}`)
 
     const fetchList = (page, appliedFilters = {}, scheduleFilters = {}) => {
         if (page === 1 && Object.keys(appliedFilters).length === 0) {
@@ -125,7 +125,7 @@ const FailedChargerBookingList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading             = "Failed Charger Booking List"
+                heading             = "Mobile EV Charging Failed Booking List"
                 fetchFilteredData   = {fetchFilteredData}
                 filterValues        = {filters}
                 searchTerm          = {searchTerm}
@@ -146,7 +146,7 @@ const FailedChargerBookingList = () => {
                     <List
                         tableHeaders={["Booking Date", "Schedule Date", "Schedule Time", "Booking ID", "Customer Name", "Status", "Action",""]}
                         listData={chargerBookingList}
-                        pageHeading="Failed Charger Booking List"
+                        pageHeading="Mobile EV Charging Failed Booking List"
                         keyMapping={[
                             { key: 'created_at', label: 'Date & Time', format: (date) => moment(date).format('DD MMM YYYY') },
                             { key: 'slot_date', label: 'Schedule Date', format: (date) => moment(date).format('DD MMM YYYY') },
