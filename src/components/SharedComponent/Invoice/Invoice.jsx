@@ -87,23 +87,23 @@ const Invoice = ({ title, service, details }) => {
                                             <tbody>
                                                 <tr className={styles.serviceItem}>
                                                     <td>{service}</td>
-                                                    <td className={styles.amountRightAlign}>{details?.currency?.toUpperCase() || 'INR'} {details?.servicePrice.toFixed(2) || 39}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.currency?.toUpperCase() || 'INR'} {details?.servicePrice?.toFixed(2) || 39}</td>
                                                 </tr>
                                                 <tr className={styles.serviceItem}>
                                                     <td>VAT 5%</td>
-                                                    <td className={styles.amountRightAlign}>{details?.t_vat_amt.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.t_vat_amt?.toFixed(2)}</td>
                                                 </tr>
                                                 {details?.dis_price > 0 && (
                                                     <tr className={styles.serviceItem}>
                                                         <td>Coupon </td>
-                                                        <td className={styles.amountRightAlign}>{details?.dis_price.toFixed(2)}</td>
+                                                        <td className={styles.amountRightAlign}>{details?.dis_price?.toFixed(2)}</td>
                                                     </tr>
                                                 )}
                                             </tbody>
                                         </table>
                                     </td>
                                 )}
-                                {(title == 'Mobile EV Charging Invoice Details' || title == 'Road Assistance Invoice Details') && (
+                                {(title == 'Portable Charger Invoice Details' || title == 'Road Assistance Invoice Details') && (
                                     <td colSpan="2">
                                         <table style={{ width: '100%', borderSpacing: 0, marginTop: "16px" }}>
                                             <thead>
@@ -118,21 +118,21 @@ const Invoice = ({ title, service, details }) => {
                                                 <tr className={styles.serviceItem}>
                                                     <td>Dewa Charge</td>
                                                     <td>0.44</td>
-                                                    <td>{details?.kw.toFixed(2)}</td>
-                                                    <td className={styles.amountRightAlign}>{details?.kw_dewa_amt.toFixed(2)}</td>
+                                                    <td>{details?.kw?.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.kw_dewa_amt?.toFixed(2)}</td>
                                                 </tr>
                                                 <tr className={styles.serviceItem}>
                                                     <td>CPO Charge</td>
                                                     <td>0.26</td>
-                                                    <td>{details?.kw.toFixed(2)}</td>
-                                                    <td className={styles.amountRightAlign}>{details?.kw_cpo_amt.toFixed(2)}</td>
+                                                    <td>{details?.kw?.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.kw_cpo_amt?.toFixed(2)}</td>
                                                 </tr>
 
                                                 <tr className={styles.serviceItem}>
                                                     <td>Delivery Charge</td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td className={styles.amountRightAlign}>{details?.delv_charge.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.delv_charge?.toFixed(2)}</td>
                                                 </tr>
                                                 {details?.current_percent == 0 && (
                                                     <tr className={styles.serviceItem}>
@@ -140,14 +140,14 @@ const Invoice = ({ title, service, details }) => {
                                                         {/* ({details?.discount+'%'}) */}
                                                         <td></td>
                                                         <td></td>
-                                                        <td className={styles.amountRightAlign}>{details?.additional_price.toFixed(2)}</td>
+                                                        <td className={styles.amountRightAlign}>{details?.additional_price?.toFixed(2)}</td>
                                                     </tr>
                                                 )}
                                                 <tr className={styles.serviceItem}>
                                                     <td>VAT 5%</td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td className={styles.amountRightAlign}>{details?.t_vat_amt.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.t_vat_amt?.toFixed(2)}</td>
                                                 </tr>
                                                 {details?.dis_price > 0 && (
                                                     <tr className={styles.serviceItem}>
@@ -155,7 +155,7 @@ const Invoice = ({ title, service, details }) => {
                                                         {/* ({details?.discount+'%'}) */}
                                                         <td></td>
                                                         <td></td>
-                                                        <td className={styles.amountRightAlign}>{details?.dis_price.toFixed(2)}</td>
+                                                        <td className={styles.amountRightAlign}>{details?.dis_price?.toFixed(2)}</td>
                                                     </tr>
                                                 )}
                                             </tbody>
@@ -235,7 +235,7 @@ const Invoice = ({ title, service, details }) => {
                                 <td className={styles.amountRightAlign}>
                                     <p className={styles.totalAmountValue}>
                                         {/* {details?.currency?.toUpperCase() || '₹'} {Number(details?.package_data?.amount || 0).toFixed(2)} */}
-                                        {'₹'} {Number(details?.package_data?.amount || 0).toFixed(2)}
+                                        {'₹'} {Number(details?.package_data?.amount || 0)?.toFixed(2)}
                                     </p>
                                 </td>
                             </tr>

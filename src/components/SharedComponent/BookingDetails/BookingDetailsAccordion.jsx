@@ -21,7 +21,7 @@ const BookingDetailsAccordion = ({history, rsa, imageUrl, fieldMapping, title })
         WC  : 'Work Completed',
         DO  : 'Drop Off',
         C   : "Cancelled",
-        RO  : 'POD Reached at Office',
+        RO  : 'Charging Van Reached at Office',
         RSB : 'Rescheduled Booking',
         RPD : 'Rescheduled Booking'
     };
@@ -78,7 +78,7 @@ const BookingDetailsAccordion = ({history, rsa, imageUrl, fieldMapping, title })
                                 </>
                             )}
                             {section.order_status === 'CS' && (
-                                <p className={styles.accodionPTag}><strong>Pod Name :</strong> { section?.podName }</p>
+                                <p className={styles.accodionPTag}><strong>Charging Van Name :</strong> { section?.podName }</p>
                             )}
                             {section.remarks && (
                                 <p className={styles.accodionPTag}><strong>Remarks :</strong> { section?.remarks }</p>

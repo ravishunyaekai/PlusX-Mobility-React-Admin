@@ -66,7 +66,7 @@ const PodBrandList = () => {
     return (
         <div className='main-container'>
             <SubHeader 
-                heading = "POD Brand List" 
+                heading = "Charging Van Brand List" 
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 fetchFilteredData={fetchFilteredData} 
@@ -79,7 +79,7 @@ const PodBrandList = () => {
                 <List
                     tableHeaders={["Device ID", "Brand Name", "Start Date", "End Date", "Action"]}
                     listData={chargerList}
-                    pageHeading="POD Brand List"
+                    pageHeading="Charging Van Brand List"
                     keyMapping={[
                         { key : 'device_id',    label  : 'Device ID' }, 
                         { key : 'brand_name',   label : 'Brand Name' }, 

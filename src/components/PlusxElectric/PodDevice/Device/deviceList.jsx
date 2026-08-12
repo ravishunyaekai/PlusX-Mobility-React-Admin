@@ -93,18 +93,18 @@ const PodDeviceList = () => {
             {loading ? <Loader /> :
                 chargerBookingList.length === 0 ? (
                     <EmptyList
-                        tableHeaders={["POD ID", "POD Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}
+                        tableHeaders={["Charging Van ID", "Charging Van Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}
                         message="No data available"
                     />
                 ) : (
                     <>
                         <List
-                            tableHeaders={[ "POD ID", "POD Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}  //  "Inverter", 
+                            tableHeaders={[ "Charging Van ID", "Charging Van Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}  //  "Inverter", 
                             listData={chargerBookingList}
                             pageHeading="Mobile EV Charging Device List"
                             keyMapping={[
-                                { key : 'pod_id', label: 'POD ID' },
-                                { key : 'pod_name', label: 'POD Name' },
+                                { key : 'pod_id', label: 'Charging Van ID' },
+                                { key : 'pod_name', label: 'Charging Van Name' },
                                 { key : 'design_model', label: 'Model Name' },
                                 { key : 'avgBattery', label: 'Battery', format : (data) => setdecimal(data) },
                                 // { key : 'inverter', label: 'Inverter' },

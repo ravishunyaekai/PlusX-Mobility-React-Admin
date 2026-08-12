@@ -34,12 +34,12 @@ import axios from 'axios';
                 { value : 'CNF', label : 'Booking Confirmed' },
                 { value : 'A',   label : 'Assigned' },
                 { value : 'ER',  label : 'Enroute' },
-                { value : 'RL',  label : 'POD Reached at Location' },
+                { value : 'RL',  label : 'Charging Van Reached at Location' },
                 { value : 'CS',  label : 'Charging Started' },
                 { value : 'CC',  label : 'Charging Completed' },
                 { value : 'PU',  label : 'Completed' },
                 { value : 'C',   label : 'Cancelled' },
-                { value : 'RO',   label : 'POD Reached at Office' },
+                { value : 'RO',   label : 'Charging Van Reached at Office' },
             ]
         },
     ];

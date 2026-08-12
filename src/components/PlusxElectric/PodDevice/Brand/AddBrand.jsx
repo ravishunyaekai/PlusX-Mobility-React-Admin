@@ -150,7 +150,7 @@ const AddPodBrand = () => {
 
     return (
         <div className={styles.addStationContainer}>
-            <h2 className={styles.addHeading}>Add POD Brand</h2>
+            <h2 className={styles.addHeading}>Add Charging Van Brand</h2>
             <div className={styles.addStationFormSection}>
                 <form className={styles.formSection} onSubmit={handleSubmit}>
                 <ToastContainer />

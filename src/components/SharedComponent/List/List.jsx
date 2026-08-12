@@ -322,7 +322,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                         </>
                                     )}
 
-                                    {pageHeading === "POD Brand List" && (
+                                    {pageHeading === "Charging Van Brand List" && (
                                         <>
                                             {access.includes('edit') && (
                                                 <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/home-charger/edit-brand', data.area_id)} />

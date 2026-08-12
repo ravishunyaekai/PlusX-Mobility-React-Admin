@@ -23,20 +23,20 @@ const BookingDetailsButtons = ({ deviceId, deviceBrandList, currentPage, totalPa
                     className={`${styles.iconButton} ${activeSection === 'podInputHistory' ? styles.active : ''}`}
                     onClick={() => setActiveSection('podInputHistory')}
                 >
-                    <span>POD Charging</span>
+                    <span>Charging Van Charging</span>
                 </button>
                 {/* <button
                     className={`${styles.iconButton} ${activeSection === 'podOutputHistory' ? styles.active : ''}`}
                     onClick={() => setActiveSection('podOutputHistory')}
                 >
-                    <span>POD Output</span>
+                    <span>Charging Van Output</span>
                 </button> */}
                 <button
                     className={`${styles.iconButton} ${activeSection === 'podZoneHistory' ? styles.active : ''
                         }`}
                     onClick={() => setActiveSection('podZoneHistory')}
                 >
-                    <span>POD Zone</span>
+                    <span>Charging Van Zone</span>
                 </button>
                 <button
                     className={`${styles.iconButton} ${activeSection === 'podBookingList' ? styles.active : ''}`}
