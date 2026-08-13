@@ -38,7 +38,7 @@ const AddPodBrand = () => {
         }
     };
     const handleRemoveImage = () => setFile(null);
-    const handleCancel = () => { navigate(`/electric/mobile-ev-charging/device-details/${deviceId}`) }
+    const handleCancel = () => { navigate(`/electric/mobile-ev-charging/charging-van-details/${deviceId}`) }
     const toggleDropdown = () => { setIsDropdownOpen(!isDropdownOpen) };
 
     const validateForm = () => {

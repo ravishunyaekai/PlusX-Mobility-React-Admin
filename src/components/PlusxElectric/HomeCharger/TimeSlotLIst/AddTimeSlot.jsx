@@ -30,7 +30,7 @@ const AddPortableChargerTimeSlot = () => {
     const [loading, setLoading]           = useState(false);
 
     const handleCancel = () => {
-        navigate('/electric/mobile-ev-charging/charger-booking-time-slot-list');
+        navigate('/electric/mobile-ev-charging/charging-time-slot-list');
     };
 
     const handleDateChange = (index, date) => {
@@ -165,7 +165,7 @@ const AddPortableChargerTimeSlot = () => {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
                         setLoading(false);
-                        navigate('/electric/mobile-ev-charging/charger-booking-time-slot-list');
+                        navigate('/electric/mobile-ev-charging/charging-time-slot-list');
                     }, 2000)
                 } else {
                     toast(response.message || response.message[0], { type: "error" });

@@ -3,12 +3,12 @@ export const menuItems = {
     homeCharger: [
         // { id: "homeChargerList",    label: "Charger List",      path: "/electric/mobile-ev-charging/charger-list" },
         { id: "homeChargerBooking", label: "Bookings",   path: "/electric/mobile-ev-charging/charging-booking-list" },
-        { id: "invoiceList",        label: "Invoice List",      path: "/electric/mobile-ev-charging/charger-booking-invoice-list" },
-        { id: "timeSlot",           label: "Time Slot",         path: "/electric/mobile-ev-charging/charger-booking-time-slot-list" },
+        { id: "invoiceList",        label: "Invoice List",      path: "/electric/mobile-ev-charging/charging-invoice-list" },
+        { id: "timeSlot",           label: "Time Slot",         path: "/electric/mobile-ev-charging/charging-time-slot-list" },
         { id: "chargingpackage",    label: "Charging Packages", path: "/electric/mobile-ev-charging/charging-package-list" },
         { id: "deviceList",         label: "Charging Van List",       path: "/electric/mobile-ev-charging/charging-van-list" },
         // { id: "areaList",           label: "Area List",         path: "/electric/mobile-ev-charging/area-list" },
-        { id: "failedList",         label: "Failed Bookings",    path: "/electric/mobile-ev-charging/failed-booking-list" },
+        { id: "failedList",         label: "Failed Bookings",    path: "/electric/mobile-ev-charging/charging-failed-booking-list" },
     ],
     evRoadAssistance: [
         { id: "bookingList",        label: "Bookings",   path: "/electric/ev-road-assistance/booking-list" },

@@ -202,7 +202,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     {pageHeading === 'EV Charger Bookings' && (
                                         <>
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/charger-installation/ev-charger-booking-details', data.request_id)} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/charger-installation/ev-charging-booking-details', data.request_id)} />
                                             )}
                                         </>
                                     )}
@@ -306,7 +306,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     {pageHeading === "Mobile EV Charging Van List" && (
                                         <>
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/mobile-ev-charging/device-details', data.pod_id)} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/mobile-ev-charging/charging-van-details', data.pod_id)} />
                                             )}
                                             {access.includes('edit') && (
                                                 <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/mobile-ev-charging/edit-charging-van', data.pod_id)} />

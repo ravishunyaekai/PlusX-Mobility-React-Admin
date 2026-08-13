@@ -40,7 +40,7 @@ const FailedChargerBookingList = () => {
     const [loading, setLoading]                       = useState(false);
     const [downloadClicked, setDownloadClicked]       = useState(false)
 
-    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/failed-charger-booking-details/${id}`)
+    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/failed-charging-booking-details/${id}`)
 
     const fetchList = (page, appliedFilters = {}, scheduleFilters = {}) => {
         if (page === 1 && Object.keys(appliedFilters).length === 0) {

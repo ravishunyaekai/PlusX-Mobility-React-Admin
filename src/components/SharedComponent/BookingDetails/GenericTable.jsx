@@ -7,7 +7,7 @@ const GenericTable = ({ columns, data, actions, firstLink }) => {
     const navigate = useNavigate();
     const renderBooking = (e) => {
         const id = e.target.textContent.trim();
-        navigate(`/mobile-ev-charging/charger-booking-details/${id}`); 
+        navigate(`/mobile-ev-charging/charging-booking-details/${id}`); 
     }
 
     return (

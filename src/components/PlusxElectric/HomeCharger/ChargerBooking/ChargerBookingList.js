@@ -127,7 +127,7 @@ const ChargerBookingList = () => {
         });
     };
 
-    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/charger-booking-details/${id}`)
+    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/charging-booking-details/${id}`)
 
     const allAreaList = () => {
         const obj = {

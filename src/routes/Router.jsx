@@ -443,20 +443,20 @@ const router = createBrowserRouter([
                         element: <ChargerBookingList />,
                     },
                     {
-                        path: "charger-booking-details/:bookingId",
+                        path: "charging-booking-details/:bookingId",
                         element: <ChargerBookingDetails />,
                     },
                     {
-                        path: "charger-booking-invoice-list",
+                        path: "charging-invoice-list",
                         element: <ChargerBookingInvoiceList />,
                     },
                     {
-                        path: "charger-booking-invoice-details/:invoiceId",
+                        path: "charging-invoice-details/:invoiceId",
                         element: <InvoiceDetails />,
                     },
                     
                     {
-                        path: "charger-booking-time-slot-list",
+                        path: "charging-time-slot-list",
                         element: <PortableChargerTimeSlotList />,
                     },
                     {
@@ -484,7 +484,7 @@ const router = createBrowserRouter([
                         path: "edit-charging-van/:podId",
                         element: <EditPodDevice />,  
                     }, {
-                        path: "device-details/:podId",
+                        path: "charging-van-details/:podId",
                         element: <DeviceDetails />,  
                     },
                     {
@@ -508,11 +508,11 @@ const router = createBrowserRouter([
                         element : <EditPodArea />,
                     },
                     {
-                        path: "failed-booking-list",
+                        path: "charging-failed-booking-list",
                         element: <FailedChargerBookingList />,
                     },
                     {
-                        path: "failed-charger-booking-details/:bookingId",
+                        path: "failed-charging-booking-details/:bookingId",
                         element: <FailedBookingDetails />,
                     },
                     {
