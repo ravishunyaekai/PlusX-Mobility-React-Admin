@@ -104,7 +104,7 @@ const PODZoneHistory = ({podId }) => {
         
         if(podId == ''){
             
-            toast("Charging Van ID is required.", {type:'error'});
+            toast("Charging Van No is required.", {type:'error'});
 
         } else if(selectedArea == ''){
            

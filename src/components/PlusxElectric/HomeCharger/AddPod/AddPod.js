@@ -91,7 +91,7 @@ const AddPod = () => {
     return (
         <div className='main-container'>
             <SubHeader 
-                heading = "Add Chagring Van List" 
+                heading = "Add Charging Van List" 
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 fetchFilteredData={fetchFilteredData} 
@@ -99,12 +99,12 @@ const AddPod = () => {
             />
             <ToastContainer />
             {chargerList.length === 0 ? (
-                <EmptyList tableHeaders={["Chagring Van ID", "Chagring Van Status", "Zone", "Action"]} message="No data available" />
+                <EmptyList tableHeaders={["Charging Van No", "Charging Van Status", "Zone", "Action"]} message="No data available" />
             ) : (
             <List
-                tableHeaders={["Chagring Van ID", "Chagring Van Status", "Zone", "Action"]}
+                tableHeaders={["Charging Van No", "Charging Van Status", "Zone", "Action"]}
                 listData={chargerList}
-                pageHeading="Add Chagring Van List"
+                pageHeading="Add Charging Van List"
                 onDeleteSlot={handleDeleteSlot}
                 keyMapping={[
                     { key: 'charger_id',    label: 'Booking ID' }, 

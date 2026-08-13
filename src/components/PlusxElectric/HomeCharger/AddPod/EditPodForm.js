@@ -289,11 +289,11 @@ const EditPodForm = () => {
                 <form className={styles.formSection} onSubmit={handleSubmit}>
                     <div className={styles.row}>
                         <div className={styles.addShopInputContainer}>
-                            <label className={styles.addShopLabel} htmlFor="shopName">Charging Van ID</label>
+                            <label className={styles.addShopLabel} htmlFor="shopName">Charging Van No</label>
                             <input
                                 type="text"
                                 id="shopName"
-                                placeholder="Charging Van ID"
+                                placeholder="Charging Van No"
                                 className={styles.inputField}
                                 value={stationName}
                                 onChange={(e) => setStationName(e.target.value)}

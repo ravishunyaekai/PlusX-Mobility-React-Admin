@@ -77,7 +77,19 @@ const DashboardCard = ({ details }) => {
       count : details?.find((item) => item.module === "No. of Regs. Drivers")?.count || 0,
       title : "Active Drivers",
       route : "/electric/drivers/driver-list",
-    }
+    },
+    {
+      icon  : HomeCharging,
+      count : details?.find((item) => item.module === "Mobile EV Charging Failed Bookings")?.count || 0,
+      title : "Mobile EV Charging Failed Bookings",
+      route : "/electric/mobile-ev-charging/charging-failed-booking-list",
+    },
+    {
+      icon  : EVRoadAssitanceImage,
+      count : details?.find((item) => item.module === "Failed EV Road Assistance")?.count || 0,
+      title : "Failed EV Roadside Assistance Bookings",
+      route : "/electric/ev-road-assistance/failed-booking-list",
+    },
     
   ];
   return (

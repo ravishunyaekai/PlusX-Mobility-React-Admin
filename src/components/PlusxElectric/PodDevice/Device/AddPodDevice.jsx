@@ -37,7 +37,7 @@ const AddPodDevice = () => {
             { 
                 name         : "podId", 
                 value        : podId, 
-                errorMessage : "Charging Van Id is required.", 
+                errorMessage : "Charging Van No is required.", 
                 isValid      : val => val.trim() !== "" 
             },
             { 
@@ -179,10 +179,10 @@ const AddPodDevice = () => {
 
                     <div className={`row`}>
                         <div className={`col-lg-6`}>
-                            <label htmlFor="podId" className={styles.labelText}>Charging Van ID</label>
+                            <label htmlFor="podId" className={styles.labelText}>Charging Van No</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <input type="text" autoComplete="off" id="podId" placeholder="Charging Van ID" className={styles.inputField} value={podId} onChange={(e) => setPodId(e.target.value)} />
+                                    <input type="text" autoComplete="off" id="podId" placeholder="Charging Van No" className={styles.inputField} value={podId} onChange={(e) => setPodId(e.target.value)} />
                                     {errors.podId && podId === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.podId}</p>}
                                 </div>
                             </div>
