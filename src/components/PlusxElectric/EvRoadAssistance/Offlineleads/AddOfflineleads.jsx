@@ -34,54 +34,84 @@ const AddOfflineleads = () => {
     const [jumpStartRequired, setJumpStartRequired] = useState(null);
 
     // =========================
+    // Driver, Vehicle List
+    // =========================
+    const [rsaList, setRsaList] = useState([]);
+    const [vehicleList, setVehicleList] = useState([]);
+    const [vehicleMakeList, setVehicleMakeList] = useState([]);
+    const [vehicleModelList, setVehicleModelList] = useState([]);
+
+    // =========================
     // Payment Details
     // =========================
     const [paymentMode, setPaymentMode] = useState(null);
     const [paymentProof, setPaymentProof] = useState([]);
+    const [paymentProofPreviews, setPaymentProofPreviews] = useState([]);
 
     const handleGalleryChange = (event) => {
         const selectedFiles = Array.from(event.target.files);
-        // const validFiles = selectedFiles.filter(file => file.type.startsWith('image/'));
-        const validFiles = selectedFiles.filter(file => ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type));
+
+        const validFiles = selectedFiles.filter((file) =>
+            ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)
+        );
 
         if (validFiles.length !== selectedFiles.length) {
-            toast.error("Invalid file. Only .jpg, .jpeg, .png allowed.");
+            toast.error('Invalid file. Only .jpg, .jpeg, .png allowed.');
             return;
         }
-        setPaymentProof((prevFiles) => [...prevFiles, ...validFiles]);
+
+        setPaymentProof((prevFiles) => [
+            ...prevFiles,
+            ...validFiles,
+        ]);
+
+        setPaymentProofPreviews((prevPreviews) => [
+            ...prevPreviews,
+            ...validFiles.map((file) => URL.createObjectURL(file)),
+        ]);
+
+        event.target.value = '';
     };
 
     const handleRemoveGalleryImage = (index) => {
-        setPaymentProof((prevFiles) => prevFiles.filter((_, i) => i !== index));
+        URL.revokeObjectURL(paymentProofPreviews[index]);
+
+        setPaymentProof((prevFiles) =>
+            prevFiles.filter((_, i) => i !== index)
+        );
+
+        setPaymentProofPreviews((prevPreviews) =>
+            prevPreviews.filter((_, i) => i !== index)
+        );
     };
 
     // =========================
     // Booking Details
     // =========================
     const [bookingStatus, setBookingStatus] = useState(null);
-    const [bookingCompletedBy, setBookingCompletedBy] = useState('');
+    const [bookingCompletedBy, setBookingCompletedBy] = useState(null);
 
     // =========================
     // Dropdown Options
     // =========================
     const batteryLevelOptions = [
         { value: '0%', label: '0%' },
-        { value: 'more_than_5%', label: 'More than 5%' },
+        { value: 'More than 5%', label: 'More than 5%' },
     ];
 
     const jumpStartOptions = [
-        { value: 'yes', label: 'Yes' },
-        { value: 'no', label: 'No' },
+        { value: 'No', label: 'No' },
+        { value: 'Yes', label: 'Yes' },
     ];
 
     const paymentModeOptions = [
-        { value: 'cash', label: 'Cash' },
-        { value: 'online', label: 'Online' },
+        { value: 'Cash', label: 'Cash' },
+        { value: 'Online', label: 'Online' },
     ];
 
     const bookingStatusOptions = [
-        { value: 'confirmed', label: 'Confirmed' },
-        { value: 'completed', label: 'Completed' },
+        { value: 'Confirmed', label: 'Confirmed' },
+        { value: 'Completed', label: 'Completed' },
     ];
 
     // =========================
@@ -97,19 +127,24 @@ const AddOfflineleads = () => {
         if (!phoneNumber.trim()) {
             newErrors.phoneNumber = 'Phone Number is required.';
         } else if (!/^[0-9]{10}$/.test(phoneNumber)) {
-            newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
+            newErrors.phoneNumber =
+                'Please enter a valid 10 digit phone number.';
         }
 
         if (!emailId.trim()) {
             newErrors.emailId = 'Email ID is required.';
-        } else if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailId)
-        ) {
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailId)) {
             newErrors.emailId = 'Please enter a valid email ID.';
         }
 
         if (!locationLink.trim()) {
             newErrors.locationLink = 'Location Link is required.';
+        } else {
+            try {
+                new URL(locationLink);
+            } catch {
+                newErrors.locationLink = 'Please enter a valid location URL.';
+            }
         }
 
         if (!address.trim()) {
@@ -118,6 +153,8 @@ const AddOfflineleads = () => {
 
         if (!price.trim()) {
             newErrors.price = 'Price including GST is required.';
+        } else if (Number(price) <= 0) {
+            newErrors.price = 'Price must be greater than 0.';
         }
 
         if (!vehicleMake.trim()) {
@@ -133,14 +170,16 @@ const AddOfflineleads = () => {
         }
 
         if (!jumpStartRequired) {
-            newErrors.jumpStartRequired = 'Jump Start Required is required.';
+            newErrors.jumpStartRequired =
+                'Jump Start Required is required.';
         }
 
         if (!paymentMode) {
             newErrors.paymentMode = 'Mode of Payment is required.';
         }
 
-        if (!paymentProof) {
+        // Required only for Online payment
+        if (paymentMode?.value === 'Online' && paymentProof.length === 0) {
             newErrors.paymentProof = 'Payment Proof is required.';
         }
 
@@ -149,8 +188,8 @@ const AddOfflineleads = () => {
         }
 
         if (
-            bookingStatus?.value === 'completed' &&
-            !bookingCompletedBy.trim()
+            bookingStatus?.value === 'Completed' &&
+            !bookingCompletedBy
         ) {
             newErrors.bookingCompletedBy =
                 'Booking Completed By is required.';
@@ -176,8 +215,8 @@ const AddOfflineleads = () => {
 
         const formData = new FormData();
 
-        formData.append('userId', userDetails?.user_id);
-        formData.append('email', userDetails?.email);
+        formData.append('userId', userDetails?.user_id || '');
+        formData.append('email', userDetails?.email || '');
 
         // Customer Details
         formData.append('customer_name', customerName);
@@ -190,22 +229,32 @@ const AddOfflineleads = () => {
         // Vehicle Details
         formData.append('vehicle_make', vehicleMake);
         formData.append('vehicle_model', vehicleModel);
-        formData.append('battery_level', batteryLevel?.value);
+        formData.append('battery_level', batteryLevel?.value || '');
         formData.append(
             'jump_start_required',
-            jumpStartRequired?.value
+            jumpStartRequired?.value || ''
         );
 
         // Payment Details
-        formData.append('payment_mode', paymentMode?.value);
+        formData.append(
+            'payment_mode',
+            paymentMode?.value || ''
+        );
 
-        if (paymentProof) {
-            formData.append('payment_proof', paymentProof);
-        }
+        paymentProof.forEach((file) => {
+            formData.append('payment_proof', file);
+        });
 
         // Booking Details
-        formData.append('booking_status', bookingStatus?.value);
-        formData.append('booking_completed_by', bookingCompletedBy);
+        formData.append(
+            'booking_status',
+            bookingStatus?.value || ''
+        );
+
+        formData.append(
+            'booking_completed_by',
+            bookingCompletedBy?.value || ''
+        );
 
         postRequestWithToken(
             'add-ev-road-assistance-offline-lead',
@@ -213,7 +262,8 @@ const AddOfflineleads = () => {
             async (response) => {
                 if (response.code === 200 || response.status === 1) {
                     toast.success(
-                        response.message || 'Booking added successfully.'
+                        response.message ||
+                        'Booking added successfully.'
                     );
 
                     setTimeout(() => {
@@ -240,15 +290,95 @@ const AddOfflineleads = () => {
         );
     };
 
-    useEffect(() => {
-        if (!userDetails || !userDetails.access_token) {
-            navigate('/login');
+    const getDriverList = () => {
+        try {
+            const rsaObj = {
+                userId: userDetails?.user_id,
+                email: userDetails?.email,
+                service_type: 'EV Roadside Assistance',
+            };
+
+            postRequestWithToken(
+                'all-rsa-list',
+                rsaObj,
+                async (response) => {
+                    if (response.code === 200) {
+                        const drivers = (response?.data || []).map((item) => ({
+                            value: item?.rsa_name || '',
+                            label: item?.rsa_name || '',
+                        }));
+
+                        setRsaList(drivers);
+                    } else {
+                        console.log(
+                            'Error in all-rsa-list API:',
+                            response
+                        );
+                    }
+                }
+            );
+        } catch (e) {
+            console.log("Error in getDriverList:", e);
         }
-    }, []);
+    };
+
+    const getVehicleList = () => {
+        try {
+            postRequestWithToken(
+                'ev-road-assistance-offline-vehicle-list',
+                {},
+                async (response) => {
+                    if (response.code === 200) {
+                        setVehicleList(response?.data || []);
+                        setVehicleMakeList(response?.data || [])?.map((vehicle) => ({
+                            value: vehicle.value,
+                            label: vehicle.label,
+                        }));;
+                    } else {
+                        console.log(
+                            'Error in ev-road-assistance-offline-vehicle-list API:',
+                            response
+                        );
+                    }
+                }
+            );
+        } catch (e) {
+            console.log('Error in getVehicleList:', e);
+        }
+    };
+
+    useEffect(() => {
+        if (!userDetails?.access_token) {
+            navigate('/login');
+            return;
+        }
+
+        getDriverList();
+        getVehicleList();
+    }, [navigate]);
 
     const handleCancel = () => {
         navigate('/electric/ev-road-assistance/rsa-offline-leads');
     };
+
+    useEffect(() => {
+        if (paymentMode?.value !== 'Online') {
+            paymentProofPreviews.forEach((url) => {
+                URL.revokeObjectURL(url);
+            });
+
+            setPaymentProof([]);
+            setPaymentProofPreviews([]);
+        }
+    }, [paymentMode]);
+
+    useEffect(() => {
+        if (vehicleMakeList?.length == 0) {
+            setVehicleModelList([])
+        }
+        
+    }, [vehicleMakeList])
+
 
     return (
         <div className={styles.addStationContainer}>
@@ -651,66 +781,46 @@ const AddOfflineleads = () => {
                         </div>
 
                         {/* Payment Proof */}
-                        {/* <div className="col-lg-6">
-                            <label className={styles.labelText}>
-                                Payment Proof
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="file"
-                                        className={styles.inputField}
-                                        accept="image/*,.pdf"
-                                        onChange={(e) => {
-                                            setPaymentProof(
-                                                e.target.files?.[0] || null
-                                            );
-                                        }}
-                                    />
-
-                                    {errors.paymentProof && (
-                                        <p className={styles.error}>
-                                            {errors.paymentProof}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div> */}
-                        <div className={`col-lg-6`}>
-                            <label className={styles.labelText}>
-                                Payment Proof
-                            </label>
-                            <div className={`row`}>
-                                <div className="col-xl-10 col-lg-12">
-                                    <div className={styles.uploadContainer}>
-                                        <span className={styles.uploadLabel}>
-                                            {paymentProof.length > 0
-                                                ? (
-                                                    paymentProof.length > 2 ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)` : paymentProof.map(file => file.name).join(', ')
-                                                )
-                                                : 'Upload Payment Proof'}
-                                        </span>
-                                        <label htmlFor="galaryImage" className={styles.uploadButton}><MdOutlineCloudUpload /> Upload </label>
-                                        <input type="file" multiple id="galaryImage" accept=".jpg,.jpeg,.png" onChange={handleGalleryChange} className={styles.hiddenInput} />
-                                    </div>
-                                    {errors.paymentProof && paymentProof.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.paymentProof}</p>}
-                                </div>
-                            </div>
-                            {paymentProof?.length > 0 && (<div className={`row`}>
-                                <div className={`col-xl-10 col-lg-12`}>
-                                    <div className={styles.galleryContainer}>
-                                        {paymentProof?.map((file, index) => (
-                                            <div className={styles.imageContainer} key={index}>
-                                                <img alt={`Preview ${index + 1}`} className={styles.previewImage} src={URL.createObjectURL(file)} />
-                                                <button type="button" className={styles.removeButton} onClick={() => handleRemoveGalleryImage(index)}><AiOutlineClose size={20} style={{ padding: "2px" }} /></button>
-                                            </div>
-                                        ))}
+                        {paymentMode?.value === "Online" && (
+                            <div className={`col-lg-6`}>
+                                <label className={styles.labelText}>
+                                    Payment Proof
+                                </label>
+                                <div className={`row`}>
+                                    <div className="col-xl-10 col-lg-12">
+                                        <div className={styles.uploadContainer}>
+                                            <span className={styles.uploadLabel}>
+                                                {paymentProof.length > 0
+                                                    ? (
+                                                        paymentProof.length > 2 ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)` : paymentProof.map(file => file.name).join(', ')
+                                                    )
+                                                    : 'Upload Payment Proof'}
+                                            </span>
+                                            <label htmlFor="galaryImage" className={styles.uploadButton}><MdOutlineCloudUpload /> Upload </label>
+                                            <input type="file" multiple id="galaryImage" accept=".jpg,.jpeg,.png" onChange={handleGalleryChange} className={styles.hiddenInput} />
+                                        </div>
+                                        {errors.paymentProof && paymentProof.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.paymentProof}</p>}
                                     </div>
                                 </div>
-                            </div>)}
-                        </div>
-
+                                {paymentProof?.length > 0 && (<div className={`row`}>
+                                    <div className={`col-xl-10 col-lg-12`}>
+                                        <div className={styles.galleryContainer}>
+                                            {paymentProof?.map((file, index) => (
+                                                <div className={styles.imageContainer} key={index}>
+                                                    {/* <img alt={`Preview ${index + 1}`} className={styles.previewImage} src={URL.createObjectURL(file)} /> */}
+                                                    <img
+                                                        alt={`Preview ${index + 1}`}
+                                                        className={styles.previewImage}
+                                                        src={paymentProofPreviews[index]}
+                                                    />
+                                                    <button type="button" className={styles.removeButton} onClick={() => handleRemoveGalleryImage(index)}><AiOutlineClose size={20} style={{ padding: "2px" }} /></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>)}
+                            </div>
+                        )}
                     </div>
 
 
@@ -723,8 +833,11 @@ const AddOfflineleads = () => {
 
                     <div className={`row`}>
                         <div className={`col-xl-11 col-lg-12`}>
-                            <label className={styles.featureLabel} htmlFor="Features"> Booking Details
-
+                            <label
+                                className={styles.featureLabel}
+                                htmlFor="Features"
+                            >
+                                Booking Details
                             </label>
                         </div>
                     </div>
@@ -757,7 +870,7 @@ const AddOfflineleads = () => {
                             </div>
                         </div>
 
-                        {/* Completed By */}
+                        {/* Booking Completed By */}
                         <div className="col-lg-6">
                             <label className={styles.labelText}>
                                 Booking Completed By
@@ -765,17 +878,13 @@ const AddOfflineleads = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Booking Completed By"
-                                        className={styles.inputField}
+                                    <CustomDropdown
+                                        options={rsaList}
                                         value={bookingCompletedBy}
-                                        onChange={(e) =>
-                                            setBookingCompletedBy(
-                                                e.target.value
-                                            )
-                                        }
+                                        onChange={setBookingCompletedBy}
+                                        labelledBy="Select Driver"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
 
                                     {errors.bookingCompletedBy && (

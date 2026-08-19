@@ -81,52 +81,28 @@ const EditOfflineleads = () => {
     const [bookingCompletedBy, setBookingCompletedBy] =
         useState('');
 
-    // =========================================================
-    // Dropdown Options
-    // =========================================================
 
+    // =========================
+    // Dropdown Options
+    // =========================
     const batteryLevelOptions = [
-        {
-            value: '0%',
-            label: '0%'
-        },
-        {
-            value: 'more_than_5%',
-            label: 'More than 5%'
-        }
+        { value: '0%', label: '0%' },
+        { value: 'More than 5%', label: 'More than 5%' },
     ];
 
     const jumpStartOptions = [
-        {
-            value: 'yes',
-            label: 'Yes'
-        },
-        {
-            value: 'no',
-            label: 'No'
-        }
+        { value: 'No', label: 'No' },
+        { value: 'Yes', label: 'Yes' },
     ];
 
     const paymentModeOptions = [
-        {
-            value: 'cash',
-            label: 'Cash'
-        },
-        {
-            value: 'online',
-            label: 'Online'
-        }
+        { value: 'Cash', label: 'Cash' },
+        { value: 'Online', label: 'Online' },
     ];
 
     const bookingStatusOptions = [
-        {
-            value: 'confirmed',
-            label: 'Confirmed'
-        },
-        {
-            value: 'completed',
-            label: 'Completed'
-        }
+        { value: 'Confirmed', label: 'Confirmed' },
+        { value: 'Completed', label: 'Completed' },
     ];
 
     // =========================================================
@@ -1100,7 +1076,7 @@ const EditOfflineleads = () => {
                         CUSTOMER DETAILS
                     ================================================= */}
 
-                    
+
 
                     <div className={`row`}>
                         <div className={`col-xl-11 col-lg-12`}>
@@ -1423,7 +1399,7 @@ const EditOfflineleads = () => {
                         VEHICLE DETAILS
                     ================================================= */}
 
-                    
+
 
                     <div className={`row`}>
                         <div className={`col-xl-11 col-lg-12`}>
@@ -1653,7 +1629,7 @@ const EditOfflineleads = () => {
                         PAYMENT DETAILS
                     ================================================= */}
 
-                    
+
 
                     <div className={`row`}>
                         <div className={`col-xl-11 col-lg-12`}>
@@ -1724,175 +1700,261 @@ const EditOfflineleads = () => {
 
                         {/* Payment Proof */}
 
-                        <div className="col-lg-6">
+                        {paymentMode?.value === 'Online' &&
+                            (<div className="col-lg-6">
+                                <label
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Payment Proof
+                                </label>
 
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Payment Proof
-                            </label>
+                                <div className="row">
 
-                            <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
 
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <div
-                                        className={
-                                            styles.uploadContainer
-                                        }
-                                    >
-
-                                        <span
+                                        <div
                                             className={
-                                                styles.uploadLabel
+                                                styles.uploadContainer
                                             }
                                         >
-                                            {paymentProof.length >
-                                                0
-                                                ? paymentProof.length >
-                                                    2
-                                                    ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
-                                                    : paymentProof
-                                                        .map(
-                                                            file =>
-                                                                file.name
-                                                        )
-                                                        .join(
-                                                            ', '
-                                                        )
-                                                : 'Upload Payment Proof'}
-                                        </span>
 
-                                        <label
-                                            htmlFor="galleryImage"
-                                            className={
-                                                styles.uploadButton
-                                            }
-                                        >
-                                            <MdOutlineCloudUpload />
-                                            Upload
-                                        </label>
-
-                                        <input
-                                            type="file"
-                                            multiple
-                                            id="galleryImage"
-                                            accept=".jpg,.jpeg,.png"
-                                            onChange={
-                                                handleGalleryChange
-                                            }
-                                            className={
-                                                styles.hiddenInput
-                                            }
-                                        />
-
-                                    </div>
-
-                                    {errors.paymentProof &&
-                                        paymentProof.length ===
-                                        0 &&
-                                        existingPaymentProof.length ===
-                                        0 && (
-                                            <p
+                                            <span
                                                 className={
-                                                    styles.error
+                                                    styles.uploadLabel
                                                 }
                                             >
-                                                {
-                                                    errors.paymentProof
+                                                {paymentProof.length >
+                                                    0
+                                                    ? paymentProof.length >
+                                                        2
+                                                        ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
+                                                        : paymentProof
+                                                            .map(
+                                                                file =>
+                                                                    file.name
+                                                            )
+                                                            .join(
+                                                                ', '
+                                                            )
+                                                    : 'Upload Payment Proof'}
+                                            </span>
+
+                                            <label
+                                                htmlFor="galleryImage"
+                                                className={
+                                                    styles.uploadButton
                                                 }
-                                            </p>
-                                        )}
+                                            >
+                                                <MdOutlineCloudUpload />
+                                                Upload
+                                            </label>
 
+                                            <input
+                                                type="file"
+                                                multiple
+                                                id="galleryImage"
+                                                accept=".jpg,.jpeg,.png"
+                                                onChange={
+                                                    handleGalleryChange
+                                                }
+                                                className={
+                                                    styles.hiddenInput
+                                                }
+                                            />
+
+                                        </div>
+
+                                        {errors.paymentProof &&
+                                            paymentProof.length ===
+                                            0 &&
+                                            existingPaymentProof.length ===
+                                            0 && (
+                                                <p
+                                                    className={
+                                                        styles.error
+                                                    }
+                                                >
+                                                    {
+                                                        errors.paymentProof
+                                                    }
+                                                </p>
+                                            )}
+
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* =================================================
+                                {/* =================================================
                                 Existing Payment Proof
                             ================================================= */}
 
-                            {existingPaymentProof.length >
-                                0 && (
-                                    <div className="row mt-2">
+                                {existingPaymentProof.length >
+                                    0 && (
+                                        <div className="row mt-2">
 
-                                        <div className="col-xl-10 col-lg-12">
+                                            <div className="col-xl-10 col-lg-12">
 
-                                            <div
-                                                style={{
-                                                    fontWeight: 600,
-                                                    marginBottom:
-                                                        '10px'
-                                                }}
-                                            >
-                                                Existing Payment
-                                                Proof
-                                            </div>
+                                                <div
+                                                    style={{
+                                                        fontWeight: 600,
+                                                        marginBottom:
+                                                            '10px'
+                                                    }}
+                                                >
+                                                    Existing Payment
+                                                    Proof
+                                                </div>
 
-                                            <div
-                                                className={
-                                                    styles.galleryContainer
-                                                }
-                                            >
+                                                <div
+                                                    className={
+                                                        styles.galleryContainer
+                                                    }
+                                                >
 
-                                                {existingPaymentProof.map(
-                                                    (
-                                                        file,
-                                                        index
-                                                    ) => {
-                                                        const imageUrl =
-                                                            getExistingImageUrl(
-                                                                file
+                                                    {existingPaymentProof.map(
+                                                        (
+                                                            file,
+                                                            index
+                                                        ) => {
+                                                            const imageUrl =
+                                                                getExistingImageUrl(
+                                                                    file
+                                                                );
+
+                                                            return (
+                                                                <div
+                                                                    className={
+                                                                        styles.imageContainer
+                                                                    }
+                                                                    key={
+                                                                        file?.id ||
+                                                                        index
+                                                                    }
+                                                                >
+
+                                                                    {imageUrl ? (
+                                                                        <img
+                                                                            src={
+                                                                                imageUrl
+                                                                            }
+                                                                            alt={`Existing Payment Proof ${index +
+                                                                                1
+                                                                                }`}
+                                                                            className={
+                                                                                styles.previewImage
+                                                                            }
+                                                                        />
+                                                                    ) : (
+                                                                        <div
+                                                                            style={{
+                                                                                width:
+                                                                                    '100%',
+                                                                                height:
+                                                                                    '100px',
+                                                                                display:
+                                                                                    'flex',
+                                                                                alignItems:
+                                                                                    'center',
+                                                                                justifyContent:
+                                                                                    'center',
+                                                                                background:
+                                                                                    '#f5f5f5',
+                                                                                color:
+                                                                                    '#777'
+                                                                            }}
+                                                                        >
+                                                                            Image
+                                                                            not
+                                                                            available
+                                                                        </div>
+                                                                    )}
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className={
+                                                                            styles.removeButton
+                                                                        }
+                                                                        onClick={() =>
+                                                                            handleRemoveExistingProof(
+                                                                                index
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <AiOutlineClose
+                                                                            size={
+                                                                                20
+                                                                            }
+                                                                            style={{
+                                                                                padding:
+                                                                                    '2px'
+                                                                            }}
+                                                                        />
+                                                                    </button>
+
+                                                                </div>
                                                             );
+                                                        }
+                                                    )}
 
-                                                        return (
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    )}
+
+                                {/* =================================================
+                                Newly Selected Payment Proof
+                            ================================================= */}
+
+                                {paymentProof.length >
+                                    0 && (
+                                        <div className="row mt-2">
+
+                                            <div className="col-xl-10 col-lg-12">
+
+                                                <div
+                                                    style={{
+                                                        fontWeight: 600,
+                                                        marginBottom:
+                                                            '10px'
+                                                    }}
+                                                >
+                                                    New Payment
+                                                    Proof
+                                                </div>
+
+                                                <div
+                                                    className={
+                                                        styles.galleryContainer
+                                                    }
+                                                >
+
+                                                    {paymentProof.map(
+                                                        (
+                                                            file,
+                                                            index
+                                                        ) => (
                                                             <div
                                                                 className={
                                                                     styles.imageContainer
                                                                 }
-                                                                key={
-                                                                    file?.id ||
-                                                                    index
-                                                                }
+                                                                key={`${file.name}-${file.lastModified}-${index}`}
                                                             >
 
-                                                                {imageUrl ? (
-                                                                    <img
-                                                                        src={
-                                                                            imageUrl
-                                                                        }
-                                                                        alt={`Existing Payment Proof ${index +
-                                                                            1
-                                                                            }`}
-                                                                        className={
-                                                                            styles.previewImage
-                                                                        }
-                                                                    />
-                                                                ) : (
-                                                                    <div
-                                                                        style={{
-                                                                            width:
-                                                                                '100%',
-                                                                            height:
-                                                                                '100px',
-                                                                            display:
-                                                                                'flex',
-                                                                            alignItems:
-                                                                                'center',
-                                                                            justifyContent:
-                                                                                'center',
-                                                                            background:
-                                                                                '#f5f5f5',
-                                                                            color:
-                                                                                '#777'
-                                                                        }}
-                                                                    >
-                                                                        Image
-                                                                        not
-                                                                        available
-                                                                    </div>
-                                                                )}
+                                                                <img
+                                                                    src={
+                                                                        paymentProofPreviews[
+                                                                        index
+                                                                        ]
+                                                                    }
+                                                                    alt={`Preview ${index +
+                                                                        1
+                                                                        }`}
+                                                                    className={
+                                                                        styles.previewImage
+                                                                    }
+                                                                />
 
                                                                 <button
                                                                     type="button"
@@ -1900,7 +1962,7 @@ const EditOfflineleads = () => {
                                                                         styles.removeButton
                                                                     }
                                                                     onClick={() =>
-                                                                        handleRemoveExistingProof(
+                                                                        handleRemoveGalleryImage(
                                                                             index
                                                                         )
                                                                     }
@@ -1917,102 +1979,16 @@ const EditOfflineleads = () => {
                                                                 </button>
 
                                                             </div>
-                                                        );
-                                                    }
-                                                )}
+                                                        )
+                                                    )}
+
+                                                </div>
 
                                             </div>
-
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                            {/* =================================================
-                                Newly Selected Payment Proof
-                            ================================================= */}
-
-                            {paymentProof.length >
-                                0 && (
-                                    <div className="row mt-2">
-
-                                        <div className="col-xl-10 col-lg-12">
-
-                                            <div
-                                                style={{
-                                                    fontWeight: 600,
-                                                    marginBottom:
-                                                        '10px'
-                                                }}
-                                            >
-                                                New Payment
-                                                Proof
-                                            </div>
-
-                                            <div
-                                                className={
-                                                    styles.galleryContainer
-                                                }
-                                            >
-
-                                                {paymentProof.map(
-                                                    (
-                                                        file,
-                                                        index
-                                                    ) => (
-                                                        <div
-                                                            className={
-                                                                styles.imageContainer
-                                                            }
-                                                            key={`${file.name}-${file.lastModified}-${index}`}
-                                                        >
-
-                                                            <img
-                                                                src={
-                                                                    paymentProofPreviews[
-                                                                    index
-                                                                    ]
-                                                                }
-                                                                alt={`Preview ${index +
-                                                                    1
-                                                                    }`}
-                                                                className={
-                                                                    styles.previewImage
-                                                                }
-                                                            />
-
-                                                            <button
-                                                                type="button"
-                                                                className={
-                                                                    styles.removeButton
-                                                                }
-                                                                onClick={() =>
-                                                                    handleRemoveGalleryImage(
-                                                                        index
-                                                                    )
-                                                                }
-                                                            >
-                                                                <AiOutlineClose
-                                                                    size={
-                                                                        20
-                                                                    }
-                                                                    style={{
-                                                                        padding:
-                                                                            '2px'
-                                                                    }}
-                                                                />
-                                                            </button>
-
-                                                        </div>
-                                                    )
-                                                )}
-
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                )}
-
-                        </div>
+                            </div>)}
 
                     </div>
 
@@ -2020,7 +1996,7 @@ const EditOfflineleads = () => {
                         BOOKING DETAILS
                     ================================================= */}
 
-                    
+
 
                     <div className={`row`}>
                         <div className={`col-xl-11 col-lg-12`}>
