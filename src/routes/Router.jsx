@@ -172,6 +172,7 @@ import ChargeShareDetails from "../components/PlusxElectric/ChargeShare/ChargeSh
 import RSAOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/RSAOfflineleads.js";
 import AddOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/AddOfflineleads.jsx";
 import EditOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/EditOfflineleads.jsx";
+import RoadAssistanceOfflineBookingDetails from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/OfflineBookingDetails.jsx";
 
 const router = createBrowserRouter([
     {
@@ -542,6 +543,9 @@ const router = createBrowserRouter([
                     }, {
                         path: "rsa-offline-leads",
                         element: <RSAOfflineleads />,
+                    }, {
+                        path: "offline-booking-details/:requestId",
+                        element: <RoadAssistanceOfflineBookingDetails />,
                     }, {
                         path: "add-rsa-offline-leads",
                         element: <AddOfflineleads />,

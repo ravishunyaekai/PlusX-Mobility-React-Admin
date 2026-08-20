@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AddOfflineleads.module.css';
-import { postRequestWithToken } from '../../../../api/Requests';
+import { postRequestWithToken, postRequestWithTokenAndFile } from '../../../../api/Requests';
 import { toast, ToastContainer } from 'react-toastify';
 import { MdOutlineCloudUpload } from "react-icons/md";
 import { AiOutlineClose } from 'react-icons/ai';
@@ -41,6 +41,7 @@ const AddOfflineleads = () => {
     const [vehicleMakeList, setVehicleMakeList] = useState([]);
     const [vehicleModelList, setVehicleModelList] = useState([]);
 
+
     // =========================
     // Payment Details
     // =========================
@@ -60,6 +61,10 @@ const AddOfflineleads = () => {
             return;
         }
 
+        if (validFiles.length === 0) {
+            return;
+        }
+
         setPaymentProof((prevFiles) => [
             ...prevFiles,
             ...validFiles,
@@ -70,8 +75,12 @@ const AddOfflineleads = () => {
             ...validFiles.map((file) => URL.createObjectURL(file)),
         ]);
 
+        // Remove Payment Proof validation error
+        clearFieldError('paymentProof');
+
         event.target.value = '';
     };
+
 
     const handleRemoveGalleryImage = (index) => {
         URL.revokeObjectURL(paymentProofPreviews[index]);
@@ -90,6 +99,7 @@ const AddOfflineleads = () => {
     // =========================
     const [bookingStatus, setBookingStatus] = useState(null);
     const [bookingCompletedBy, setBookingCompletedBy] = useState(null);
+    const [bookingCompletedById, setBookingCompletedById] = useState(null);
 
     // =========================
     // Dropdown Options
@@ -157,13 +167,14 @@ const AddOfflineleads = () => {
             newErrors.price = 'Price must be greater than 0.';
         }
 
-        if (!vehicleMake.trim()) {
+        if (!vehicleMake) {
             newErrors.vehicleMake = 'Vehicle Make is required.';
         }
 
-        if (!vehicleModel.trim()) {
+        if (!vehicleModel) {
             newErrors.vehicleModel = 'Vehicle Model is required.';
         }
+
 
         if (!batteryLevel) {
             newErrors.batteryLevel = 'Battery Level is required.';
@@ -178,17 +189,20 @@ const AddOfflineleads = () => {
             newErrors.paymentMode = 'Mode of Payment is required.';
         }
 
-        // Required only for Online payment
-        if (paymentMode?.value === 'Online' && paymentProof.length === 0) {
+        // Payment proof required only for Online payment
+        if (
+            paymentMode?.value === 'Online' &&
+            paymentProof.length === 0
+        ) {
             newErrors.paymentProof = 'Payment Proof is required.';
         }
+
 
         if (!bookingStatus) {
             newErrors.bookingStatus = 'Booking Status is required.';
         }
 
         if (
-            bookingStatus?.value === 'Completed' &&
             !bookingCompletedBy
         ) {
             newErrors.bookingCompletedBy =
@@ -199,6 +213,18 @@ const AddOfflineleads = () => {
 
         return Object.keys(newErrors).length === 0;
     };
+
+    const clearFieldError = (field) => {
+        setErrors((prev) => {
+            if (!prev[field]) return prev;
+
+            const updatedErrors = { ...prev };
+            delete updatedErrors[field];
+
+            return updatedErrors;
+        });
+    };
+
 
     // =========================
     // Submit
@@ -218,46 +244,49 @@ const AddOfflineleads = () => {
         formData.append('userId', userDetails?.user_id || '');
         formData.append('email', userDetails?.email || '');
 
-        // Customer Details
+        // Form Details
         formData.append('customer_name', customerName);
-        formData.append('phone_number', phoneNumber);
+        formData.append('mobile_no', phoneNumber);
+        formData.append('emailId', emailId);
         formData.append('email_id', emailId);
+        formData.append('country_code', '+91');
         formData.append('location_link', locationLink);
         formData.append('address', address);
         formData.append('price', price);
-
-        // Vehicle Details
-        formData.append('vehicle_make', vehicleMake);
-        formData.append('vehicle_model', vehicleModel);
+        formData.append('vehicle_make', vehicleMake?.value || '');
+        formData.append('vehicle_model', vehicleModel?.value || '');
         formData.append('battery_level', batteryLevel?.value || '');
         formData.append(
             'jump_start_required',
             jumpStartRequired?.value || ''
         );
-
-        // Payment Details
+        formData.append('payment_status', 'Paid');
         formData.append(
-            'payment_mode',
+            'mode_of_payment',
             paymentMode?.value || ''
         );
-
-        paymentProof.forEach((file) => {
-            formData.append('payment_proof', file);
-        });
-
-        // Booking Details
         formData.append(
             'booking_status',
             bookingStatus?.value || ''
         );
-
+        formData.append(
+            'driver_name',
+            bookingCompletedBy?.value || ''
+        );
         formData.append(
             'booking_completed_by',
             bookingCompletedBy?.value || ''
         );
+        formData.append(
+            'rsa_id',
+            bookingCompletedById || ''
+        );
+        paymentProof.forEach((file) => {
+            formData.append('proof_of_transaction', file);
+        });
 
-        postRequestWithToken(
-            'add-ev-road-assistance-offline-lead',
+        postRequestWithTokenAndFile(
+            'ev-road-assistance-add-offline-booking',
             formData,
             async (response) => {
                 if (response.code === 200 || response.status === 1) {
@@ -306,6 +335,7 @@ const AddOfflineleads = () => {
                         const drivers = (response?.data || []).map((item) => ({
                             value: item?.rsa_name || '',
                             label: item?.rsa_name || '',
+                            id: item?.rsa_id || ''
                         }));
 
                         setRsaList(drivers);
@@ -324,16 +354,25 @@ const AddOfflineleads = () => {
 
     const getVehicleList = () => {
         try {
+            const obj = {
+                userId: userDetails?.user_id,
+                email: userDetails?.email,
+            };
             postRequestWithToken(
                 'ev-road-assistance-offline-vehicle-list',
-                {},
+                obj,
                 async (response) => {
                     if (response.code === 200) {
-                        setVehicleList(response?.data || []);
-                        setVehicleMakeList(response?.data || [])?.map((vehicle) => ({
+                        const vehicles = response?.data || [];
+
+                        setVehicleList(vehicles);
+
+                        const makeOptions = vehicles.map((vehicle) => ({
                             value: vehicle.value,
                             label: vehicle.label,
-                        }));;
+                        }));
+
+                        setVehicleMakeList(makeOptions);
                     } else {
                         console.log(
                             'Error in ev-road-assistance-offline-vehicle-list API:',
@@ -344,6 +383,31 @@ const AddOfflineleads = () => {
             );
         } catch (e) {
             console.log('Error in getVehicleList:', e);
+        }
+    };
+
+    const handleVehicleMakeChange = (selectedMake) => {
+        setVehicleMake(selectedMake);
+        setVehicleModel(null);
+
+        if (!selectedMake) {
+            setVehicleModelList([]);
+            return;
+        }
+
+        const selectedVehicle = vehicleList.find(
+            (vehicle) => vehicle.value === selectedMake.value
+        );
+
+        if (selectedVehicle?.models) {
+            const modelOptions = selectedVehicle.models.map((model) => ({
+                value: model.value,
+                label: model.label,
+            }));
+
+            setVehicleModelList(modelOptions);
+        } else {
+            setVehicleModelList([]);
         }
     };
 
@@ -371,13 +435,6 @@ const AddOfflineleads = () => {
             setPaymentProofPreviews([]);
         }
     }, [paymentMode]);
-
-    useEffect(() => {
-        if (vehicleMakeList?.length == 0) {
-            setVehicleModelList([])
-        }
-        
-    }, [vehicleMakeList])
 
 
     return (
@@ -425,10 +482,12 @@ const AddOfflineleads = () => {
                                         placeholder="Customer Name"
                                         className={styles.inputField}
                                         value={customerName}
-                                        onChange={(e) =>
-                                            setCustomerName(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setCustomerName(e.target.value);
+                                            clearFieldError('customerName');
+                                        }}
                                     />
+
 
                                     {errors.customerName && (
                                         <p className={styles.error}>
@@ -455,13 +514,10 @@ const AddOfflineleads = () => {
                                         value={phoneNumber}
                                         maxLength={10}
                                         onChange={(e) => {
-                                            const value =
-                                                e.target.value.replace(
-                                                    /\D/g,
-                                                    ''
-                                                );
+                                            const value = e.target.value.replace(/\D/g, '');
 
                                             setPhoneNumber(value);
+                                            clearFieldError('phoneNumber');
                                         }}
                                     />
 
@@ -492,10 +548,12 @@ const AddOfflineleads = () => {
                                         placeholder="Email ID"
                                         className={styles.inputField}
                                         value={emailId}
-                                        onChange={(e) =>
-                                            setEmailId(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setEmailId(e.target.value);
+                                            clearFieldError('emailId');
+                                        }}
                                     />
+
 
                                     {errors.emailId && (
                                         <p className={styles.error}>
@@ -520,10 +578,12 @@ const AddOfflineleads = () => {
                                         placeholder="Google Maps Location Link"
                                         className={styles.inputField}
                                         value={locationLink}
-                                        onChange={(e) =>
-                                            setLocationLink(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setLocationLink(e.target.value);
+                                            clearFieldError('locationLink');
+                                        }}
                                     />
+
 
                                     {errors.locationLink && (
                                         <p className={styles.error}>
@@ -546,14 +606,15 @@ const AddOfflineleads = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <textarea
+                                    <input
                                         placeholder="Address"
                                         className={styles.inputField}
                                         rows="3"
                                         value={address}
-                                        onChange={(e) =>
-                                            setAddress(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setAddress(e.target.value);
+                                            clearFieldError('address');
+                                        }}
                                     />
 
                                     {errors.address && (
@@ -580,18 +641,15 @@ const AddOfflineleads = () => {
                                         className={styles.inputField}
                                         value={price}
                                         onChange={(e) => {
-                                            const value =
-                                                e.target.value;
+                                            const value = e.target.value;
 
-                                            if (
-                                                /^\d{0,10}(\.\d{0,2})?$/.test(
-                                                    value
-                                                )
-                                            ) {
+                                            if (/^\d{0,10}(\.\d{0,2})?$/.test(value)) {
                                                 setPrice(value);
+                                                clearFieldError('price');
                                             }
                                         }}
                                     />
+
 
                                     {errors.price && (
                                         <p className={styles.error}>
@@ -630,16 +688,21 @@ const AddOfflineleads = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Make"
-                                        className={styles.inputField}
+                                    <CustomDropdown
+                                        options={vehicleMakeList}
                                         value={vehicleMake}
-                                        onChange={(e) =>
-                                            setVehicleMake(e.target.value)
-                                        }
+                                        onChange={(selectedMake) => {
+                                            handleVehicleMakeChange(selectedMake);
+
+                                            clearFieldError('vehicleMake');
+                                            clearFieldError('vehicleModel');
+                                        }}
+                                        labelledBy="Select Vehicle Make"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
+
+
 
                                     {errors.vehicleMake && (
                                         <p className={styles.error}>
@@ -658,16 +721,19 @@ const AddOfflineleads = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Model"
-                                        className={styles.inputField}
+                                    <CustomDropdown
+                                        options={vehicleModelList}
                                         value={vehicleModel}
-                                        onChange={(e) =>
-                                            setVehicleModel(e.target.value)
-                                        }
+                                        onChange={(selectedModel) => {
+                                            setVehicleModel(selectedModel);
+                                            clearFieldError('vehicleModel');
+                                        }}
+                                        labelledBy="Select Vehicle Model"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
+                                        disabled={!vehicleMake}
                                     />
+
 
                                     {errors.vehicleModel && (
                                         <p className={styles.error}>
@@ -693,11 +759,15 @@ const AddOfflineleads = () => {
                                     <CustomDropdown
                                         options={batteryLevelOptions}
                                         value={batteryLevel}
-                                        onChange={setBatteryLevel}
+                                        onChange={(value) => {
+                                            setBatteryLevel(value);
+                                            clearFieldError('batteryLevel');
+                                        }}
                                         labelledBy="Select Battery Level"
                                         closeOnChangedValue={true}
                                         closeOnSelect={true}
                                     />
+
 
                                     {errors.batteryLevel && (
                                         <p className={styles.error}>
@@ -719,7 +789,10 @@ const AddOfflineleads = () => {
                                     <CustomDropdown
                                         options={jumpStartOptions}
                                         value={jumpStartRequired}
-                                        onChange={setJumpStartRequired}
+                                        onChange={(value) => {
+                                            setJumpStartRequired(value);
+                                            clearFieldError('jumpStartRequired');
+                                        }}
                                         labelledBy="Select Option"
                                         closeOnChangedValue={true}
                                         closeOnSelect={true}
@@ -765,11 +838,24 @@ const AddOfflineleads = () => {
                                     <CustomDropdown
                                         options={paymentModeOptions}
                                         value={paymentMode}
-                                        onChange={setPaymentMode}
+                                        onChange={(value) => {
+                                            setPaymentMode(value);
+
+                                            // Payment mode is now selected
+                                            clearFieldError('paymentMode');
+
+                                            // If payment mode is not Online,
+                                            // payment proof is not required
+                                            if (value?.value !== 'Online') {
+                                                clearFieldError('paymentProof');
+                                            }
+                                        }}
                                         labelledBy="Select Payment Mode"
                                         closeOnChangedValue={true}
                                         closeOnSelect={true}
                                     />
+
+
 
                                     {errors.paymentMode && (
                                         <p className={styles.error}>
@@ -855,11 +941,15 @@ const AddOfflineleads = () => {
                                     <CustomDropdown
                                         options={bookingStatusOptions}
                                         value={bookingStatus}
-                                        onChange={setBookingStatus}
+                                        onChange={(value) => {
+                                            setBookingStatus(value);
+                                            clearFieldError('bookingStatus');
+                                        }}
                                         labelledBy="Select Booking Status"
                                         closeOnChangedValue={true}
                                         closeOnSelect={true}
                                     />
+
 
                                     {errors.bookingStatus && (
                                         <p className={styles.error}>
@@ -881,11 +971,16 @@ const AddOfflineleads = () => {
                                     <CustomDropdown
                                         options={rsaList}
                                         value={bookingCompletedBy}
-                                        onChange={setBookingCompletedBy}
+                                        onChange={(value) => {
+                                            setBookingCompletedBy(value);
+                                            setBookingCompletedById(value?.id);
+                                            clearFieldError('bookingCompletedBy');
+                                        }}
                                         labelledBy="Select Driver"
                                         closeOnChangedValue={true}
                                         closeOnSelect={true}
                                     />
+
 
                                     {errors.bookingCompletedBy && (
                                         <p className={styles.error}>

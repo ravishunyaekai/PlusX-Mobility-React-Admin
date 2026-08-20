@@ -14,7 +14,7 @@ export const menuItems = {
         { id: "bookingList",        label: "Bookings",   path: "/electric/ev-road-assistance/booking-list" },
         { id: "timeSlot",           label: "Time Slot",      path: "/electric/ev-road-assistance/time-slot-list" },
         { id: "invoiceList",        label: "Invoice List",   path: "/electric/ev-road-assistance/invoice-list" },
-        // { id: "rsaOfflineLeads",    label: "RSA Offline Leads",   path: "/electric/ev-road-assistance/rsa-offline-leads" },
+        { id: "rsaOfflineLeads",    label: "RSA Offline Leads",   path: "/electric/ev-road-assistance/rsa-offline-leads" },
         { id: "failedBookingList",  label: "Failed Bookings", path: "/electric/ev-road-assistance/failed-booking-list" },
     ],
     chargerInstallation: [

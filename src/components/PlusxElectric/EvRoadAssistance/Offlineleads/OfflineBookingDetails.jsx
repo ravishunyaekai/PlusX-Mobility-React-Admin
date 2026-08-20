@@ -25,7 +25,7 @@ const statusMapping = {
     'RO': 'Charging Van Reached at Office',
 };
 
-const RoadAssistanceBookingDetails = () => {
+const RoadAssistanceOfflineBookingDetails = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
     const { requestId } = useParams();
@@ -41,7 +41,7 @@ const RoadAssistanceBookingDetails = () => {
             email: userDetails?.email,
             request_id: requestId
         };
-        postRequestWithToken('ev-road-assistance-booking-details', obj, (response) => {
+        postRequestWithToken('ev-road-assistance-offline-booking-details', obj, (response) => {
             if (response.code === 200) {
                 setBookingDetails(response?.data?.booking || {});
                 setHistory(response?.data?.history);
@@ -83,16 +83,21 @@ const RoadAssistanceBookingDetails = () => {
         bookingStatus: "Booking Status",
         price: "Price",
         vehicle: "Vehicle",
-        address: "Address",
-        parkingNumber: "Parking No.",
-        parkingFloor: "Parking Floor",
         current_percent: "Vehicle Battery %",
+        jumpStart: "Jump Start Reqiured",
+        locationLink: "Location Link",
+        address: "Address",
+        modeOfPayment: "Mode Of Payment",
+        paymentStatus: "Payment Status",
 
     }
     const sectionContent1 = {
         bookingStatus: statusMapping[bookingDetails?.order_status] || bookingDetails?.order_status,
         price: bookingDetails?.price + " INR",
         vehicle: bookingDetails?.vehicle_data,
+        current_percent: bookingDetails?.battery_level > 0 ? "More than 5%" : "0%",
+        jumpStart: bookingDetails?.jump_start_required,
+        locationLink: bookingDetails?.location_link,
         address: (
             <a
                 href={`https://www.google.com/maps?q=${bookingDetails?.pickup_latitude},${bookingDetails?.pickup_longitude}`}
@@ -103,9 +108,8 @@ const RoadAssistanceBookingDetails = () => {
                 {bookingDetails?.pickup_address || 'View on Map'}
             </a>
         ),
-        parkingNumber: bookingDetails?.parking_number,
-        parkingFloor: bookingDetails?.parking_floor,
-        current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0",
+        modeOfPayment: bookingDetails?.mode_of_payment,
+        paymentStatus: bookingDetails?.payment_status,
     }
     return (
         <div className='main-container'>
@@ -113,13 +117,7 @@ const RoadAssistanceBookingDetails = () => {
                 <>
                     <BookingDetailsHeader content={content} titles={headerTitles} sectionContent={sectionContent1} type='evRoadAssitanceBooking' feedBack={feedBack} />
                     <div className={styles.bookingDetailsSection}>
-                        <BookingLeftDetails
-                            titles={sectionTitles1}
-                            content={sectionContent1}
-                            type='evRoadAssitanceBooking'
-                            paymentProof={bookingDetails?.payment_proof || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
-                            }
-                        />
+                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} type='evRoadAssitanceBooking' />
                         <BookingDetailsAccordion history={history} rsa={content} />
                     </div>
                 </>
@@ -128,4 +126,4 @@ const RoadAssistanceBookingDetails = () => {
     )
 }
 
-export default RoadAssistanceBookingDetails
+export default RoadAssistanceOfflineBookingDetails
