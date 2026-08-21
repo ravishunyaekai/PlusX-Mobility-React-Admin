@@ -8,6 +8,24 @@ import moment from 'moment';
 
 import { useNavigate } from 'react-router-dom';
 
+const statusMapping = {
+    'PNR' : 'Payment Not Received',
+    'CNF': 'Booking Confirmed',
+    'A'  : 'Assigned',
+    'ER' : 'Enroute',
+    'RL' : 'Charging Van Reached at Location',
+    'CS' : 'Charging Started',
+    'CC' : 'Charging Completed',
+    'PU' : 'Charging Van Picked Up',
+    'VP' : 'Vehicle Pickup',
+    'RS' : 'Reached Charging Spot',
+    'WC' : 'Work Completed',
+    'DO' : 'Drop Off',
+    'C'  : 'Cancel',
+    'RO' : 'Charging Van Reached at Office',
+    'RSB' : 'Rescheduled Booking'
+};
+
 const ChargerBookingDetails = () => {
     const userDetails                         = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate                            = useNavigate()
@@ -48,49 +66,74 @@ const ChargerBookingDetails = () => {
         customerContact : `${bookingDetails?.country_code} ${bookingDetails?.contact_no}`,
         imageUrl        : bookingDetails?.imageUrl,
     };
-    const sectionTitles1 = {
-        bookingStatus : "Booking Status",
-        price         : "Price",
-        serviceName   : "Service Name",
-    }
-    const sectionContent1 = {
-        bookingStatus : 'Payment Not Received',
-        serviceName   : bookingDetails?.service_name,
-        price         : bookingDetails?.service_price ? `${ ( bookingDetails?.service_price ) } INR` : '0 INR',
-    }
+        const sectionTitles1 = {
+            bookingStatus: "Booking Status",
+            // serviceName: "Service Name",
+            price: "Price",
+            slotDate: "Slot Date",
+            slotTime: "Slot Time",
+            // serviceName: "Service Name",
+            current_percent: "Vehicle Battery %",
+            vehicle: "Vehicle",
+            parkingNumber: "Parking No.",
+            parkingFloor: "Parking Floor",
+            address: "Address",
+        }
+        const sectionContent1 = {
+            bookingStatus: statusMapping[bookingDetails?.status] || bookingDetails?.status,
+            // serviceName: bookingDetails?.service_name,
+            // serviceType: bookingDetails?.service_type,
+            price: bookingDetails?.service_price ? `${(bookingDetails?.service_price)} INR` : '0 INR',
+            slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
+            slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
+            vehicle: bookingDetails?.vehicle_data,
+            current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0",
+            parkingNumber: bookingDetails?.parking_number,
+            parkingFloor: bookingDetails?.parking_floor,
+            address: (
+                <a
+                    href={`https://www.google.com/maps?q=${bookingDetails?.latitude},${bookingDetails?.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className='linkSection'
+                >
+                    {bookingDetails?.address || 'View on Map'}
+                </a>
+            ),
+        }
     const sectionTitles2 = {
-        vehicle        : "Vehicle",
-        serviceType    : "Service Type",
-        serviceFeature : "Service Feature",
+        // vehicle        : "Vehicle",
+        // serviceType    : "Service Type",
+        // serviceFeature : "Service Feature",
     }
     const sectionContent2 = {
-        vehicle        : bookingDetails?.vehicle_data,
-        serviceType    : bookingDetails?.service_type,
-        serviceFeature : bookingDetails?.service_feature,
+        // vehicle        : bookingDetails?.vehicle_data,
+        // serviceType    : bookingDetails?.service_type,
+        // serviceFeature : bookingDetails?.service_feature,
     }
     const sectionTitles3 = {
-        address       : "Address",
-        slotDate      : "Slot Date",
-        slotTime      : "Slot Time",
-        parkingNumber : "Parking No.",
-        parkingFloor  : "Parking Floor",
+        // address       : "Address",
+        // slotDate      : "Slot Date",
+        // slotTime      : "Slot Time",
+        // parkingNumber : "Parking No.",
+        // parkingFloor  : "Parking Floor",
     }
     const sectionContent3 = {
-        // address: bookingDetails?.address
-        address: (
-            <a
-                href    = {`https://www.google.com/maps?q=${bookingDetails?.latitude},${bookingDetails?.longitude}`}
-                target    = "_blank"
-                rel       = "noopener noreferrer"
-                className = 'linkSection'
-            >
-                {bookingDetails?.address || 'View on Map'}
-            </a>
-        ),
-        slotDate      : moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
-        slotTime      : moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
-        parkingNumber : bookingDetails?.parking_number,
-        parkingFloor  : bookingDetails?.parking_floor,
+        // // address: bookingDetails?.address
+        // address: (
+        //     <a
+        //         href    = {`https://www.google.com/maps?q=${bookingDetails?.latitude},${bookingDetails?.longitude}`}
+        //         target    = "_blank"
+        //         rel       = "noopener noreferrer"
+        //         className = 'linkSection'
+        //     >
+        //         {bookingDetails?.address || 'View on Map'}
+        //     </a>
+        // ),
+        // slotDate      : moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
+        // slotTime      : moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
+        // parkingNumber : bookingDetails?.parking_number,
+        // parkingFloor  : bookingDetails?.parking_floor,
     } 
     return (
         <div className='main-container'>
