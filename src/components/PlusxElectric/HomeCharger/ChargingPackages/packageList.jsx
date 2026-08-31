@@ -41,7 +41,7 @@ const ChargingPackageList = () => {
     ]
     const addButtonProps = {
         heading : "Add New Package",
-        // link    : "/electric/home-charger/add-package"
+        // link    : "/electric/mobile-ev-charging/add-package"
         onClick: () => {
             setEnableForm(true);
             setEditingData(null);
@@ -116,7 +116,7 @@ const ChargingPackageList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading="Home EV Charging Package List"
+                heading="Mobile EV Charging Package List"
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 fetchFilteredData={fetchFilteredData}
@@ -137,7 +137,7 @@ const ChargingPackageList = () => {
                     <>
                         <List
                             tableHeaders={["Package Name", "Charging Capacity(KW)", "Price Per Unit", "Service Fee", "Status", "Action"]}
-                            pageHeading="Home EV Charging Package List"
+                            pageHeading="Mobile EV Charging Package List"
                             listData={chargerList}
                             onDeleteSlot={handleDeleteSlot}
                             keyMapping={[
@@ -193,6 +193,8 @@ const ChargingPackageList = () => {
             { enableForm && (
                 <AddEditChargingPackage
                     editingData={editingData}
+                    enableForm={enableForm} 
+                    setEnableForm={setEnableForm}
                     userDetails={userDetails}
                     refreshList={() => setRefresh(prev => !prev)}
                     clearEdit={() => setEditingData(null)}

@@ -51,7 +51,7 @@ const EditCharger = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
     const backButtonClick = () => {
-        navigate('/electric/home-charger/charger-list')
+        navigate('/electric/mobile-ev-charging/charger-list')
     };
     const validateForm = () => {
         const newErrors = {};
@@ -108,7 +108,7 @@ const EditCharger = () => {
 
                     setTimeout(() => {
                         setLoading(false);
-                        navigate('/electric/home-charger/charger-list')
+                        navigate('/electric/mobile-ev-charging/charger-list')
                     }, 2000);
                 } else {
                     toast(response.message[0], { type: 'error' })
@@ -139,12 +139,14 @@ const EditCharger = () => {
                 setChargerPrice(data.charger_price || "");
                 setChargerType(data.charger_type || "");
                 setChargerFeature(data.charger_feature || "");
-                // setFile(data.image || "")
-                setFile({
-                    name: data?.image,
-                    url: `${response?.base_url}${data?.image}`,
-                    type: "image/*"
-                });
+
+                if(data.image || ""){
+                    setFile({
+                        name: data?.image,
+                        url: `${response?.base_url}${data?.image}`,
+                        type: "image/*"
+                    });
+                }
                 setIsActive(data?.status)
 
             } else {

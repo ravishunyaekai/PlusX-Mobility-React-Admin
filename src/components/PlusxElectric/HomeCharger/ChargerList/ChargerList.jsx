@@ -29,7 +29,7 @@ const ChargerList = () => {
     ]
     const addButtonProps = {
         heading: "Add Charger", 
-        link: "/electric/home-charger/add-charger"
+        link: "/electric/mobile-ev-charging/add-charger"
     };
     const fetchChargers = (page, appliedFilters = {}) => {
         if (page === 1 && Object.keys(appliedFilters).length === 0) {
@@ -101,7 +101,7 @@ const ChargerList = () => {
     return (
         <div className='main-container'>
             <SubHeader 
-                heading             = "Home Charger List" 
+                heading             = "Mobile EV Charging List" 
                 addButtonProps      = {addButtonProps}
                 filterValues        = {filters}
                 fetchFilteredData   = {fetchFilteredData} 
@@ -120,7 +120,7 @@ const ChargerList = () => {
                 <>  
                     <List
                         tableHeaders =  {["Charger ID", "Charger Name", "Charger Price", "Status", "Action"]}
-                        pageHeading  =  "Home Charger List"
+                        pageHeading  =  "Mobile EV Charging List"
                         listData     =  {chargerList}
                         onDeleteSlot =  {handleDeleteSlot}
                         keyMapping   ={[

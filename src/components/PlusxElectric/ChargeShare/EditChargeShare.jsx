@@ -470,31 +470,31 @@ const handledays = (selectedOptions) =>{
                 // ===== OPEN TIMING (MULTIPLE SLOTS) =====
                 if (Array.isArray(data?.open_timing)) {
  
-                const parsedTimings = data.open_timing.map(item => {
-                    const [from, to] = item.split('-');
- 
-                    return {
-                    fromTime: from.slice(0, -2),                 // "10:00"
-                    fromMeridiem: {
-                        value: from.slice(-2),                     // "AM"
-                        label: from.slice(-2)
-                    },
-                    toTime: to.slice(0, -2),                     // "11:00"
-                    toMeridiem: {
-                        value: to.slice(-2),                       // "PM"
-                        label: to.slice(-2)
-                    }
-                    };
-                });
- 
-                setTimings(parsedTimings);
+                    const parsedTimings = data.open_timing.map(item => {
+                        const [from, to] = item.split('-');
+    
+                        return {
+                        fromTime: from.slice(0, -2),                 // "10:00"
+                        fromMeridiem: {
+                            value: from.slice(-2),                     // "AM"
+                            label: from.slice(-2)
+                        },
+                        toTime: to.slice(0, -2),                     // "11:00"
+                        toMeridiem: {
+                            value: to.slice(-2),                       // "PM"
+                            label: to.slice(-2)
+                        }
+                        };
+                    });
+                    setTimings(parsedTimings);
                 }
-                        
-                setFile({
-                    name: data?.charger_image,
-                    url: `${response?.base_url}${data?.charger_image}`,
-                    type: "image/*"
-                });                
+                if(data?.charger_image) {
+                    setFile({
+                        name : data?.charger_image,
+                        url  : `${response?.base_url}${data?.charger_image}`,
+                        type : "image/*"
+                    }); 
+                }             
             } else {
                 console.error('Error in charge-share-detail API', response);
             }

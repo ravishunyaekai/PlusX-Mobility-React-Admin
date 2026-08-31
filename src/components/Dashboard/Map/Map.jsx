@@ -103,9 +103,9 @@ export default MapComponent;
 // {hoveredPodMarker && (
 //   <div className={style.hoverTooltip}>
 //     <img src={Cancel} alt="Close" className={style.closeIcon} onClick={() => setHoveredPodMarker(null)} />
-//     <p>POD ID: {hoveredPodMarker.podId}</p>
+//     <p>Charging VanID: {hoveredPodMarker.podId}</p>
 //     <p>Device ID: {hoveredPodMarker.deviceId}</p>
-//     <p>POD Name: {hoveredPodMarker.podName}</p>
+//     <p>Charging VanName: {hoveredPodMarker.podName}</p>
 //     <p>Status: {
 //       hoveredPodMarker.charging_status === 0 ? 'Available' :
 //       hoveredPodMarker.charging_status === 1 ? 'In Use' :

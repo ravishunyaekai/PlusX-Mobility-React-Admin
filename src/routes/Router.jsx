@@ -45,9 +45,9 @@ import FailedRideList from "../components/RideBooking/RideList/FailedRideList.js
 import FailedRideDetails from "../components/RideBooking/RideDetails/FailedRideDetails.jsx";
 import InvoiceList from "../components/RideBooking/RideList/InvoiceList.jsx";
 import RideInvoiceDetails from "../components/RideBooking/Invoice/InvoiceDetails.jsx";
-import SupportRequestList from "../components/RideBooking/RideList/SupportRequestList.jsx"; 
+import SupportRequestList from "../components/RideBooking/RideList/SupportRequestList.jsx";
 import SupportRequestDetails from "../components/RideBooking/RideDetails/SupportRequestDetails.jsx";
-import RefundRequestList from "../components/RideBooking/RideList/RefundRequestList.jsx"; 
+import RefundRequestList from "../components/RideBooking/RideList/RefundRequestList.jsx";
 import RefundRequestDetails from "../components/RideBooking/RideDetails/RefundRequestDetails.jsx";
 
 
@@ -137,7 +137,7 @@ import EditCoupon from "../components/PlusxElectric/Coupon/EditCoupon.jsx";
 import CouponList from "../components/PlusxElectric/Coupon/CouponList.jsx";
 // import EditUniversity from "../components/University/University/EditUninversity/editUniversiyt.jsx";
 
-//Home Charger
+//Mobile EV Charging
 import HomeCharger from "../components/PlusxElectric/HomeCharger/index.jsx";
 import AddPod from "../components/PlusxElectric/HomeCharger/AddPod/AddPod.js";
 import ChargerList from "../components/PlusxElectric/HomeCharger/ChargerList/ChargerList.jsx";
@@ -157,7 +157,7 @@ import FailedBookingDetails from "../components/PlusxElectric/HomeCharger/Charge
 import PodDeviceList from "../components/PlusxElectric/PodDevice/Device/deviceList.jsx";
 import AddPodDevice from "../components/PlusxElectric/PodDevice/Device/AddPodDevice.jsx";
 import EditPodDevice from "../components/PlusxElectric/PodDevice/Device/EditPodDevice.jsx";
-import DeviceDetails  from "../components/PlusxElectric/PodDevice/Device/DeviceDetails.jsx";
+import DeviceDetails from "../components/PlusxElectric/PodDevice/Device/DeviceDetails.jsx";
 import PodAreaList from "../components/PlusxElectric/PodDevice/Area/PodAreaList.jsx";
 import AddPodArea from "../components/PlusxElectric/PodDevice/Area/AddPodArea.jsx";
 import EditPodArea from "../components/PlusxElectric/PodDevice/Area/EditPodArea.jsx";
@@ -169,69 +169,72 @@ import EvInsurance from "../components/PlusxElectric/EvInsurance/index.jsx";
 import ChargeShareList from "../components/PlusxElectric/ChargeShare/ChargeShareList.jsx";
 import EditChargeShare from "../components/PlusxElectric/ChargeShare/EditChargeShare.jsx";
 import ChargeShareDetails from "../components/PlusxElectric/ChargeShare/ChargeShareDetails.jsx";
+import RSAOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/RSAOfflineleads.js";
+import AddOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/AddOfflineleads.jsx";
+import EditOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/EditOfflineleads.jsx";
 
 const router = createBrowserRouter([
     {
-        path    : "/login",
-        element : <Login />,
+        path: "/login",
+        element: <Login />,
     },
 
     {
-        path    : "/",
-        element : <LandingPage />,
+        path: "/",
+        element: <LandingPage />,
     },
 
     //Mobility Routes
     {
-        path     : "/mobility",
-        element  : <Layout />,
-        children : [
+        path: "/mobility",
+        element: <Layout />,
+        children: [
             {
-                path    : "dashboard",
-                element : <Dashboard />,
+                path: "dashboard",
+                element: <Dashboard />,
             },
             // Users List
             {
-                path     : "user",
-                element  : <AppSignUp/>,
-                children : [
+                path: "user",
+                element: <AppSignUp />,
+                children: [
                     {
-                        path    : "user-list",
-                        element : <UserList />,
+                        path: "user-list",
+                        element: <UserList />,
                     },
                     {
-                        path    : "add-new-user",
-                        element : <AddNewUser/>,
+                        path: "add-new-user",
+                        element: <AddNewUser />,
                     },
                     {
-                        path    : "delete-users-list",
-                        element : <DeletedUsersList />,
+                        path: "delete-users-list",
+                        element: <DeletedUsersList />,
                     },
                 ],
             },
             //App Signup
             {
-                path     : "app-signup",
-                element  : <AppSignUp/>,
-                children : [
+                path: "app-signup",
+                element: <AppSignUp />,
+                children: [
                     {
-                        path    : "app-signup-list",
-                        element : <AppSignupList />,
+                        path: "app-signup-list",
+                        element: <AppSignupList />,
                     },
                     {
-                        path    : "app-signup-details/:riderId",
-                        element : <AppSignupDetails/>,
+                        path: "app-signup-details/:riderId",
+                        element: <AppSignupDetails />,
                     },
                     {
-                        path    : "deleted-account",
-                        element : <DeletedSignupList />,
+                        path: "deleted-account",
+                        element: <DeletedSignupList />,
                     },
                 ],
             },
             //Total Number of stations
             {
                 path: "mobility-station",
-                element: <MobilityStations/>,
+                element: <MobilityStations />,
                 children: [
                     // station
                     {
@@ -244,11 +247,11 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "station-list",
-                    element: <MobilityStationsList/>,
+                        element: <MobilityStationsList />,
                     },
                     {
                         path: "station-details/:stationId",
-                        element: <MobilityStationsDetails/>,
+                        element: <MobilityStationsDetails />,
                     },
 
                     //Cycle
@@ -262,19 +265,19 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "cycle-list",
-                        element: <CycleList/>,
+                        element: <CycleList />,
                     },
                     {
                         path: "cycle-details/:cycleId",
-                        element: <CycleDetails/>,
+                        element: <CycleDetails />,
                     },
                 ],
             },
             // Rider Bookings
             {
-                path     : "ride",
-                element  : <RideBooking />,
-                children : [
+                path: "ride",
+                element: <RideBooking />,
+                children: [
                     {
                         path: "ride-booking-list",
                         element: <RideList />,
@@ -289,10 +292,10 @@ const router = createBrowserRouter([
                         element: <FailedRideDetails />,
                     }, {
                         path: "ride-invoice-list",
-                        element: <InvoiceList />,  
+                        element: <InvoiceList />,
                     }, {
                         path: "ride-invoice-details/:bookingId",
-                        element: <RideInvoiceDetails />,  
+                        element: <RideInvoiceDetails />,
                     }, {
                         path: "support-request-list",
                         element: <SupportRequestList />,
@@ -302,7 +305,7 @@ const router = createBrowserRouter([
                     }, {
                         path: "refund-requests-list",
                         element: <RefundRequestList />,
-                    }, 
+                    },
                 ],
             },
             // University  
@@ -316,7 +319,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "edit-university/:id",
-                        element: <EditUniversity/>,
+                        element: <EditUniversity />,
                     },
                     {
                         path: "university-list",
@@ -340,7 +343,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "edit-student/:id",
-                        element: <EditStudent/>,
+                        element: <EditStudent />,
                     },
                     {
                         path: "student-list",
@@ -360,25 +363,25 @@ const router = createBrowserRouter([
             // profile
             {
                 path: "profile",
-                element: <Profile/>
+                element: <Profile />
             },
         ],
     },
 
     //PlusX Routes
     {
-        path     : "/electric",
-        element  : <Layout />,
-        children : [
+        path: "/electric",
+        element: <Layout />,
+        children: [
             {
-                path    : "dashboard",
-                element : <ElectricDashboard />,
+                path: "dashboard",
+                element: <ElectricDashboard />,
             },
             // Driver
             {
-                path     : "drivers",
-                element  : <Riders/>,
-                children : [
+                path: "drivers",
+                element: <Riders />,
+                children: [
                     {
                         path: "driver-list",
                         element: <RiderList />,
@@ -413,14 +416,14 @@ const router = createBrowserRouter([
                     // }, 
                 ],
             },
-            //Home Charger
+            //Mobile EV Charging
             {
-                path: "home-charger",
+                path: "mobile-ev-charging",
                 element: <HomeCharger />,
                 children: [
                     {
-                        path:"add-pod",
-                        element:<AddPod/>
+                        path: "add-pod",
+                        element: <AddPod />
                     },
                     {
                         path: "charger-list",
@@ -435,24 +438,28 @@ const router = createBrowserRouter([
                         element: <EditPortableCharger />,
                     },
                     {
-                        path: "customer-charger-booking-list/:customerId",
+                        path: "customer-charging-booking-list/:customerId",
                         element: <CustomerChargerBookingList />,
                     },
                     {
-                        path: "charger-booking-list",
+                        path: "charging-booking-list",
                         element: <ChargerBookingList />,
                     },
                     {
-                        path: "charger-booking-details/:bookingId",
+                        path: "charging-booking-details/:bookingId",
                         element: <ChargerBookingDetails />,
                     },
                     {
-                        path: "charger-booking-invoice-list",
+                        path: "charging-invoice-list",
                         element: <ChargerBookingInvoiceList />,
                     },
-                    
                     {
-                        path: "charger-booking-time-slot-list",
+                        path: "charging-invoice-details/:invoiceId",
+                        element: <InvoiceDetails />,
+                    },
+
+                    {
+                        path: "charging-time-slot-list",
                         element: <PortableChargerTimeSlotList />,
                     },
                     {
@@ -469,46 +476,46 @@ const router = createBrowserRouter([
                     },
                     // Pod Device Route
                     {
-                        path: "device-list",
+                        path: "charging-van-list",
                         element: <PodDeviceList />,
                     },
                     {
-                        path: "add-device",
-                        element: <AddPodDevice />,  
+                        path: "add-charging-van",
+                        element: <AddPodDevice />,
                     },
                     {
-                        path: "edit-device/:podId",
-                        element: <EditPodDevice />,  
+                        path: "edit-charging-van/:podId",
+                        element: <EditPodDevice />,
                     }, {
-                        path: "device-details/:podId",
-                        element: <DeviceDetails />,  
+                        path: "charging-van-details/:podId",
+                        element: <DeviceDetails />,
                     },
                     {
-                        path    : "area-list",
-                        element : <PodAreaList />,
+                        path: "area-list",
+                        element: <PodAreaList />,
                     },
                     {
-                        path    : "brand-list",
-                        element : <PodBrandList />,
+                        path: "brand-list",
+                        element: <PodBrandList />,
                     },
                     {
-                        path    : "add-brand/:deviceId",
-                        element : <AddPodBrand />,
+                        path: "add-brand/:deviceId",
+                        element: <AddPodBrand />,
                     },
                     {
-                        path    : "add-area",
-                        element : <AddPodArea />,
+                        path: "add-area",
+                        element: <AddPodArea />,
                     },
                     {
-                        path    : "edit-area/:areaId",
-                        element : <EditPodArea />,
+                        path: "edit-area/:areaId",
+                        element: <EditPodArea />,
                     },
                     {
-                        path: "failed-booking-list",
+                        path: "charging-failed-booking-list",
                         element: <FailedChargerBookingList />,
                     },
                     {
-                        path: "failed-charger-booking-details/:bookingId",
+                        path: "failed-charging-booking-details/:bookingId",
                         element: <FailedBookingDetails />,
                     },
                     {
@@ -520,9 +527,9 @@ const router = createBrowserRouter([
             },
             //road assistance
             {
-                path     : "ev-road-assistance",
-                element  : <EvRoadAssistance />,
-                children : [
+                path: "ev-road-assistance",
+                element: <EvRoadAssistance />,
+                children: [
                     {
                         path: "booking-list",
                         element: <RoadAssistanceBookingList />,
@@ -532,7 +539,16 @@ const router = createBrowserRouter([
                     }, {
                         path: "invoice-list",
                         element: <RoadAssistanceInvoiceList />,
-                    },  {
+                    }, {
+                        path: "rsa-offline-leads",
+                        element: <RSAOfflineleads />,
+                    }, {
+                        path: "add-rsa-offline-leads",
+                        element: <AddOfflineleads />,
+                    }, {
+                        path: "edit-rsa-offline-leads/:id",
+                        element: <EditOfflineleads />,
+                    }, {
                         path: "invoice-details/:invoiceId",
                         element: <RoadAssistanceInvoiceDetails />,
                     }, {
@@ -556,15 +572,15 @@ const router = createBrowserRouter([
             // public charger station
             {
                 path: "public-charger-station",
-                element: <PublicChargeStation/>,
+                element: <PublicChargeStation />,
                 children: [
                     {
                         path: "public-charger-station-list",
-                        element: <PublicChargerStationList/>,
+                        element: <PublicChargerStationList />,
                     },
                     {
                         path: "public-charger-station-details/:stationId",
-                        element: <PublicChargerStationDetails/>,
+                        element: <PublicChargerStationDetails />,
                     },
                     {
                         path: "add-charger-station",
@@ -579,81 +595,63 @@ const router = createBrowserRouter([
             //charger installation
             {
                 path: "charger-installation",
-                element: <ChargerInstallation/>,
+                element: <ChargerInstallation />,
                 children: [
                     {
                         path: "purchase-customer-list",
                         element: <PurchaseCustomerList />,
-                    },
-                    {
+                    }, {
                         path: "purchase-customer-details/:purchaseId",
                         element: <PurchaseCustomerDetails />,
-                    },
-                    {
+                    }, {
                         path: "purchase-add",
                         element: <AddCustomer />,
-                    },
-                    {
+                    }, {
                         path: "purchase-edit/:purchaseId",
                         element: <EditCustomer />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-list",
                         element: <EvChargerList />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-details/:chargerId",
                         element: <EvChargerDetails />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-booking-list",
                         element: <EvChargerBookingList />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-booking-details/:chargerId",
                         element: <EvChargerBookingDetails />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-add",
                         element: <AddEVCharger />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-edit/:chargerId",
                         element: <EditEVCharger />,
-                    },
-                    {
+                    }, {
                         path: "accessories-list",
                         element: <AccessoriesList />,
-                    },
-                    {
+                    }, {
                         path: "accessories-details/:chargerId",
                         element: <AccessoriesDetails />,
-                    },
-                    {
+                    }, {
                         path: "accessories-booking-list",
                         element: <AccessoriesBookingList />,
-                    },
-                    {
+                    }, {
                         path: "accessories-booking-details/:chargerId",
                         element: <AccessoriesBookingDetails />,
-                    },
-                    {
+                    }, {
                         path: "accessories-add",
                         element: <AddAccessory />,
-                    },
-                    {
+                    }, {
                         path: "accessories-edit/:chargerId",
                         element: <EditAccessory />,
-                    },
-                    {
+                    }, {
                         path: "charger-installation-list",
                         element: <ChargerInstallationList />,
-                    },
-                    {
+                    }, {
                         path: "charger-installation-details/:requestId",
                         element: <ChargerInstallationDetails />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-brand-list",
                         element: <EvChargerBrandList />,
                     },
@@ -661,15 +659,15 @@ const router = createBrowserRouter([
             },
             {
                 path: "charge-share",
-                element: <ChargeShareListings/>,
+                element: <ChargeShareListings />,
                 children: [
                     {
                         path: "charge-share-list",
-                        element: <ChargeShareList/>,
+                        element: <ChargeShareList />,
                     },
                     {
                         path: "charge-share-details/:charger_id",
-                        element: <ChargeShareDetails/>,
+                        element: <ChargeShareDetails />,
                     },
                     {
                         path: "add-charger-station",
@@ -684,7 +682,7 @@ const router = createBrowserRouter([
             //Offer
             {
                 path: "offer",
-                element: <Offer/>,
+                element: <Offer />,
                 children: [
                     {
                         path: "offer-list",
@@ -707,7 +705,7 @@ const router = createBrowserRouter([
             //Coupon
             {
                 path: "coupon",
-                element: <Coupon/>,
+                element: <Coupon />,
                 children: [
                     {
                         path: "coupon-list",
@@ -731,24 +729,24 @@ const router = createBrowserRouter([
             // profile
             {
                 path: "profile",
-                element: <Profile/>
+                element: <Profile />
             },
             {
                 path: "ev-insurance",
-                element: <EvInsurance/>,
+                element: <EvInsurance />,
                 children: [
                     {
                         path: "ev-insurance-list",
                         element: <EvInsuranceList />,
                     },
-                    
+
                     {
                         path: "ev-insurance-detail/:insurance_id",
                         element: <EvInsuranceDetail />,
                     },
                 ],
             },
-            
+
         ]
     },
 

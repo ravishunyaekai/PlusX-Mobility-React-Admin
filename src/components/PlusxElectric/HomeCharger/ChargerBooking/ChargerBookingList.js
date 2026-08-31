@@ -24,12 +24,12 @@ const statusMapping = {
     'CNF': 'Booking Confirmed',
     'A'  : 'Assigned',
     'ER' : 'Enroute',
-    'RL' : 'POD Reached at Location',
+    'RL' : 'Charging Van Reached at Location',
     'CS' : 'Charging Started',
     'CC' : 'Charging Completed',
     'PU' : 'Completed',
     'C'  : 'Cancelled',
-    'RO' : 'POD Reached at Office',
+    'RO' : 'Charging Van Reached at Office',
 };
 
 const dynamicFilters = [
@@ -42,11 +42,11 @@ const dynamicFilters = [
             { value : 'CNF', label : 'Booking Confirmed' },
             { value : 'A',   label : 'Assigned' },
             { value : 'ER',  label : 'Enroute' },
-            { value : 'RL',  label : 'POD Reached at Location' },
+            { value : 'RL',  label : 'Charging Van Reached at Location' },
             { value : 'CS',  label : 'Charging Started' },
             { value : 'CC',  label : 'Charging Completed' },
             { value : 'PU',  label : 'Completed' },
-            { value : 'RO',  label : 'POD Reached at Office' },
+            { value : 'RO',  label : 'Charging Van Reached at Office' },
             { value : 'C',   label : 'Cancelled' },
         ]
     },
@@ -127,7 +127,7 @@ const ChargerBookingList = () => {
         });
     };
 
-    const handleBookingDetails = (id) => navigate(`/electric/home-charger/charger-booking-details/${id}`)
+    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/charging-booking-details/${id}`)
 
     const allAreaList = () => {
         const obj = {
@@ -205,7 +205,7 @@ const ChargerBookingList = () => {
         const rsaObj = {
             userId       : userDetails?.user_id,
             email        : userDetails?.email,
-            service_type : 'Portable Charger',
+            service_type : 'Mobile EV Charging',
         };
         postRequestWithToken('all-rsa-list', rsaObj, async(response) => {
             if (response.code === 200) {
@@ -292,7 +292,7 @@ const ChargerBookingList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading              = "Home Charger Booking List"
+                heading              = "Mobile EV Charging Booking List"
                 fetchFilteredData    = {fetchFilteredData}
                 dynamicFilters       = {dynamicFilters}
                 filterValues         = {filters}
@@ -322,7 +322,7 @@ const ChargerBookingList = () => {
                     <List
                         tableHeaders={["Booking Date", "Schedule Date", "Schedule Time", "Booking ID", "Customer Name", "City", "Status", "Driver Name", "Driver Assign", "Action",""]}
                         listData={chargerBookingList}
-                        pageHeading="Home Charger Booking List"
+                        pageHeading="Mobile EV Charging Booking List"
                         keyMapping={[
                             { key: 'created_at', label: 'Date & Time',   format: (date) => moment(date).format('DD MMM YYYY') },
                             { key: 'slot_date',  label: 'Schedule Date', format: (date) => moment(date).format('DD MMM YYYY') },

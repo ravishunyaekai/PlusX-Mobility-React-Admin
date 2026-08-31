@@ -104,7 +104,7 @@ const PODZoneHistory = ({podId }) => {
         
         if(podId == ''){
             
-            toast("POD ID is required.", {type:'error'});
+            toast("Charging Van No is required.", {type:'error'});
 
         } else if(selectedArea == ''){
            
@@ -138,7 +138,7 @@ const PODZoneHistory = ({podId }) => {
         <div className={styles.addressListContainer}>
             <ToastContainer />
             <div className={styles.brandHistorySection}>
-                <span className={styles.sectionTitle}>POD Zone List</span>
+                <span className={styles.sectionTitle}>Charging Van Zone List</span>
                 <button className={styles.brandHistoryButton} onClick={handleAddZoneClick}>
                     <img className={styles.brandImg} src={Add} alt="Add Brand" />
                     <span>Add Zone</span>

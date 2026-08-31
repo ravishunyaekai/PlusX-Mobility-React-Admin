@@ -30,20 +30,20 @@ const AddPodDevice = () => {
     ]);
 
     const backButtonClick = () => {
-        navigate('/electric/home-charger/device-list')
+        navigate('/electric/mobile-ev-charging/charging-van-list')
     };
     const validateForm = () => {
         const fields = [
             { 
                 name         : "podId", 
                 value        : podId, 
-                errorMessage : "POd Id is required.", 
+                errorMessage : "Charging Van No is required.", 
                 isValid      : val => val.trim() !== "" 
             },
             { 
                 name         : "podName", 
                 value        : podName, 
-                errorMessage : "Pod Name is required.", 
+                errorMessage : "Charging Van Name is required.", 
                 isValid      : val => val.trim() !== "" 
             },
             { 
@@ -127,7 +127,7 @@ const AddPodDevice = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/electric/home-charger/device-list')
+                        navigate('/electric/mobile-ev-charging/charging-van-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})
@@ -172,26 +172,26 @@ const AddPodDevice = () => {
 
     return (
         <div className={styles.addStationContainer}>
-            <h2 className={styles.addHeading}>Add Device</h2>
+            <h2 className={styles.addHeading}>Add Charging Van</h2>
             <div className={styles.addStationFormSection}>
                 <ToastContainer />
                 <form className={styles.formSection} onSubmit={handleSubmit}>
 
                     <div className={`row`}>
                         <div className={`col-lg-6`}>
-                            <label htmlFor="podId" className={styles.labelText}>POD ID</label>
+                            <label htmlFor="podId" className={styles.labelText}>Charging Van No</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <input type="text" autoComplete="off" id="podId" placeholder="POD ID" className={styles.inputField} value={podId} onChange={(e) => setPodId(e.target.value)} />
+                                    <input type="text" autoComplete="off" id="podId" placeholder="Charging Van No" className={styles.inputField} value={podId} onChange={(e) => setPodId(e.target.value)} />
                                     {errors.podId && podId === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.podId}</p>}
                                 </div>
                             </div>
                         </div>
                         <div className={`col-lg-6`}>
-                            <label htmlFor="podName" className={styles.labelText}>POD Name</label>
+                            <label htmlFor="podName" className={styles.labelText}>Charging Van Name</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <input type="text" autoComplete="off" id="podName" placeholder="POD Name" className={styles.inputField} value={podName} onChange={(e) => setPodName(e.target.value)} />
+                                    <input type="text" autoComplete="off" id="podName" placeholder="Charging Van Name" className={styles.inputField} value={podName} onChange={(e) => setPodName(e.target.value)} />
                                     {errors.podName && podName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.podName}</p>}
                                 </div>
                             </div>

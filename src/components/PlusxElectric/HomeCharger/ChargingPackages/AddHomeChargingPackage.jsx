@@ -26,7 +26,7 @@ const AddEmergencyTeam = () => {
         // { value: "", label: "Select Vehicle Type" },
         { value: "Charger Installation", label: "Charger Installation" },
         // { value: "EV Pre-Sale",          label: "EV Pre-Sale" },
-        { value: "Portable Charger",     label: "Home Charger" },
+        { value: "Mobile EV Charging",     label: "Mobile EV Charging" },
         { value: "Roadside Assistance",  label: "Roadside Assistance" },
         // { value: "Valet Charging",       label: "Valet Charging" },
     ];

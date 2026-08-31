@@ -31,7 +31,7 @@ const EditPodDevice = () => {
         { id : '', batteryId : '', capacity : '' }
     ]);
     const backButtonClick = () => {
-        navigate('/electric/home-charger/device-list')
+        navigate('/electric/mobile-ev-charging/charging-van-list')
     };
     
     const validateForm = () => {
@@ -39,13 +39,13 @@ const EditPodDevice = () => {
             { 
                 name         : "podId", 
                 value        : podId, 
-                errorMessage : "POd Id is required.", 
+                errorMessage : "Charging Van No is required.", 
                 isValid      : val => val.trim() !== "" 
             },
             { 
                 name         : "podName", 
                 value        : podName, 
-                errorMessage : "Pod Name is required.", 
+                errorMessage : "Charging Van Name is required.", 
                 isValid      : val => val.trim() !== "" 
             },
             { 
@@ -124,7 +124,7 @@ const EditPodDevice = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/home-charger/device-list')
+                        navigate('/mobile-ev-charging/charging-van-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})
@@ -207,19 +207,19 @@ const EditPodDevice = () => {
 
                             <div className={`row`}>
                                 <div className={`col-lg-6`}>
-                                    <label htmlFor="podId" className={styles.labelText}>POD ID</label>
+                                    <label htmlFor="podId" className={styles.labelText}>Charging Van No</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <input type="text" autoComplete="off" id="podId" placeholder="POD ID" className={styles.inputField} value={podId} readOnly />
+                                            <input type="text" autoComplete="off" id="podId" placeholder="Charging Van No" className={styles.inputField} value={podId} readOnly />
                                             {errors.podId && podId === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.podId}</p>}
                                         </div>
                                     </div>
                                 </div>
                                 <div className={`col-lg-6`}>
-                                    <label htmlFor="podName" className={styles.labelText}>POD Name</label>
+                                    <label htmlFor="podName" className={styles.labelText}>Charging Van Name</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <input type="text" autoComplete="off" id="podName" placeholder="POD Name" className={styles.inputField} value={podName} onChange={(e) => setPodName(e.target.value)} />
+                                            <input type="text" autoComplete="off" id="podName" placeholder="Charging Van Name" className={styles.inputField} value={podName} onChange={(e) => setPodName(e.target.value)} />
                                             {errors.podName && podName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.podName}</p>}
                                         </div>
                                     </div>
@@ -390,7 +390,7 @@ export default EditPodDevice;
 //             <ToastContainer />
 //             <div className={styles.row}>
 //                 <div className={styles.inputGroup}>
-//                     <label className={styles.label}>POD Id</label>
+//                     <label className={styles.label}>Charging Van Id</label>
 //                     <input className={styles.inputCharger} type="text" placeholder="Device Id"
 //                         value={podId}
 //                         readonly
@@ -398,7 +398,7 @@ export default EditPodDevice;
 //                     {errors.podId && podId =='' && <p className="error">{errors.podId}</p>}
 //                 </div>
 //                 <div className={styles.inputGroup}>
-//                     <label className={styles.label}>POD Name</label>
+//                     <label className={styles.label}>Charging Van Name</label>
 //                     <input className={styles.inputCharger} type="text" placeholder="Modal Name V1, V2"
 //                         value={podName}
 //                         onChange={(e) => setPodName(e.target.value) }

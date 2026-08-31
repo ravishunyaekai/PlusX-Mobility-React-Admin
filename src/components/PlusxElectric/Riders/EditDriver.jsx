@@ -30,11 +30,11 @@ const EditDriver = () => {
 
     const typeOpetions = [
         // { value: "", label: "Select Vehicle Type" },
-        { value: "Charger Installation", label: "Charger Installation" },
-        { value: "EV Pre-Sale",          label: "EV Pre-Sale" },
-        { value: "Portable Charger",     label: "Portable Charger" },
-        { value: "Roadside Assistance",  label: "Roadside Assistance" },
-        { value: "Valet Charging",       label: "Valet Charging" },
+        // { value: "Charger Installation", label: "Charger Installation" },
+        // { value: "EV Pre-Sale",          label: "EV Pre-Sale" },
+        { value: "Mobile EV Charging",     label: "Mobile EV Charging" },
+        { value: "EV Roadside Assistance",  label: "EV Roadside Assistance" },
+        // { value: "Valet Charging",       label: "Valet Charging" },
     ];
 
     const handleType = (selectedOption) => {
@@ -160,12 +160,13 @@ const EditDriver = () => {
                 // setServiceType(data?.booking_type || "");
                 // setPassword(data?.password || "");
                 // setConfirmPassword(data?.password || "");
-                // setFile(data?.profile_img || "")
-                setFile({
-                    name: data?.profile_img,
-                    url: `${response?.base_url}${data?.profile_img}`,
-                    type: "image/*"
-                });
+                if(data?.profile_img) {
+                    setFile({
+                        name : data?.profile_img,
+                        url  : `${response?.base_url}${data?.profile_img}`,
+                        type : "image/*"
+                    });
+                }
                 const initialType = data.booking_type ? { label: data.booking_type, value: data.booking_type } : null;
                 setServiceType(initialType);
 

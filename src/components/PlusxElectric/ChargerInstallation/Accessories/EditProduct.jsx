@@ -86,20 +86,23 @@ const EditProduct = () => {
                 setoutputPower(data?.outputPower);
                 setwarrantyType(data?.warrantyType);
                 setDescription(data?.description);
-                // setspecification(data?.specification_pdf);
+                
                 setfeature(data?.charger_feature);
-                // setFile(data?.charger_image);
-                setFile({
-                    name: data?.charger_image,
-                    url: `${response?.base_url}${data?.charger_image}`,
-                    type: "image/*"
-                });
-                setspecification({
-                    name: data?.specification_pdf,
-                    url: `${response?.base_url}${data?.specification_pdf}`,
-                    type: "application/pdf"
-                });
-                console.log("specification",specification.name)
+                
+                if(data?.charger_image){
+                    setFile({
+                        name: data?.charger_image,
+                        url: `${response?.base_url}${data?.charger_image}`,
+                        type: "image/*"
+                    });
+                }
+                if(data?.specification_pdf){
+                    setspecification({
+                        name: data?.specification_pdf,
+                        url: `${response?.base_url}${data?.specification_pdf}`,
+                        type: "application/pdf"
+                    });
+                }
                 const galleryArr = (response?.image_data || []).map((img) => ({
                     id: img.id,
                     name: img.image,

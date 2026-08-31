@@ -164,7 +164,7 @@ const Header = () => {
 
         switch (module) {
             case "Portable Charging Booking":
-                navigate(`/electric/home-charger/charger-booking-details/${extractedId}`);
+                navigate(`/electric/mobile-ev-charging/charging-booking-details/${extractedId}`);
                 break;
 
             case "Roadside Assistance":

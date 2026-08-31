@@ -20,7 +20,7 @@ const BrandHistory = ({ deviceId, deviceBrandList, currentPage, totalPages, onPa
 
   const navigate = useNavigate();
   const addBrandHref = () => {
-    navigate(`/electric/home-charger/add-brand/${deviceId}`);
+    navigate(`/electric/mobile-ev-charging/add-brand/${deviceId}`);
   };
 
   const openImageModal = (imageUrl) => {

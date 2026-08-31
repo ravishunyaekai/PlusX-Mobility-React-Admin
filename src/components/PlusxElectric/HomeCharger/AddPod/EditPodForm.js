@@ -289,11 +289,11 @@ const EditPodForm = () => {
                 <form className={styles.formSection} onSubmit={handleSubmit}>
                     <div className={styles.row}>
                         <div className={styles.addShopInputContainer}>
-                            <label className={styles.addShopLabel} htmlFor="shopName">POD ID</label>
+                            <label className={styles.addShopLabel} htmlFor="shopName">Charging Van No</label>
                             <input
                                 type="text"
                                 id="shopName"
-                                placeholder="POD ID"
+                                placeholder="Charging Van No"
                                 className={styles.inputField}
                                 value={stationName}
                                 onChange={(e) => setStationName(e.target.value)}
@@ -301,11 +301,11 @@ const EditPodForm = () => {
                             {errors.stationName && <p className={styles.error} style={{ color: 'red' }}>{errors.stationName}</p>}
                         </div>
                         <div className={styles.addShopInputContainer}>
-                            <label className={styles.addShopLabel} htmlFor="shopName">POD Design Version</label>
+                            <label className={styles.addShopLabel} htmlFor="shopName">Charging Van Design Version</label>
                             <input
                                 type="text"
                                 id="shopName"
-                                placeholder="POD Design Version"
+                                placeholder="Charging Van Design Version"
                                 className={styles.inputField}
                                 value={stationName}
                                 onChange={(e) => setStationName(e.target.value)}
@@ -366,7 +366,7 @@ const EditPodForm = () => {
                             {errors.chargingPoint && <p className={styles.error} style={{ color: 'red' }}>{errors.chargingPoint}</p>}
                         </div>
                         <div className={styles.addShopInputContainer}>
-                            <label className={styles.addShopLabel} htmlFor="email">POD Date of Manufacturing</label>
+                            <label className={styles.addShopLabel} htmlFor="email">Charging Van Date of Manufacturing</label>
 
                             <input
                                 type="text"

@@ -74,24 +74,24 @@ const SubHeader = ({ heading, fetchFilteredData, dynamicFilters, filterValues, a
         setIsSearchAccordionOpen(false);
     };
 
-    const shouldShowFilterButtonArr = ["Total App Signup List", "Total Deleted Account List", "Failed Ride Booking List", "Notification List", "List of all users", "Brands", "EV Charger Booking List", "EV Chargers List", "EV Accessories List", "Offer List", "Home Charger List", "Incomplete Ride Booking List", "Support Request List", "Refund Request List"]
+    const shouldShowFilterButtonArr = ["Total App Signup List", "Total Deleted Account List", "Failed Ride Booking List", "Notification List", "List of all users", "Brands", "EV Charger Booking List", "EV Chargers List", "EV Accessories List", "Offer List", "Mobile EV Charging List", "Incomplete Ride Booking List", "Support Request List", "Refund Request List"]
     const shouldShowFilterButton = !shouldShowFilterButtonArr.includes(heading)
 
-    const shouldShowSearchButtonArr = ["Total Deleted Account List", "Notification List", "List of all users", "EV Road Assistance Invoice List", "List of Universities", "List of Students", "Offer List", "Home Charger Slot List"]
+    const shouldShowSearchButtonArr = ["Total Deleted Account List", "Notification List", "List of all users", "EV Road Assistance Invoice List", "List of Universities", "List of Students", "Offer List", "Mobile EV Charging Slot List"]
     const shouldShowSearchButton = !shouldShowSearchButtonArr.includes(heading)
     // "Ride Booking List", "Failed Ride Booking List", 
 
-    const shouldShowAddButtonArr = ["Total App Signup List", "Total Deleted Account List", "Ride Booking List", "Failed Ride Booking List", "Notification List", "EV Road Assistance Booking List", "EV Road Assistance Invoice List", "Failed RSA Booking List", "Charger Installation Booking", "EV Charger Booking List", "EV Charger Bookings", "EV Accessories Bookings", "Home Charger Booking List", "Home Charger Invoice List", "Failed Charger Booking List", "Ev Insurance List", "Customer POD Booking List", "Chargers Share Listings", "Incomplete Ride Booking List", "Invoice List", "Support Request List", "Refund Request List"];
+    const shouldShowAddButtonArr = ["Total App Signup List", "Total Deleted Account List", "Ride Booking List", "Failed Ride Booking List", "Notification List", "EV Road Assistance Booking List", "EV Road Assistance Invoice List", "EV Road Assistance Failed Booking List", "Charger Installation Booking", "EV Charger Booking List", "EV Charger Bookings", "EV Accessories Bookings", "Mobile EV Charging Booking List", "Mobile EV Charging Invoice List", "Mobile EV Charging Failed Booking List", "Ev Insurance List", "Customer Charging Van Booking List", "Chargers Share Listings", "Incomplete Ride Booking List", "Invoice List", "Support Request List", "Refund Request List",];
 
-    // const shouldShowDownloadButtonArr = ["Portable Charger Booking List",];
+    // const shouldShowDownloadButtonArr = ["Mobile EV Charging Booking List",];
     // const shouldShowDownloadButton = shouldShowDownloadButtonArr.includes(heading)
 
     const shouldShowAddButton = !shouldShowAddButtonArr.includes(heading);
 
-    const cardArray = ["Total App Signup List", "Total Deleted Account List", "Ride Booking List", "Failed Ride Booking List", "List of Stations", "List of Cycles", "Failed RSA Booking List", "Total Public Chargers List", "EV Chargers", "EV Accessories", "EV Charger Booking List", "EV Chargers List", "EV Accessories List", "List of Universities", "List of Students", "EV Road Assistance Booking List", "Offer List", "Coupon List", "Charger Installation Booking", "EV Charger Bookings", "EV Accessories Bookings", "Home Charger List", "Home Charger Booking List", "Home Charger Invoice List", "Failed Charger Booking List", "POD Brand List", "Ev Insurance List", "Customer POD Booking List", "Incomplete Ride Booking List", "Invoice List", "Support Request List", "Refund Request List"]
+    const cardArray = ["Total App Signup List", "Total Deleted Account List", "Ride Booking List", "Failed Ride Booking List", "List of Stations", "List of Cycles", "EV Road Assistance Failed Booking List", "Total Public Chargers List", "EV Chargers", "EV Accessories", "EV Charger Booking List", "EV Chargers List", "EV Accessories List", "List of Universities", "List of Students", "EV Road Assistance Booking List", "Offer List", "Coupon List", "Charger Installation Booking", "EV Charger Bookings", "EV Accessories Bookings", "Mobile EV Charging List", "Mobile EV Charging Booking List", "Mobile EV Charging Invoice List", "Mobile EV Charging Failed Booking List", "Charging Van Brand List", "Ev Insurance List", "Customer Charging Van Booking List", "Incomplete Ride Booking List", "Invoice List", "Support Request List", "Refund Request List", "EV Road Assistance Offline Leads"]
     const showCard = cardArray.includes(heading);
 
-    const headingArray = ["Notification List", "List of all users", "EV Road Assistance Invoice List", "Drivers List", "Brands", "Home Charger Area List", "Home Charger Device List", "Home Charger Slot List", "Roadside Assistance Slot List", "EV Products & Installation", "Chargers Share Listings", "Home EV Charging Package List"]
+    const headingArray = ["Notification List", "List of all users", "EV Road Assistance Invoice List", "Drivers List", "Brands", "Mobile EV Charging Area List", "Mobile EV Charging Van List", "Mobile EV Charging Slot List", "EV Road Assistance Slot List", "EV Products & Installation", "Chargers Share Listings", "Mobile EV Charging Package List"]
     const showHeading = headingArray.includes(heading);
 
     return (
@@ -108,14 +108,14 @@ const SubHeader = ({ heading, fetchFilteredData, dynamicFilters, filterValues, a
                 )}
                 <div className={styles.subHeaderButtonSection}>
                     {shouldShowAddButton && (
-                        ( heading === "Brands") ? (
+                        (heading === "Brands") ? (
                             <div className={styles.addButtonSection} onClick={handleAddClick}>
                                 <div className={styles.addButtonImg}>
                                     <img src={Plus} alt='plus' />
                                 </div>
                                 <div className={styles.addButtonText}>{addButtonProps?.heading}</div>
                             </div>
-                        ) :  heading === "Home EV Charging Package List" ? (
+                        ) : heading === "Mobile EV Charging Package List" ? (
                             <div className={styles.addButtonSection} onClick={addButtonProps?.onClick}>
                                 <div className={styles.addButtonImg}>
                                     <img src={Plus} alt="plus" />

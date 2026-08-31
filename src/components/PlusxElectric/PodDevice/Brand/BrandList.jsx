@@ -26,7 +26,7 @@ const PodBrandList = () => {
     }]
     const addButtonProps = {
         heading : "Add Brand", 
-        link    : "/home-charger/add-brand"
+        link    : "/mobile-ev-charging/add-brand"
     };
     const fetchChargers = (page, appliedFilters = {}) => {
         const obj = {
@@ -66,7 +66,7 @@ const PodBrandList = () => {
     return (
         <div className='main-container'>
             <SubHeader 
-                heading = "POD Brand List" 
+                heading = "Charging Van Brand List" 
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 fetchFilteredData={fetchFilteredData} 
@@ -79,7 +79,7 @@ const PodBrandList = () => {
                 <List
                     tableHeaders={["Device ID", "Brand Name", "Start Date", "End Date", "Action"]}
                     listData={chargerList}
-                    pageHeading="POD Brand List"
+                    pageHeading="Charging Van Brand List"
                     keyMapping={[
                         { key : 'device_id',    label  : 'Device ID' }, 
                         { key : 'brand_name',   label : 'Brand Name' }, 

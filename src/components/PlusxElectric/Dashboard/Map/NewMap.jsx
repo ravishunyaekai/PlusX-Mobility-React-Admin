@@ -127,9 +127,9 @@ function MapComponent({ coordinates, location, podLocation }) {
                   className={style.closeIcon}
                   onClick={() => setHoveredPodMarker(null)}
                 />
-                <p>POD ID: {hoveredPodMarker.podId}</p>
+                <p>Charging Van No: {hoveredPodMarker.podId}</p>
                 <p>Device ID: {hoveredPodMarker.deviceId}</p>
-                <p>POD Name: {hoveredPodMarker.podName}</p>
+                <p>Charging Van Name: {hoveredPodMarker.podName}</p>
                 <p>Status: {
                   hoveredPodMarker.charging_status === 0 ? 'Available' :
                   hoveredPodMarker.charging_status === 1 ? 'In Use' :

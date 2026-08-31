@@ -74,8 +74,8 @@ const PodDeviceList = () => {
         setCurrentPage(1); 
     };
     const addButtonProps = {
-        heading: "Add Device", 
-        link: "/electric/home-charger/add-device"
+        heading: "Add Charging Van", 
+        link: "/electric/mobile-ev-charging/add-charging-van"
     };
     const setdecimal = (floatNo) => {
         return (floatNo) ? floatNo.toFixed(2) +" %" : '0 %';
@@ -83,7 +83,7 @@ const PodDeviceList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading="Home Charger Device List"
+                heading="Mobile EV Charging Van List"
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 searchTerm = {searchTerm}
@@ -93,18 +93,18 @@ const PodDeviceList = () => {
             {loading ? <Loader /> :
                 chargerBookingList.length === 0 ? (
                     <EmptyList
-                        tableHeaders={["POD ID", "POD Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}
+                        tableHeaders={["Charging Van No", "Charging Van Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}
                         message="No data available"
                     />
                 ) : (
                     <>
                         <List
-                            tableHeaders={[ "POD ID", "POD Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}  //  "Inverter", 
+                            tableHeaders={[ "Charging Van No", "Charging Van Name", "Model Name", "Battery","Charger", "Regs Date & Time","Status", "Action"]}  //  "Inverter", 
                             listData={chargerBookingList}
-                            pageHeading="Home Charger Device List"
+                            pageHeading="Mobile EV Charging Van List"
                             keyMapping={[
-                                { key : 'pod_id', label: 'POD ID' },
-                                { key : 'pod_name', label: 'POD Name' },
+                                { key : 'pod_id', label: 'Charging Van No' },
+                                { key : 'pod_name', label: 'Charging Van Name' },
                                 { key : 'design_model', label: 'Model Name' },
                                 { key : 'avgBattery', label: 'Battery', format : (data) => setdecimal(data) },
                                 // { key : 'inverter', label: 'Inverter' },

@@ -38,7 +38,7 @@ const AddPodBrand = () => {
         }
     };
     const handleRemoveImage = () => setFile(null);
-    const handleCancel = () => { navigate(`/electric/home-charger/device-details/${deviceId}`) }
+    const handleCancel = () => { navigate(`/electric/mobile-ev-charging/charging-van-details/${deviceId}`) }
     const toggleDropdown = () => { setIsDropdownOpen(!isDropdownOpen) };
 
     const validateForm = () => {
@@ -113,7 +113,7 @@ const AddPodBrand = () => {
                 if (response.code === 200) {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
-                        navigate('/home-charger/brand-list')
+                        navigate('/mobile-ev-charging/brand-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})
@@ -150,7 +150,7 @@ const AddPodBrand = () => {
 
     return (
         <div className={styles.addStationContainer}>
-            <h2 className={styles.addHeading}>Add POD Brand</h2>
+            <h2 className={styles.addHeading}>Add Charging Van Brand</h2>
             <div className={styles.addStationFormSection}>
                 <form className={styles.formSection} onSubmit={handleSubmit}>
                 <ToastContainer />

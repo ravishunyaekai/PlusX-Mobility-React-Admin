@@ -13,16 +13,16 @@ const statusMapping = {
     'CNF': 'Booking Confirmed',
     'A'  : 'Assigned',
     'ER' : 'Enroute',
-    'RL' : 'POD Reached at Location',
+    'RL' : 'Charging Van Reached at Location',
     'CS' : 'Charging Started',
     'CC' : 'Charging Completed',
-    'PU' : 'POD Picked Up',
+    'PU' : 'Charging Van Picked Up',
     'VP' : 'Vehicle Pickup',
     'RS' : 'Reached Charging Spot',
     'WC' : 'Work Completed',
     'DO' : 'Drop Off',
     'C'  : 'Cancel',
-    'RO' : 'POD Reached at Office',
+    'RO' : 'Charging Van Reached at Office',
 };
 
 const RoadAssistanceBookingDetails = () => {
@@ -105,7 +105,7 @@ const RoadAssistanceBookingDetails = () => {
         ),
         parkingNumber : bookingDetails?.parking_number,
         parkingFloor  : bookingDetails?.parking_floor,
-        current_percent: bookingDetails?.current_percent > 0 ? "More than 5%":"0" ,
+        current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0" ,
     }
     return (
         <div className='main-container'>

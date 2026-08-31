@@ -12,10 +12,10 @@ const statusMapping = {
     'P': 'Placed',
     'CNF': 'Booking Confirmed',
     'A': 'Assigned',
-    'RL': 'POD Reached at Location',
+    'RL': 'Charging VanReached at Location',
     'CS': 'Charging Started',
     'CC': 'Charging Completed',
-    'PU': 'POD Picked Up',
+    'PU': 'Charging VanPicked Up',
     'WC': 'Work Completed',
     'C': 'Cancel'
 };

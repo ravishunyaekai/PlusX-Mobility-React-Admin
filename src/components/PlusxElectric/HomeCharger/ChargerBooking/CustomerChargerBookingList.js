@@ -21,12 +21,12 @@ import axios from 'axios';
         'CNF': 'Booking Confirmed',
         'A'  : 'Assigned',
         'ER' : 'Enroute',
-        'RL' : 'POD Reached at Location',
+        'RL' : 'Charging Van Reached at Location',
         'CS' : 'Charging Started',
         'CC' : 'Charging Completed',
         'PU' : 'Completed',
         'C'  : 'Cancelled',
-        'RO' : 'POD Reached at Office'
+        'RO' : 'Charging Van Reached at Office'
     };
 
     const dynamicFilters = [
@@ -39,12 +39,12 @@ import axios from 'axios';
                 { value : 'CNF', label : 'Booking Confirmed' },
                 { value : 'A',   label : 'Assigned' },
                 { value : 'ER',  label : 'Enroute' },
-                { value : 'RL',  label : 'POD Reached at Location' },
+                { value : 'RL',  label : 'Charging Van Reached at Location' },
                 { value : 'CS',  label : 'Charging Started' },
                 { value : 'CC',  label : 'Charging Completed' },
                 { value : 'PU',  label : 'Completed' },
                 { value : 'C',   label : 'Cancelled' },
-                { value : 'RO',   label : 'POD Reached at Office' },
+                { value : 'RO',   label : 'Charging Van Reached at Office' },
             ]
         },
     ];
@@ -70,7 +70,7 @@ const CustomerChargerBookingList = () => {
     const [loading, setLoading]                       = useState(false);
     const [downloadClicked, setDownloadClicked]       = useState(false)
     
-    const handleBookingDetails = (id) => navigate(`/electric/home-charger/charger-booking-details/${id}`)
+    const handleBookingDetails = (id) => navigate(`/electric/mobile-ev-charging/charging-booking-details/${id}`)
 
     const fetchList = (page, appliedFilters = {}, scheduleFilters = {}) => {
         if (page === 1 && Object.keys(appliedFilters).length === 0) {
@@ -155,7 +155,7 @@ const CustomerChargerBookingList = () => {
     return (
         <div className='main-container'>
             <SubHeader
-                heading             = "Customer Home Charger Booking List"
+                heading             = "Customer Mobile EV Charging Booking List"
                 fetchFilteredData   = {fetchFilteredData}
                 dynamicFilters      = {dynamicFilters}
                 filterValues        = {filters}
@@ -233,7 +233,7 @@ const CustomerChargerBookingList = () => {
                                 }
                             }
                         ]}
-                        pageHeading="Customer POD Booking List"
+                        pageHeading="Customer Charging Van Booking List"
                     />
                     <Pagination
                         currentPage={currentPage}

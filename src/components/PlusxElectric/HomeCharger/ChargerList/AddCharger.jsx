@@ -36,7 +36,7 @@ const AddCharger = () => {
         }
     };
     const backButtonClick = () => {
-        navigate('/electric/home-charger/charger-list')
+        navigate('/electric/mobile-ev-charging/charger-list')
     };
     const handleRemoveImage = () => {
         setFile(null);
@@ -91,7 +91,7 @@ const AddCharger = () => {
                     toast(response.message[0], { type: "success" });
                     setTimeout(() => {
                         setLoading(false);
-                        navigate('/electric/home-charger/charger-list')
+                        navigate('/electric/mobile-ev-charging/charger-list')
                     }, 2000);
                 } else {
                     toast(response.message, {type:'error'})

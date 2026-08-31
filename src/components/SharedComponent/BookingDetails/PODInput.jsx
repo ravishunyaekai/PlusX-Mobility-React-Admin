@@ -53,7 +53,7 @@ const PODInput = ({podId}) => {
     return (
         <div className={styles.addressListContainer}>
             <div className={styles.brandHistorySection}>
-                <span className={styles.sectionTitle}>POD Charging List</span>
+                <span className={styles.sectionTitle}>Charging Van Charging List</span>
             </div>
             <GenericTable columns={columns} data={tableVal} />
             <Pagination

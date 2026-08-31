@@ -9,6 +9,8 @@ const AddEditChargingPackage = ({
     refreshList,
     clearEdit,
     userDetails,
+    enableForm, 
+    setEnableForm
 }) => {
 
     const [loading, setLoading] = useState(false);
@@ -120,6 +122,7 @@ const AddEditChargingPackage = ({
 
             }
         );
+        setEnableForm(false);
 
     };
     const handleCancel = () => {

@@ -7,35 +7,35 @@ import SidebarDropdown from "./SidebarDropdown/SidebarDropdown";
 import { menuItems } from "./DropdownMenu";
 
 const SideNavbar = () => {
-    const [selectedApp, setSelectedApp] = useState(() => { return sessionStorage.getItem("selectedApp") || null});
-    const navigate                          = useNavigate();
-    const location                          = useLocation();
+    const [selectedApp, setSelectedApp] = useState(() => { return sessionStorage.getItem("selectedApp") || null });
+    const navigate = useNavigate();
+    const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [openDropdown, setOpenDropdown]   = useState(null);
-    const [checkedItems, setCheckedItems]   = useState({
-        homeCharger  : { 
-            homeChargerList    : false, 
-            homeChargerBooking : false, 
-            invoiceList        : false, 
-            timeSlot   : false, 
-            deviceList : false, 
-            areaList   : false, 
-            failedList : false 
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const [checkedItems, setCheckedItems] = useState({
+        homeCharger: {
+            homeChargerList: false,
+            homeChargerBooking: false,
+            invoiceList: false,
+            timeSlot: false,
+            deviceList: false,
+            areaList: false,
+            failedList: false
         },
-        chargerInstallation : { 
-            chargerBooking     : false, 
-            chargerBookingList : false, 
-            productList        : false, 
-            brandList          : false, 
-            chargerList        : false, 
-            productBookingList : false  
+        chargerInstallation: {
+            chargerBooking: false,
+            chargerBookingList: false,
+            productList: false,
+            brandList: false,
+            chargerList: false,
+            productBookingList: false
         },
-        evRoadAssistance : { bookingList      : false, invoiceList       : false, failedBookingList : false },
-        userList         : { activeUserList   : false, deletedUserList   : false },
-        signupList       : { activeUser       : false, deletedUser       : false },
-        mobilityStation  : { staionList       : false, cycleList         : false },
-        universities     : { universitiesList : false, studentList       : false },
-        riderList        : { rideList : false, failedRiding : false, invoiceList : false, issueList: false },
+        evRoadAssistance: { bookingList: false, invoiceList: false, failedBookingList: false },
+        userList: { activeUserList: false, deletedUserList: false },
+        signupList: { activeUser: false, deletedUser: false },
+        mobilityStation: { staionList: false, cycleList: false },
+        universities: { universitiesList: false, studentList: false },
+        riderList: { rideList: false, failedRiding: false, invoiceList: false, issueList: false },
         // evCharger           : { chargerBookingList  : false, evCharger        : false, evAccessories: false },
     });
     const handleItemClicked = (menu, id, e) => {
@@ -75,12 +75,12 @@ const SideNavbar = () => {
 
     useEffect(() => {
         setCheckedItems((prevState) => ({
-            homeCharger: location.pathname.includes("/electric/home-charger")
+            homeCharger: location.pathname.includes("/electric/mobile-ev-charging")
                 ? prevState.homeCharger : { homeChargerList: false, homeChargerBooking: false, invoiceList: false, timeSlot: false, deviceList: false, areaList: false, failedList: false },
             evRoadAssistance: location.pathname.includes("/electric/ev-road-assistance")
                 ? prevState.evRoadAssistance : { bookingList: false, invoiceList: false, failedBookingList: false },
             chargerInstallation: location.pathname.includes("/electric/charger-installation")
-                ? prevState.chargerInstallation : { chargerBooking: false, chargerBookingList: false, productList: false, brandList: false, chargerList: false, productBookingList: false  },
+                ? prevState.chargerInstallation : { chargerBooking: false, chargerBookingList: false, productList: false, brandList: false, chargerList: false, productBookingList: false },
             // evCharger: location.pathname.includes("/electric/ev-charger")
             //     ? prevState.evCharger : { chargerBookingList : false, evCharger : false, evAccessories : false },
             userList: location.pathname.includes("/mobility/user")
@@ -88,16 +88,16 @@ const SideNavbar = () => {
             signupList: location.pathname.includes("/mobility/app-signup")
                 ? prevState.signupList : { activeUser: false, deletedUser: false },
             mobilityStation: location.pathname.includes("/mobility/mobility-station")
-                ? prevState.mobilityStation : { staionList: false, cycleList : false },
+                ? prevState.mobilityStation : { staionList: false, cycleList: false },
             // riderList: location.pathname.includes("/mobility/ride") 
             //     ? prevState.riderList : { rideList : false, failedRiding : false, invoiceList : false, issueList : false },
             riderList: location.pathname.includes("/mobility/ride")
                 ? {
-                    rideList      : location.pathname.includes("/mobility/ride/ride-booking-list"),
-                    failedRiding  : location.pathname.includes("/mobility/ride/ride-incomplete-booking-list"),
-                    invoiceList   : location.pathname.includes("/mobility/ride/ride-invoice-list"),
-                    issueList     : location.pathname.includes("/mobility/ride/support-request-list"),
-                    refundList    : location.pathname.includes("/mobility/ride/refund-requests-list"),
+                    rideList: location.pathname.includes("/mobility/ride/ride-booking-list"),
+                    failedRiding: location.pathname.includes("/mobility/ride/ride-incomplete-booking-list"),
+                    invoiceList: location.pathname.includes("/mobility/ride/ride-invoice-list"),
+                    issueList: location.pathname.includes("/mobility/ride/support-request-list"),
+                    refundList: location.pathname.includes("/mobility/ride/refund-requests-list"),
                 }
                 : {
                     rideList: false,
@@ -107,11 +107,11 @@ const SideNavbar = () => {
                     refundList: false,
                 },
 
-             universities: location.pathname.includes("/mobility/universities") 
-                ? prevState.universities : { universitiesList : false, studentList : false },
+            universities: location.pathname.includes("/mobility/universities")
+                ? prevState.universities : { universitiesList: false, studentList: false },
         }));
         const dropdownPaths = [
-            "/electric/home-charger",
+            "/electric/mobile-ev-charging",
             "/electric/ev-road-assistance",
             "/electric/charger-installation",
             // "/electric/ev-charger",
@@ -180,7 +180,7 @@ const SideNavbar = () => {
                             <SideBarLinkItem label="Dashboard" path="/electric/dashboard" isActive={isActive("/electric/dashboard")} />
                             <SideBarLinkItem label="Drivers" path="/electric/drivers/driver-list" isActive={isActive("/electric/drivers")} />
                             <SidebarDropdown
-                                menuName="Home Charger"
+                                menuName="Mobile EV Charging"
                                 menuItems={menuItems.homeCharger}
                                 openDropdown={openDropdown}
                                 handleItemClick={(id, e) => handleItemClicked("homeCharger", id, e)}
@@ -212,7 +212,7 @@ const SideNavbar = () => {
                                 toggleDropdown={toggleDropdown}
                                 checkedItems={checkedItems.chargerInstallation}
                             />
-                            
+
                             <SideBarLinkItem label="Charge Share Listings" path="/electric/charge-share/charge-share-list" isActive={isActive("/electric/charge-share/charge-share-list")} />
 
                             {/* <SideBarLinkItem label="EV Insurance" path="/electric/ev-insurance/ev-insurance-list" isActive={isActive("/electric/ev-insurance/ev-insurance-list")} /> */}

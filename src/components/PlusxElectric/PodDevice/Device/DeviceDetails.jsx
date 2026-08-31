@@ -126,8 +126,8 @@ const DeviceDetails = () => {
     }
     
     const sectionTitles1 = {
-        bookingStatus : "POD ID",
-        price         : "Pod Name",
+        bookingStatus : "Charging Van No",
+        price         : "Charging Van Name",
         serviceName   : "Device ID",
         // design_model  : "Modal",
     }
@@ -150,7 +150,7 @@ const DeviceDetails = () => {
     const sectionTitles3 = {
         charger               : "Charger",
         date_of_manufacturing : "Date Of Manufacturing",
-        created_date          : "POD Regs. Date & Time",
+        created_date          : "Charging Van Regs. Date & Time",
     }
     const sectionContent3 = {
         charger               : deviceDetails?.charger,

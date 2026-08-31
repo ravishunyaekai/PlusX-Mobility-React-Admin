@@ -34,52 +34,54 @@ const DashboardCard = ({ details }) => {
     dispatch(setActiveCardIndex(index));
   };
 
-  const cardData = [
+const cardData = [
     {
-      icon  : HomeCharging,
-      count : details?.find((item) => item.module === "Home Charging Bookings")?.count || 0,
-      title : "Home Charging Bookings",
-      route : "/electric/home-charger/charger-booking-list",
+        icon  : HomeCharging,
+        count : details?.find((item) => item.module === "Home Charging Bookings")?.count || 0,
+        title : "Mobile EV Charging Bookings",
+        route : "/electric/mobile-ev-charging/charging-booking-list",
+    }, {
+        icon  : EVRoadAssitanceImage,
+        count : details?.find((item) => item.module === "EV Road Assistance")?.count || 0,
+        title : "EV Roadside Assistance Bookings",
+        route : "/electric/ev-road-assistance/booking-list",
+    }, {
+        icon  : ChargerInstallationImage,
+        count : details?.find((item) => item.module === "Charger Installation Bookings")?.count || 0,
+        title : "Charger Installation Bookings",
+        route : "/electric/charger-installation/charger-installation-list",
+    }, {
+        icon  : ChargerInstallationImage,
+        count : details?.find((item) => item.module === "Charge Share")?.count || 0,
+        title : "Charge Share",
+        route : "/electric/charge-share/charge-share-list",
+    }, {
+        icon  : EVChargerBooking,
+        count : details?.find((item) => item.module === "EV Chargers Booking")?.count || 0,
+        title : "EV Chargers Bookings",
+        route : "/electric/charger-installation/ev-charger-booking-list",
+    }, {
+        icon  : EVAccessoriesBooking,
+        count : details?.find((item) => item.module === "EV Accessories Booking")?.count || 0,
+        title : "EV Accessories Bookings",
+        route : "/electric/charger-installation/accessories-booking-list",
+    }, {
+        icon  : NoOfRegsDriverImage,
+        count : details?.find((item) => item.module === "No. of Regs. Drivers")?.count || 0,
+        title : "Active Drivers",
+        route : "/electric/drivers/driver-list",
+    }, {
+        icon  : HomeCharging,
+        count : details?.find((item) => item.module === "Mobile EV Charging Failed Bookings")?.count || 0,
+        title : "Mobile EV Charging Failed Bookings",
+        route : "/electric/mobile-ev-charging/charging-failed-booking-list",
+    }, {
+        icon  : EVRoadAssitanceImage,
+        count : details?.find((item) => item.module === "Failed EV Road Assistance")?.count || 0,
+        title : "Failed EV Roadside Assistance Bookings",
+        route : "/electric/ev-road-assistance/failed-booking-list",
     },
-    {
-      icon  : EVRoadAssitanceImage,
-      count : details?.find((item) => item.module === "EV Road Assistance")?.count || 0,
-      title : "EV Roadside Assistance Bookings",
-      route : "/electric/ev-road-assistance/booking-list",
-    },
-    {
-      icon  : ChargerInstallationImage,
-      count : details?.find((item) => item.module === "Charger Installation Bookings")?.count || 0,
-      title : "Charger Installation Bookings",
-      route : "/electric/charger-installation/charger-installation-list",
-    },
-    {
-      icon  : ChargerInstallationImage,
-      count : details?.find((item) => item.module === "Charge Share")?.count || 0,
-      title : "Charge Share",
-      route : "/electric/charge-share/charge-share-list",
-    },
-    {
-      icon  : EVChargerBooking,
-      count : details?.find((item) => item.module === "EV Chargers Booking")?.count || 0,
-      title : "EV Chargers Bookings",
-      route : "/electric/charger-installation/ev-charger-booking-list",
-    }
-    ,
-    {
-      icon  : EVAccessoriesBooking,
-      count : details?.find((item) => item.module === "EV Accessories Booking")?.count || 0,
-      title : "EV Accessories Bookings",
-      route : "/electric/charger-installation/accessories-booking-list",
-    },
-    {
-      icon  : NoOfRegsDriverImage,
-      count : details?.find((item) => item.module === "No. of Regs. Drivers")?.count || 0,
-      title : "Active Drivers",
-      route : "/electric/drivers/driver-list",
-    }
-    
-  ];
+];
   return (
     <div className={style.dashboardCardItem}>
       {cardData.map((data, index) => (

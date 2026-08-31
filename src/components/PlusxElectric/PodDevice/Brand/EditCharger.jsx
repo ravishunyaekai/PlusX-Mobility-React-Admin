@@ -41,7 +41,7 @@ const EditPortableCharger = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
     const backButtonClick = () => {
-        navigate('/home-charger/charger-list')
+        navigate('/mobile-ev-charging/charger-list')
     };
     const validateForm = () => {
         const newErrors = {};
@@ -95,7 +95,7 @@ const EditPortableCharger = () => {
                     toast(response.message[0], { type: "success" });
                     
                     setTimeout(() => {
-                        navigate('/home-charger/charger-list')
+                        navigate('/mobile-ev-charging/charger-list')
                     }, 2000);
                 } else {
                     toast(response.message[0], {type:'error'})

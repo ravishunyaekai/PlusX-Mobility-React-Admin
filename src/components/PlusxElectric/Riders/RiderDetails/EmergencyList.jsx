@@ -13,7 +13,7 @@ import AccordionFilter from '../../../SharedComponent/Accordion/Accordions';
         'CNF' : 'Booking Confirmed',
         'A'   : 'Assigned',
         'ER'  : 'Enroute',
-        'RL'  : 'POD Reached at Location',
+        'RL'  : 'Charging Van Reached at Location',
         'CS'  : 'Charging Started',
         'CC'  : 'Charging Completed',
         'PU'  : 'Completed',
@@ -23,7 +23,7 @@ import AccordionFilter from '../../../SharedComponent/Accordion/Accordions';
         'WC'  : 'Work Completed',
         'DO'  : 'Drop Off',
         'C'   : "Cancelled",
-        'RO' : 'POD Reached at Office'
+        'RO' : 'Charging Van Reached at Office'
     };
     const dynamicFilters = [
         {
@@ -35,12 +35,12 @@ import AccordionFilter from '../../../SharedComponent/Accordion/Accordions';
                 { value : 'CNF', label : 'Booking Confirmed' },
                 { value : 'A',   label : 'Assigned' },
                 { value : 'ER',  label : 'Enroute' },
-                { value : 'RL',  label : 'POD Reached at Location' },
+                { value : 'RL',  label : 'Charging Van Reached at Location' },
                 { value : 'CS',  label : 'Charging Started' },
                 { value : 'CC',  label : 'Charging Completed' },
                 { value : 'PU',  label : 'Completed' },
                 { value : 'C',   label : 'Cancelled' },
-                { value : 'RO',   label : 'POD Reached at Office' },
+                { value : 'RO',   label : 'Charging Van Reached at Office' },
             ]
         },
     ];
@@ -101,7 +101,7 @@ import AccordionFilter from '../../../SharedComponent/Accordion/Accordions';
         };
         const renderBooking = (e) => {
             const id = e.target.textContent.trim();
-            navigate(`/home-charger/charger-booking-details/${id}`); 
+            navigate(`/mobile-ev-charging/charging-booking-details/${id}`); 
         }
         return (
             <div className={styles.addressListContainer}>
@@ -163,7 +163,7 @@ import AccordionFilter from '../../../SharedComponent/Accordion/Accordions';
                                                         <img src={Eye} alt="View" />
                                                     </Link>
                                                 ) : (
-                                                    <Link to={`/home-charger/charger-booking-details/${item?.booking_id}`}>
+                                                    <Link to={`/mobile-ev-charging/charging-booking-details/${item?.booking_id}`}>
                                                         <img src={Eye} alt="View" />
                                                     </Link>
                                                 )}

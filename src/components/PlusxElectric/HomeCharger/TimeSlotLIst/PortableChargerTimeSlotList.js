@@ -33,7 +33,7 @@ const PortableChargerTimeSlotList = () => {
     ]
     const addButtonProps = {
         heading : "Add Slot",
-        link    : '/electric/home-charger/add-time-slot'
+        link    : '/electric/mobile-ev-charging/add-time-slot'
     };
     const groupBySlotDate = (slots) => {
         const grouped = slots.reduce((acc, slot) => {
@@ -113,7 +113,7 @@ const PortableChargerTimeSlotList = () => {
             });
         }
     };
-    const handleChargerEditTimeSlot = (slotDate) => navigate(`/electric/home-charger/edit-time-slot/${slotDate}`)
+    const handleChargerEditTimeSlot = (slotDate) => navigate(`/electric/mobile-ev-charging/edit-time-slot/${slotDate}`)
     const checkpermission  = (group) => {
         const canEdit   = access.includes("edit");
         const canDelete = access.includes("delete");
@@ -132,7 +132,7 @@ const PortableChargerTimeSlotList = () => {
         <div className='main-container'>
             <ToastContainer />
             <SubHeader
-                heading="Home Charger Slot List"
+                heading="Mobile EV Charging Slot List"
                 addButtonProps={addButtonProps}
                 filterValues={filters}
                 fetchFilteredData={fetchFilteredData}

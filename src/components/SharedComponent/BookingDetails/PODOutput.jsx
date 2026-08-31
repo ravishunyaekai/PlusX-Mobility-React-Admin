@@ -50,7 +50,7 @@ const PODOutput = ({podId}) => {
     return (
         <div className={styles.addressListContainer}>
             <div className={styles.brandHistorySection}>
-                <span className={styles.sectionTitle}>POD Output List</span>
+                <span className={styles.sectionTitle}>Charging Van Output List</span>
             </div>
             <GenericTable columns={columns} data={tableVal} />
             <Pagination

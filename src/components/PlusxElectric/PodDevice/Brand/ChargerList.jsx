@@ -90,7 +90,7 @@ const ChargerList = () => {
 
     return (
         <div className='main-container'>
-            <SubHeader heading = "Portable Charger List" 
+            <SubHeader heading = "Mobile EV Charging List" 
             addButtonProps={addButtonProps}
             filterValues={filters}
             fetchFilteredData={fetchFilteredData} 
@@ -113,7 +113,7 @@ const ChargerList = () => {
                     },
                     { key: 'status', label: 'Status', format: (status) => (status === 1 ? "Active" : "Inactive") } 
                 ]}
-                pageHeading="Portable Charger List"
+                pageHeading="Mobile EV Charging List"
                 onDeleteSlot={handleDeleteSlot}
             />
             )}

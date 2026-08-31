@@ -27,13 +27,16 @@ const EditCoupon = () => {
     const [showLoader, setShowLoader]             = useState(false);
 
     const typeOpetions = [
-        // { value: "",                             label: "Select Vehicle Type" },
-        { value: "Charger Installation",         label: "Charger Installation" },
-        { value: "EV Pre-Sale",                  label: "EV Pre-Sale" },
-        { value: "POD-On Demand Service",        label: "POD-On Demand Service" },
-        { value: "POD-Get Monthly Subscription", label: "POD-Get Monthly Subscription" },
-        { value: "Roadside Assistance",          label: "Roadside Assistance" },
-        { value: "Valet Charging",               label: "Valet Charging" },
+        // { value: "",                              label: "Select Vehicle Type" },
+        //   { value: "Charger Installation",          label: "Charger Installation" },
+        //   { value: "EV Pre-Sale",                   label: "EV Pre-Sale" },
+        //   { value: "POD-On Demand Service",         label: "POD-On Demand Service" },
+        //   { value: "POD-Get Monthly Subscription",  label: "POD-Get Monthly Subscription" },
+        //   { value: "Roadside Assistance",           label: "Roadside Assistance" },
+        //   { value: "Valet Charging",                label: "Valet Charging" },
+        { value: "Mobile EV Charging", label: "Mobile EV Charging" },
+        { value: "EV Roadside Assistance", label: "EV Roadside Assistance" },
+        { value: "EV Charger Installation", label: "EV Charger Installation" },
     ];
 
     const handleVehicleType = (selectedOption) => {
@@ -172,7 +175,7 @@ const EditCoupon = () => {
                                     <label htmlFor="couponCode" className={styles.labelText}>Coupon Code</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <input type="text" autoComplete="off" id="couponCode" placeholder="Coupon Code" className={styles.inputField} value={couponCode} onChange={(e) => setCouponCode(e.target.value)} />
+                                            <input type="text" autoComplete="off" id="couponCode" placeholder="Coupon Code" className={styles.inputField} value={couponCode} onChange={(e) => setCouponCode(e.target.value)} disabled />
                                             {errors.couponCode && couponCode === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.couponCode}</p>}
                                         </div>
                                     </div>

@@ -9,7 +9,7 @@ const DeatilsBookingHistory = ({ title, headers, bookingData, bookingType }) => 
 
     const handleViewClick = (id) => {
         if (bookingType === 'portableCharger') {
-            navigate(`/home-charger/charger-booking-details/${id}`);
+            navigate(`/mobile-ev-charging/charging-booking-details/${id}`);
         } else if (bookingType === 'pickAndDrop') {
             navigate(`/pick-and-drop/booking-details/${id}`);
         }
