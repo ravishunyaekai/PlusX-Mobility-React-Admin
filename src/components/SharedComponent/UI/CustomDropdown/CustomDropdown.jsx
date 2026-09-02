@@ -22,6 +22,66 @@ function CustomDropdown({ options = [], value, onChange, placeholder = "Select O
   );
 }
 
+export function CustomDropdownDisabled({
+  options = [],
+  value,
+  onChange,
+  placeholder = "Select Option",
+  onMenuOpen,
+  isLoading,
+  isDisabled = false,
+}) {
+  return (
+    <Select
+      options={options}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      isClearable={false}
+      isDisabled={isDisabled}
+      styles={customStyles}
+      onMenuOpen={onMenuOpen}
+      isLoading={isLoading}
+      menuPortalTarget={document.body}
+      formatOptionLabel={(e, { context }) => {
+        const isSelected = value?.value === e.value;
+
+        if (context === "menu") {
+          return (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              <span style={{ flexGrow: 1 }}>{e.label}</span>
+
+              <span
+                style={{
+                  width: "18px",
+                  height: "18px",
+                  border: "2px solid #00b26b",
+                  borderRadius: "50%",
+                  backgroundColor: isSelected ? "#00b26b" : "#f9f9f9",
+                  boxShadow: isSelected
+                    ? "inset 0 0 0 3px white"
+                    : "none",
+                  marginLeft: "12px",
+                  flexShrink: 0,
+                }}
+              />
+            </div>
+          );
+        }
+
+        return e.label;
+      }}
+    />
+  );
+}
+
 export default CustomDropdown;
 
 const customStyles = {

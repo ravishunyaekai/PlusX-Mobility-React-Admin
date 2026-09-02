@@ -2,11 +2,14 @@ import { MultiSelect } from "react-multi-select-component";
 import "./MultiSelectDropdown.css";
 
 function MultiSelectDropdown({ options = [], value = [], onChange, labelledBy = "Select Option", enableSelectAll = false, closeOnSelect = false, closeOnChangedValue = false,
-  selectAllValue = "__all__", allSelectedLabel = "Select All" }) {
+  selectAllValue = "__all__", allSelectedLabel = "Select All", isDisabled = false, }) {
 
   const isSelectAll = (opt) => enableSelectAll && opt?.value === selectAllValue;
 
   const handleChange = (selected) => {
+    // Extra protection
+    if (isDisabled) return;
+
     if (!enableSelectAll) {
       onChange(selected);
       return;
@@ -21,19 +24,70 @@ function MultiSelectDropdown({ options = [], value = [], onChange, labelledBy = 
     onChange(selected.filter((o) => !isSelectAll(o)));
   };
 
-  const effectiveOptions = enableSelectAll && options.length > 0 ? [{ value: selectAllValue, label: allSelectedLabel }, ...options] : options;
+  const effectiveOptions =
+    enableSelectAll && options.length > 0
+      ? [
+          {
+            value: selectAllValue,
+            label: allSelectedLabel,
+          },
+          ...options,
+        ]
+      : options;
 
   return (
-    <MultiSelect options={effectiveOptions} value={value} onChange={handleChange} labelledBy={labelledBy} hasSelectAll={false} className="custom-multi-select" //disableSearch
-      closeOnChangedValue={closeOnChangedValue} closeOnSelect={closeOnSelect} ItemRenderer={({ option, checked, onClick }) => (
-        <div onClick={onClick} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "6px 10px", cursor: "pointer",  backgroundColor: "#f9f9f9", color: checked ? "#00b26b" : "#000" }} >
+    <MultiSelect
+      options={effectiveOptions}
+      value={value}
+      onChange={handleChange}
+      labelledBy={labelledBy}
+      hasSelectAll={false}
+      className="custom-multi-select"
+      closeOnChangedValue={closeOnChangedValue}
+      closeOnSelect={closeOnSelect}
+
+      // IMPORTANT
+      disabled={isDisabled}
+
+      ItemRenderer={({ option, checked, onClick }) => (
+        <div
+          onClick={isDisabled ? undefined : onClick}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+            padding: "6px 10px",
+            cursor: isDisabled ? "not-allowed" : "pointer",
+            backgroundColor: "#f9f9f9",
+            color: checked ? "#00b26b" : "#000",
+            opacity: isDisabled ? 0.6 : 1,
+          }}
+        >
           <span>{option.label}</span>
-          <span style={{ width: 18, height: 18, border: "2px solid #00b26b", borderRadius: "50%", backgroundColor: checked ? "#00b26b" : "#f9f9f9", boxShadow: checked ? "inset 0 0 0 3px white" : "none" }} />
+
+          <span
+            style={{
+              width: 18,
+              height: 18,
+              border: "2px solid #00b26b",
+              borderRadius: "50%",
+              backgroundColor: checked ? "#00b26b" : "#f9f9f9",
+              boxShadow: checked
+                ? "inset 0 0 0 3px white"
+                : "none",
+            }}
+          />
         </div>
       )}
+
       ValueRenderer={(selected) => {
         if (selected.length === 0) return labelledBy;
-        if (selected.length === options.length) return allSelectedLabel;
+
+        if (selected.length === options.length) {
+          return allSelectedLabel;
+        }
+
         return selected.map((s) => s.label).join(", ");
       }}
     />
