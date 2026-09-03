@@ -458,6 +458,8 @@ const EditChargeShare = () => {
                 setDescription(data?.description)
                 setLatitude(data?.latitude);
                 setLongitude(data?.longitude);
+                setChargeRecomendRate(data?.chargeRecomendRate || 0);
+                setAccessPermit(data?.accessPermit == 1 ? "Yes" : "No" || '-');
                 // ----- DAYS -----
                 setaDaysOptions(ALL_DAYS_OPTIONS);
 
@@ -748,7 +750,7 @@ const EditChargeShare = () => {
                                                     value="No"
                                                     checked={accessPermit === "No"}
                                                     disabled
-                                                    // onChange={(e) => setAccessPermit(e.target.value)}
+                                                // onChange={(e) => setAccessPermit(e.target.value)}
                                                 />
 
                                                 <span className={styles.checkmark}></span>
@@ -800,7 +802,7 @@ const EditChargeShare = () => {
                                                 onChange={(e) => {
                                                     const value = e.target.value;
                                                     setLandmark(value);
-                                                }}  disabled/>
+                                                }} disabled />
                                             {errors.landmark && landmark === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.landmark}</p>}
                                         </div>
                                         <div className={`col-xl-5 col-lg-6`}>
@@ -808,7 +810,7 @@ const EditChargeShare = () => {
                                             <input type="text" id="bulding_number" placeholder="Building Name" className={styles.inputField} value={buldingNumber}
                                                 onChange={(e) => {
                                                     const value = e.target.value; setbuldingNumber(value);
-                                                }}  disabled/>
+                                                }} disabled />
                                             {errors.buldingNumber && buldingNumber === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.buldingNumber}</p>}
                                         </div>
                                     </div>
@@ -912,7 +914,7 @@ const EditChargeShare = () => {
                                                     }}
                                                     closeOnChangedValue={false}
                                                     closeOnSelect={false}
-                                                    isDisabled={true} 
+                                                    isDisabled={true}
                                                 />
                                             </div>
                                         </div>
@@ -949,7 +951,7 @@ const EditChargeShare = () => {
                                                     }}
                                                     closeOnChangedValue={false}
                                                     closeOnSelect={false}
-                                                    isDisabled={true} 
+                                                    isDisabled={true}
                                                 />
                                             </div>
                                         </div>
@@ -966,7 +968,7 @@ const EditChargeShare = () => {
                                             <div className={styles.uploadContainer}>
                                                 <span className={styles.uploadLabel}>{file ? `${file?.name}` : 'Upload Cover Image'}</span>
                                                 <label htmlFor="charger_image" className={styles.uploadButton}><MdOutlineCloudUpload /> Upload </label>
-                                                <input type="file" id="charger_image" accept=".jpg,.jpeg,.png" onChange={handleFileChange} className={styles.hiddenInput}  disabled/>
+                                                <input type="file" id="charger_image" accept=".jpg,.jpeg,.png" onChange={handleFileChange} className={styles.hiddenInput} disabled />
                                             </div>
                                             {errors.file && <p className={styles.error} style={{ color: 'red' }}>{errors.file}</p>}
                                         </div>
@@ -1012,11 +1014,11 @@ const EditChargeShare = () => {
 
                                             {/* <button disabled={loading} type="submit" className={styles.editSubmitBtn}> */}
                                             <button type="button" className={styles.editSubmitBtn} onClick={() => handleAccept()}>Accept</button>
-                                                {loading ? (
-                                                    <> <span className="spinner-border spinner-border-sm me-2"></span> Accept... </>
-                                                ) : (
-                                                    "Accept"
-                                                )}
+                                            {loading ? (
+                                                <> <span className="spinner-border spinner-border-sm me-2"></span> Accept... </>
+                                            ) : (
+                                                "Accept"
+                                            )}
                                             {/* </button> */}
                                         </div>
                                     </div>

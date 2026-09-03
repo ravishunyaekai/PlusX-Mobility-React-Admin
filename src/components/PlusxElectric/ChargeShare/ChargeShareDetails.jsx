@@ -227,7 +227,7 @@ const ChargeShareDetails = () => {
     const sectionContent2 = {
         // slotDate     : moment(bookingDetails?.slot_date_time).format('DD MMM YYYY h:mm A'),
         compatible      : compatible || '',
-        accessPermit     : bookingDetails?.accessPermit == 1 ? 'Yes' : 'No',
+        accessPermit     : bookingDetails?.accessPermit == 1 ? 'Yes' : 'No' || '-',
         park_no         : bookingDetails?.park_no || "-",
         park_floor      : bookingDetails?.park_floor||"-",
         chargeRecomendRate     :bookingDetails?.chargeRecomendRate ? `₹ ${bookingDetails?.chargeRecomendRate || 0} per kW` : "",
