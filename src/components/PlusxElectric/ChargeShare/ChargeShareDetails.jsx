@@ -216,8 +216,10 @@ const ChargeShareDetails = () => {
 
     const sectionTitles2 = {
         compatible      : "Compatible With",
+        chargeRecomendRate     : "How much do you want to charge per kW?",
         park_no         : "Parking Number",
         park_floor      : "Parking Floor",
+        accessPermit     : "Does your parking require an access permit?",
         charger_status  : "Status",
        open_days        : "Open Days",
        open_time        :  "Open Time"
@@ -225,8 +227,10 @@ const ChargeShareDetails = () => {
     const sectionContent2 = {
         // slotDate     : moment(bookingDetails?.slot_date_time).format('DD MMM YYYY h:mm A'),
         compatible      : compatible || '',
+        accessPermit     : bookingDetails?.accessPermit == 1 ? 'Yes' : 'No',
         park_no         : bookingDetails?.park_no || "-",
         park_floor      : bookingDetails?.park_floor||"-",
+        chargeRecomendRate     :bookingDetails?.chargeRecomendRate ? `₹ ${bookingDetails?.chargeRecomendRate || 0} per kW` : "",
         charger_status  : bookingDetails?.charger_status|| "",
         open_days       : openDays,
         open_time       : openTimes
