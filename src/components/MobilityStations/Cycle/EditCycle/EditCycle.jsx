@@ -175,14 +175,15 @@ const EditCycle = () => {
                 setBasePrice(cycleData?.base_price);
                 setqrImage(cycleData?.qr_image);
                 setpriceId(cycleData?.price_id)
-                // setFile(cycleData?.cover_image || "");
-                // setGalleryFiles(response?.data?.imgName || []);
-                setFile({
-                    name: cycleData?.cover_image || [],
-                    url : `${baseUrl}${cycleData?.cover_image}`,
-                    type: "image/*",
-                    file: null,
-                });
+                 
+                if(cycleData?.cover_image) {
+                    setFile({
+                        name: cycleData?.cover_image || [],
+                        url : `${baseUrl}${cycleData?.cover_image}`,
+                        type: "image/*",
+                        file: null,
+                    });
+                }
                 const galleryArr = (response?.data?.imgName || []).map((img, index) => ({
                     name: img,
                     url : `${baseUrl}${img}`,

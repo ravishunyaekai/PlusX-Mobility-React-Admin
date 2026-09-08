@@ -139,12 +139,14 @@ const EditCharger = () => {
                 setChargerPrice(data.charger_price || "");
                 setChargerType(data.charger_type || "");
                 setChargerFeature(data.charger_feature || "");
-                // setFile(data.image || "")
-                setFile({
-                    name: data?.image,
-                    url: `${response?.base_url}${data?.image}`,
-                    type: "image/*"
-                });
+
+                if(data.image || ""){
+                    setFile({
+                        name: data?.image,
+                        url: `${response?.base_url}${data?.image}`,
+                        type: "image/*"
+                    });
+                }
                 setIsActive(data?.status)
 
             } else {

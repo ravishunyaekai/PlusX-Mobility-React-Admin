@@ -44,12 +44,22 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                             ))} */}
 
                             {keyMapping.map((keyObj, keyIndex) => {
+                                // const rawValue = data[keyObj.key];
+                                // const cellValue = keyObj.format
+                                //     ? keyObj.relatedKeys
+                                //         ? keyObj.format(data, keyObj.key, keyObj.relatedKeys)
+                                //         : keyObj.format(rawValue, data)
+                                //     : rawValue;
                                 const rawValue = data[keyObj.key];
+
                                 const cellValue = keyObj.format
                                     ? keyObj.relatedKeys
                                         ? keyObj.format(data, keyObj.key, keyObj.relatedKeys)
                                         : keyObj.format(rawValue, data)
-                                    : rawValue;
+                                    : Array.isArray(rawValue)
+                                        ? rawValue.join(', ')
+                                        : rawValue;
+
 
                                 const keyLower = keyObj.key.toLowerCase();
                                 const isStatusColumn = keyLower === 'status';

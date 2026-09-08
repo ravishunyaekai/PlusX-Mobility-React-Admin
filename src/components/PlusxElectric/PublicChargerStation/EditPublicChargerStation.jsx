@@ -327,14 +327,16 @@ const EditPublicChargerStation = () => {
                 setAddress(data?.address || "");
                 setLatitude(data?.latitude || "");
                 setLongitude(data?.longitude || "");
-                // setFile(data?.station_image || "");
+                
                 // setGalleryFiles(response?.gallery_data || []);
-                setFile({
-                    name: data?.station_image || [],
-                    url : `${baseUrl}${data?.station_image}`,
-                    type: "image/*",
-                    file: null,
-                });
+                if(data?.station_image || ""){
+                    setFile({
+                        name: data?.station_image || [],
+                        url : `${baseUrl}${data?.station_image}`,
+                        type: "image/*",
+                        file: null,
+                    });
+                }
                 const galleryArr = (response?.gallery_data || []).map((img) => ({
                     name: img,
                     url : `${baseUrl}${img}`,

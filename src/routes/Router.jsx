@@ -46,6 +46,7 @@ import FailedRideDetails from "../components/RideBooking/RideDetails/FailedRideD
 import InvoiceList from "../components/RideBooking/RideList/InvoiceList.jsx";
 import RideInvoiceDetails from "../components/RideBooking/Invoice/InvoiceDetails.jsx";
 import SupportRequestList from "../components/RideBooking/RideList/SupportRequestList.jsx";
+import SupportRequestList from "../components/RideBooking/RideList/SupportRequestList.jsx";
 import SupportRequestDetails from "../components/RideBooking/RideDetails/SupportRequestDetails.jsx";
 import RefundRequestList from "../components/RideBooking/RideList/RefundRequestList.jsx";
 import RefundRequestDetails from "../components/RideBooking/RideDetails/RefundRequestDetails.jsx";
@@ -544,9 +545,6 @@ const router = createBrowserRouter([
                         path: "rsa-offline-leads",
                         element: <RSAOfflineleads />,
                     }, {
-                        path: "offline-booking-details/:requestId",
-                        element: <RoadAssistanceOfflineBookingDetails />,
-                    }, {
                         path: "add-rsa-offline-leads",
                         element: <AddOfflineleads />,
                     }, {
@@ -604,76 +602,58 @@ const router = createBrowserRouter([
                     {
                         path: "purchase-customer-list",
                         element: <PurchaseCustomerList />,
-                    },
-                    {
+                    }, {
                         path: "purchase-customer-details/:purchaseId",
                         element: <PurchaseCustomerDetails />,
-                    },
-                    {
+                    }, {
                         path: "purchase-add",
                         element: <AddCustomer />,
-                    },
-                    {
+                    }, {
                         path: "purchase-edit/:purchaseId",
                         element: <EditCustomer />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-list",
                         element: <EvChargerList />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-details/:chargerId",
                         element: <EvChargerDetails />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-booking-list",
                         element: <EvChargerBookingList />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-booking-details/:chargerId",
                         element: <EvChargerBookingDetails />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-add",
                         element: <AddEVCharger />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-edit/:chargerId",
                         element: <EditEVCharger />,
-                    },
-                    {
+                    }, {
                         path: "accessories-list",
                         element: <AccessoriesList />,
-                    },
-                    {
+                    }, {
                         path: "accessories-details/:chargerId",
                         element: <AccessoriesDetails />,
-                    },
-                    {
+                    }, {
                         path: "accessories-booking-list",
                         element: <AccessoriesBookingList />,
-                    },
-                    {
+                    }, {
                         path: "accessories-booking-details/:chargerId",
                         element: <AccessoriesBookingDetails />,
-                    },
-                    {
+                    }, {
                         path: "accessories-add",
                         element: <AddAccessory />,
-                    },
-                    {
+                    }, {
                         path: "accessories-edit/:chargerId",
                         element: <EditAccessory />,
-                    },
-                    {
+                    }, {
                         path: "charger-installation-list",
                         element: <ChargerInstallationList />,
-                    },
-                    {
+                    }, {
                         path: "charger-installation-details/:requestId",
                         element: <ChargerInstallationDetails />,
-                    },
-                    {
+                    }, {
                         path: "ev-charger-brand-list",
                         element: <EvChargerBrandList />,
                     },

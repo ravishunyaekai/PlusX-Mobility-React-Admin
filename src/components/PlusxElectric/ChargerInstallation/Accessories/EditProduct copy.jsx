@@ -88,12 +88,13 @@ const EditProduct = () => {
                 setDescription(data?.description);
                 // setspecification(data?.specification_pdf);
                 setfeature(data?.charger_feature);
-                // setFile(data?.charger_image);
-                setFile({
-                    name: data?.charger_image,
-                    url: `${response?.base_url}${data?.charger_image}`,
-                    type: "image/*"
-                });
+                if(data?.charger_image){
+                    setFile({
+                        name: data?.charger_image,
+                        url: `${response?.base_url}${data?.charger_image}`,
+                        type: "image/*"
+                    }); 
+                }
                 setspecification({
                     name: data?.specification_pdf,
                     url: `${response?.base_url}${data?.specification_pdf}`,

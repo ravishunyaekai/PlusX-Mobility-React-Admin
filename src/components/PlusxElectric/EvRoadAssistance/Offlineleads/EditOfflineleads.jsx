@@ -1,16 +1,133 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import styles from './AddOfflineleads.module.css';
-import { postRequestWithToken } from '../../../../api/Requests';
-import { toast, ToastContainer } from 'react-toastify';
-import { MdOutlineCloudUpload } from 'react-icons/md';
-import { AiOutlineClose } from 'react-icons/ai';
+
+import {
+    postRequestWithToken,
+    getRequestWithToken
+} from '../../../../api/Requests';
+
+import {
+    toast,
+    ToastContainer
+} from 'react-toastify';
+
+import {
+    MdOutlineCloudUpload
+} from 'react-icons/md';
+
+import {
+    AiOutlineClose
+} from 'react-icons/ai';
+
 import 'react-toastify/dist/ReactToastify.css';
+
 import CustomDropdown from '../../../SharedComponent/UI/CustomDropdown/CustomDropdown';
 
 const EditOfflineleads = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [fetchingData, setFetchingData] = useState(true);
+
+    // =========================================================
+    // Customer Details
+    // =========================================================
+
+    const [customerName, setCustomerName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [emailId, setEmailId] = useState('');
+    const [locationLink, setLocationLink] = useState('');
+    const [address, setAddress] = useState('');
+    const [price, setPrice] = useState('');
+
+    // =========================================================
+    // Vehicle Details
+    // =========================================================
+
+    const [vehicleMake, setVehicleMake] = useState('');
+    const [vehicleModel, setVehicleModel] = useState('');
+
+    const [batteryLevel, setBatteryLevel] = useState(null);
+    const [jumpStartRequired, setJumpStartRequired] =
+        useState(null);
+
+    // =========================================================
+    // Payment Details
+    // =========================================================
+
+    // Newly selected files
+    const [paymentProof, setPaymentProof] = useState([]);
+
+    // Preview URLs for newly selected files
+    const [paymentProofPreviews, setPaymentProofPreviews] =
+        useState([]);
+
+    // Already uploaded files
+    const [existingPaymentProof, setExistingPaymentProof] =
+        useState([]);
+
+    const [paymentMode, setPaymentMode] = useState(null);
+
+    // =========================================================
+    // Booking Details
+    // =========================================================
+
+    const [bookingStatus, setBookingStatus] = useState(null);
+    const [bookingCompletedBy, setBookingCompletedBy] =
+        useState('');
+
+    // =========================================================
+    // Dropdown Options
+    // =========================================================
+
+    const batteryLevelOptions = [
+        {
+            value: '0%',
+            label: '0%'
+        },
+        {
+            value: 'more_than_5%',
+            label: 'More than 5%'
+        }
+    ];
+
+    const jumpStartOptions = [
+        {
+            value: 'yes',
+            label: 'Yes'
+        },
+        {
+            value: 'no',
+            label: 'No'
+        }
+    ];
+
+    const paymentModeOptions = [
+        {
+            value: 'cash',
+            label: 'Cash'
+        },
+        {
+            value: 'online',
+            label: 'Online'
+        }
+    ];
+
+    const bookingStatusOptions = [
+        {
+            value: 'confirmed',
+            label: 'Confirmed'
+        },
+        {
+            value: 'completed',
+            label: 'Completed'
+        }
+    ];
 
     // =========================================================
     // User Details
@@ -36,153 +153,6 @@ const EditOfflineleads = () => {
         }
     };
 
-    const userDetails = getUserDetails();
-
-    // =========================================================
-    // Common State
-    // =========================================================
-
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
-    const [fetchingData, setFetchingData] = useState(true);
-
-    // =========================================================
-    // Customer Details
-    // =========================================================
-
-    const [customerName, setCustomerName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [emailId, setEmailId] = useState('');
-    const [locationLink, setLocationLink] = useState('');
-    const [address, setAddress] = useState('');
-    const [price, setPrice] = useState('');
-
-    // =========================================================
-    // Vehicle Details
-    // =========================================================
-
-    // IMPORTANT:
-    // These values are dropdown objects, NOT strings.
-    //
-    // Example:
-    // {
-    //     value: 'Tata',
-    //     label: 'Tata'
-    // }
-
-    const [vehicleMake, setVehicleMake] = useState(null);
-    const [vehicleModel, setVehicleModel] = useState(null);
-
-    const [batteryLevel, setBatteryLevel] = useState(null);
-    const [jumpStartRequired, setJumpStartRequired] =
-        useState(null);
-
-    // =========================================================
-    // Vehicle / RSA Lists
-    // =========================================================
-
-    const [rsaList, setRsaList] = useState([]);
-
-    const [vehicleList, setVehicleList] = useState([]);
-    const [vehicleMakeList, setVehicleMakeList] = useState([]);
-    const [vehicleModelList, setVehicleModelList] = useState([]);
-
-    // =========================================================
-    // Payment Details
-    // =========================================================
-
-    const [paymentProof, setPaymentProof] = useState([]);
-    const [paymentProofPreviews, setPaymentProofPreviews] =
-        useState([]);
-
-    const [existingPaymentProof, setExistingPaymentProof] =
-        useState([]);
-
-    const [paymentMode, setPaymentMode] = useState(null);
-
-    // =========================================================
-    // Booking Details
-    // =========================================================
-
-    const [bookingStatus, setBookingStatus] = useState(null);
-
-    // IMPORTANT:
-    // This must be an option object.
-    //
-    // Example:
-    // {
-    //     value: 'AJAY',
-    //     label: 'AJAY',
-    //     id: '123'
-    // }
-
-    const [bookingCompletedBy, setBookingCompletedBy] =
-        useState(null);
-
-    const [bookingCompletedById, setBookingCompletedById] =
-        useState(null);
-
-    // =========================================================
-    // Temporary API Values
-    // =========================================================
-
-    // Used because booking API and vehicle API can finish
-    // in different orders.
-
-    const [bookingVehicleData, setBookingVehicleData] =
-        useState('');
-
-    const [bookingCompletedByName, setBookingCompletedByName] =
-        useState('');
-
-    // =========================================================
-    // Dropdown Options
-    // =========================================================
-
-    const batteryLevelOptions = [
-        {
-            value: '0%',
-            label: '0%',
-        },
-        {
-            value: 'More than 5%',
-            label: 'More than 5%',
-        },
-    ];
-
-    const jumpStartOptions = [
-        {
-            value: 'No',
-            label: 'No',
-        },
-        {
-            value: 'Yes',
-            label: 'Yes',
-        },
-    ];
-
-    const paymentModeOptions = [
-        {
-            value: 'Cash',
-            label: 'Cash',
-        },
-        {
-            value: 'Online',
-            label: 'Online',
-        },
-    ];
-
-    const bookingStatusOptions = [
-        {
-            value: 'Confirmed',
-            label: 'Confirmed',
-        },
-        {
-            value: 'Completed',
-            label: 'Completed',
-        },
-    ];
-
     // =========================================================
     // Dropdown Helper
     // =========================================================
@@ -206,7 +176,7 @@ const EditOfflineleads = () => {
     };
 
     // =========================================================
-    // Response Message Helper
+    // Get Response Message
     // =========================================================
 
     const getResponseMessage = (
@@ -227,27 +197,46 @@ const EditOfflineleads = () => {
     };
 
     // =========================================================
-    // Clear Field Error
+    // Normalize Existing Payment Proof
     // =========================================================
 
-    const clearFieldError = field => {
-        setErrors(prev => {
-            if (!prev[field]) {
-                return prev;
-            }
+    const normalizePaymentProof = paymentProofData => {
+        if (!paymentProofData) {
+            return [];
+        }
 
-            const updatedErrors = {
-                ...prev,
-            };
+        if (Array.isArray(paymentProofData)) {
+            return paymentProofData;
+        }
 
-            delete updatedErrors[field];
-
-            return updatedErrors;
-        });
+        return [paymentProofData];
     };
 
     // =========================================================
-    // Fetch Booking Details
+    // Get Existing Image URL
+    // =========================================================
+
+    const getExistingImageUrl = file => {
+        if (!file) {
+            return '';
+        }
+
+        if (typeof file === 'string') {
+            return file;
+        }
+
+        return (
+            file?.url ||
+            file?.image ||
+            file?.file_url ||
+            file?.path ||
+            file?.image_url ||
+            ''
+        );
+    };
+
+    // =========================================================
+    // Fetch Existing Booking
     // =========================================================
 
     const getBookingDetails = () => {
@@ -256,11 +245,11 @@ const EditOfflineleads = () => {
         const obj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
-            request_id: id,
+            request_id: id
         };
 
         postRequestWithToken(
-            'ev-road-assistance-offline-booking-details',
+            'ev-road-assistance-booking-details',
             obj,
             response => {
                 console.log(
@@ -279,6 +268,15 @@ const EditOfflineleads = () => {
                         const history =
                             response?.data?.history || [];
 
+                        console.log(
+                            'Booking:',
+                            booking
+                        );
+
+                        console.log(
+                            'History:',
+                            history
+                        );
 
                         // =================================================
                         // Customer Details
@@ -288,19 +286,33 @@ const EditOfflineleads = () => {
                             booking?.name || ''
                         );
 
-                        setEmailId(
-                            booking?.email || ''
-                        );
-
                         setPhoneNumber(
-                            booking?.contact_no ||
-                            booking?.mobile_no ||
-                            ''
+                            booking?.contact_no || ''
                         );
 
-                        setLocationLink(
-                            booking?.location_link || ''
-                        );
+                        /*
+                         * Your API response does not contain email.
+                         * Keep the existing form field empty.
+                         */
+                        setEmailId('');
+
+                        /*
+                         * Your API response does not contain
+                         * location_link separately.
+                         *
+                         * We can create Google Maps link from
+                         * latitude + longitude.
+                         */
+                        if (
+                            booking?.pickup_latitude &&
+                            booking?.pickup_longitude
+                        ) {
+                            setLocationLink(
+                                `https://www.google.com/maps?q=${booking.pickup_latitude},${booking.pickup_longitude}`
+                            );
+                        } else {
+                            setLocationLink('');
+                        }
 
                         setAddress(
                             booking?.pickup_address || ''
@@ -313,87 +325,109 @@ const EditOfflineleads = () => {
                                 : ''
                         );
 
-                        setBookingVehicleData(
-                            booking?.vehicle_data || ''
-                        );
-                        const batteryValue =
-                            Number(
-                                booking?.battery_level || 0
-                            ) > 0
-                                ? 'More than 5%'
-                                : '0%';
+                        // =================================================
+                        // Vehicle Details
+                        // =================================================
 
-                        setBatteryLevel(
-                            getDropdownValue(
-                                batteryLevelOptions,
-                                batteryValue
-                            )
-                        );
-                        setJumpStartRequired(
-                            getDropdownValue(
-                                jumpStartOptions,
-                                booking?.jump_start_required
-                            )
+                        /*
+                         * vehicle_data:
+                         * "BMW, BMW i5, DL 26 SC 0009"
+                         *
+                         * Format:
+                         * [0] Make
+                         * [1] Model
+                         * [2] Registration Number
+                         */
+
+                        const vehicleData =
+                            booking?.vehicle_data || '';
+
+                        const vehicleParts =
+                            vehicleData
+                                .split(',')
+                                .map(item => item.trim());
+
+                        setVehicleMake(
+                            vehicleParts?.[0] || ''
                         );
 
-                        setPaymentMode(
-                            getDropdownValue(
-                                paymentModeOptions,
-                                booking?.mode_of_payment
-                            )
+                        setVehicleModel(
+                            vehicleParts?.[1] || ''
                         );
-                        if (
-                            booking?.proof_of_transaction_url
-                        ) {
-                            setExistingPaymentProof([
-                                {
-                                    url:
-                                        booking.proof_of_transaction_url,
-                                    name:
-                                        booking.proof_of_transaction ||
-                                        'Payment Proof',
-                                },
-                            ]);
-                        } else if (
-                            booking?.proof_of_transaction
-                        ) {
-                            setExistingPaymentProof([
-                                {
-                                    url:
-                                        booking.proof_of_transaction,
-                                    name:
-                                        'Payment Proof',
-                                },
-                            ]);
-                        } else {
-                            setExistingPaymentProof([]);
-                        }
+
+                        /*
+                         * The API response does not contain:
+                         *
+                         * battery_level
+                         * jump_start_required
+                         *
+                         * So keep these fields empty.
+                         */
+                        setBatteryLevel(null);
+
+                        setJumpStartRequired(null);
+
+                        // =================================================
+                        // Payment Details
+                        // =================================================
+
+                        /*
+                         * API response does not contain:
+                         *
+                         * payment_mode
+                         * payment_proof
+                         *
+                         * So keep existing fields empty.
+                         */
+
+                        setPaymentMode(null);
+
+                        setExistingPaymentProof([]);
+
+                        // =================================================
+                        // Booking Details
+                        // =================================================
+
+                        /*
+                         * API:
+                         *
+                         * order_status: "A"
+                         *
+                         * Your existing dropdown has:
+                         *
+                         * confirmed
+                         * completed
+                         *
+                         * Therefore map API status to your
+                         * existing dropdown values.
+                         *
+                         * CNF = confirmed
+                         * A   = confirmed/assigned
+                         * C   = completed (if your backend uses C)
+                         * COM = completed (if your backend uses COM)
+                         */
+
+                        let mappedBookingStatus = '';
 
                         const orderStatus =
                             String(
                                 booking?.order_status || ''
-                            )
-                                .trim()
-                                .toUpperCase();
-
-                        let mappedBookingStatus = '';
+                            ).toUpperCase();
 
                         if (
                             orderStatus === 'CNF' ||
-                            orderStatus === 'A' ||
-                            orderStatus === 'ASSIGNED'
+                            orderStatus === 'A'
                         ) {
                             mappedBookingStatus =
-                                'Confirmed';
+                                'confirmed';
                         } else if (
-                            orderStatus === 'PU' ||
                             orderStatus === 'C' ||
                             orderStatus === 'COM' ||
                             orderStatus === 'CMP' ||
                             orderStatus === 'COMPLETED'
                         ) {
                             mappedBookingStatus =
-                                'Completed';
+                                'completed';
                         }
 
                         setBookingStatus(
@@ -402,13 +436,56 @@ const EditOfflineleads = () => {
                                 mappedBookingStatus
                             )
                         );
-                        setBookingCompletedByName(
-                            booking?.driver_name || ''
+
+                        // =================================================
+                        // Booking Completed By
+                        // =================================================
+
+                        /*
+                         * RSA data:
+                         *
+                         * "AJAY,+91-9312800125"
+                         *
+                         * This gives us the RSA/driver name.
+                         */
+
+                        let completedBy = '';
+
+                        if (booking?.rsa_data) {
+                            completedBy =
+                                String(
+                                    booking.rsa_data
+                                )
+                                    .split(',')[0]
+                                    .trim();
+                        }
+
+                        /*
+                         * If the history contains rsa_name,
+                         * use that as the preferred value.
+                         */
+
+                        const latestHistory =
+                            history.length > 0
+                                ? history[
+                                history.length - 1
+                                ]
+                                : null;
+
+                        if (
+                            latestHistory?.rsa_name
+                        ) {
+                            completedBy =
+                                latestHistory.rsa_name;
+                        }
+
+                        setBookingCompletedBy(
+                            completedBy || ''
                         );
 
-                        setBookingCompletedById(
-                            booking?.rsa_id || null
-                        );
+                        // =================================================
+                        // Clear Errors
+                        // =================================================
 
                         setErrors({});
                     } else {
@@ -436,537 +513,111 @@ const EditOfflineleads = () => {
     };
 
     // =========================================================
-    // Fetch RSA Driver List
-    // =========================================================
-
-    const getDriverList = () => {
-        try {
-            const rsaObj = {
-                userId: userDetails?.user_id,
-                email: userDetails?.email,
-                service_type:
-                    'EV Roadside Assistance',
-            };
-
-            postRequestWithToken(
-                'all-rsa-list',
-                rsaObj,
-                response => {
-                    console.log(
-                        'RSA list response:',
-                        response
-                    );
-
-                    if (
-                        response?.code === 200 ||
-                        response?.status === 1
-                    ) {
-                        const drivers =
-                            (
-                                response?.data || []
-                            ).map(item => ({
-                                value:
-                                    item?.rsa_name ||
-                                    '',
-                                label:
-                                    item?.rsa_name ||
-                                    '',
-                                id:
-                                    item?.rsa_id ||
-                                    '',
-                            }));
-
-                        setRsaList(drivers);
-                    } else {
-                        console.log(
-                            'Error in all-rsa-list API:',
-                            response
-                        );
-                    }
-                }
-            );
-        } catch (error) {
-            console.error(
-                'Error in getDriverList:',
-                error
-            );
-        }
-    };
-
-    // =========================================================
-    // Fetch Vehicle List
-    // =========================================================
-
-    const getVehicleList = () => {
-        try {
-            const obj = {
-                userId: userDetails?.user_id,
-                email: userDetails?.email,
-            };
-
-            postRequestWithToken(
-                'ev-road-assistance-offline-vehicle-list',
-                obj,
-                response => {
-                    console.log(
-                        'Vehicle list response:',
-                        response
-                    );
-
-                    if (
-                        response?.code === 200 ||
-                        response?.status === 1
-                    ) {
-                        const vehicles =
-                            response?.data || [];
-
-                        setVehicleList(
-                            vehicles
-                        );
-
-                        const makeOptions =
-                            vehicles.map(
-                                vehicle => ({
-                                    value:
-                                        vehicle?.value,
-                                    label:
-                                        vehicle?.label,
-                                })
-                            );
-
-                        setVehicleMakeList(
-                            makeOptions
-                        );
-                    } else {
-                        console.log(
-                            'Error in vehicle list API:',
-                            response
-                        );
-                    }
-                }
-            );
-        } catch (error) {
-            console.error(
-                'Error in getVehicleList:',
-                error
-            );
-        }
-    };
-
-    // =========================================================
-    // Set Initial Vehicle Make + Model
-    // =========================================================
-
-    useEffect(() => {
-        if (
-            !bookingVehicleData ||
-            vehicleList.length === 0
-        ) {
-            return;
-        }
-
-        console.log(
-            'Setting initial vehicle:',
-            bookingVehicleData
-        );
-
-        const vehicleParts =
-            String(bookingVehicleData)
-                .split(',')
-                .map(item => item.trim())
-                .filter(Boolean);
-
-        const makeName =
-            vehicleParts[0] || '';
-
-        const modelName =
-            vehicleParts
-                .slice(1)
-                .join(', ') || '';
-
-        // =====================================================
-        // Find Make
-        // =====================================================
-
-        const selectedVehicle =
-            vehicleList.find(
-                vehicle =>
-                    String(
-                        vehicle?.value
-                    ).toLowerCase() ===
-                    String(
-                        makeName
-                    ).toLowerCase()
-            );
-
-        if (!selectedVehicle) {
-            console.log(
-                'Vehicle make not found:',
-                makeName
-            );
-
-            setVehicleMake(null);
-            setVehicleModel(null);
-            setVehicleModelList([]);
-
-            return;
-        }
-
-        const makeOption = {
-            value:
-                selectedVehicle.value,
-            label:
-                selectedVehicle.label,
-        };
-
-        setVehicleMake(
-            makeOption
-        );
-
-        // =====================================================
-        // Models
-        // =====================================================
-
-        const modelOptions =
-            (
-                selectedVehicle.models ||
-                []
-            ).map(model => ({
-                value:
-                    model?.value,
-                label:
-                    model?.label,
-            }));
-
-        setVehicleModelList(
-            modelOptions
-        );
-
-        // =====================================================
-        // Find Model
-        // =====================================================
-
-        const selectedModel =
-            modelOptions.find(
-                model =>
-                    String(
-                        model?.value
-                    ).toLowerCase() ===
-                    String(
-                        modelName
-                    ).toLowerCase()
-            );
-
-        setVehicleModel(
-            selectedModel || null
-        );
-
-        console.log(
-            'Initial vehicle make:',
-            makeOption
-        );
-
-        console.log(
-            'Initial vehicle model:',
-            selectedModel
-        );
-
-    }, [
-        bookingVehicleData,
-        vehicleList,
-    ]);
-
-    // =========================================================
-    // Set Initial Booking Completed By
-    // =========================================================
-
-    useEffect(() => {
-        if (
-            !bookingCompletedByName ||
-            rsaList.length === 0
-        ) {
-            return;
-        }
-
-        console.log(
-            'Setting initial driver:',
-            bookingCompletedByName
-        );
-
-        // First try by RSA ID
-        let selectedDriver =
-            bookingCompletedById
-                ? rsaList.find(
-                    driver =>
-                        String(
-                            driver?.id
-                        ) ===
-                        String(
-                            bookingCompletedById
-                        )
-                )
-                : null;
-
-        // If not found, try by driver name
-        if (!selectedDriver) {
-            selectedDriver =
-                rsaList.find(
-                    driver =>
-                        String(
-                            driver?.value
-                        ).toLowerCase() ===
-                        String(
-                            bookingCompletedByName
-                        ).toLowerCase()
-                );
-        }
-
-        if (selectedDriver) {
-            setBookingCompletedBy(
-                selectedDriver
-            );
-
-            setBookingCompletedById(
-                selectedDriver.id
-            );
-
-            console.log(
-                'Initial driver selected:',
-                selectedDriver
-            );
-        } else {
-            console.log(
-                'Driver not found:',
-                bookingCompletedByName,
-                bookingCompletedById
-            );
-
-            setBookingCompletedBy(null);
-        }
-
-    }, [
-        bookingCompletedByName,
-        bookingCompletedById,
-        rsaList,
-    ]);
-
-    // =========================================================
-    // Vehicle Make Change
-    // =========================================================
-
-    const handleVehicleMakeChange =
-        selectedMake => {
-            setVehicleMake(
-                selectedMake
-            );
-
-            setVehicleModel(
-                null
-            );
-
-            clearFieldError(
-                'vehicleMake'
-            );
-
-            clearFieldError(
-                'vehicleModel'
-            );
-
-            if (!selectedMake) {
-                setVehicleModelList(
-                    []
-                );
-
-                return;
-            }
-
-            const selectedVehicle =
-                vehicleList.find(
-                    vehicle =>
-                        String(
-                            vehicle?.value
-                        ) ===
-                        String(
-                            selectedMake?.value
-                        )
-                );
-
-            if (
-                selectedVehicle?.models
-            ) {
-                const modelOptions =
-                    selectedVehicle.models.map(
-                        model => ({
-                            value:
-                                model?.value,
-                            label:
-                                model?.label,
-                        })
-                    );
-
-                setVehicleModelList(
-                    modelOptions
-                );
-            } else {
-                setVehicleModelList(
-                    []
-                );
-            }
-        };
-
-    // =========================================================
     // File Upload
     // =========================================================
 
-    const handleGalleryChange =
-        event => {
-            const selectedFiles =
-                Array.from(
-                    event.target.files ||
-                    []
-                );
+    const handleGalleryChange = event => {
+        const selectedFiles = Array.from(
+            event.target.files || []
+        );
 
-            if (
-                selectedFiles.length ===
-                0
-            ) {
-                return;
-            }
+        if (selectedFiles.length === 0) {
+            return;
+        }
 
-            const validFiles =
-                selectedFiles.filter(
-                    file =>
-                        [
-                            'image/jpeg',
-                            'image/png',
-                            'image/jpg',
-                        ].includes(
-                            file.type
-                        )
-                );
+        const validFiles = selectedFiles.filter(file =>
+            [
+                'image/jpeg',
+                'image/png',
+                'image/jpg'
+            ].includes(file.type)
+        );
 
-            if (
-                validFiles.length !==
-                selectedFiles.length
-            ) {
-                toast.error(
-                    'Invalid file. Only .jpg, .jpeg, .png allowed.'
-                );
-
-                event.target.value =
-                    '';
-
-                return;
-            }
-
-            setPaymentProof(
-                prevFiles => [
-                    ...prevFiles,
-                    ...validFiles,
-                ]
+        if (
+            validFiles.length !==
+            selectedFiles.length
+        ) {
+            toast.error(
+                'Invalid file. Only .jpg, .jpeg, .png allowed.'
             );
 
-            const newPreviewUrls =
-                validFiles.map(
-                    file =>
-                        URL.createObjectURL(
-                            file
-                        )
-                );
+            event.target.value = '';
+            return;
+        }
 
-            setPaymentProofPreviews(
-                prevPreviews => [
-                    ...prevPreviews,
-                    ...newPreviewUrls,
-                ]
+        // =====================================================
+        // Add Files
+        // =====================================================
+
+        setPaymentProof(prevFiles => [
+            ...prevFiles,
+            ...validFiles
+        ]);
+
+        // =====================================================
+        // Create Preview URLs
+        // =====================================================
+
+        const newPreviewUrls =
+            validFiles.map(file =>
+                URL.createObjectURL(file)
             );
 
-            event.target.value =
-                '';
+        setPaymentProofPreviews(
+            prevPreviews => [
+                ...prevPreviews,
+                ...newPreviewUrls
+            ]
+        );
 
-            clearFieldError(
-                'paymentProof'
-            );
-        };
+        // Allows selecting same file again
+        event.target.value = '';
+
+        // Clear validation error
+        setErrors(prevErrors => ({
+            ...prevErrors,
+            paymentProof: ''
+        }));
+    };
 
     // =========================================================
     // Remove New Payment Proof
     // =========================================================
 
-    const handleRemoveGalleryImage =
-        index => {
-            setPaymentProof(
-                prevFiles =>
-                    prevFiles.filter(
-                        (_, i) =>
-                            i !== index
-                    )
+    const handleRemoveGalleryImage = index => {
+        setPaymentProof(prevFiles =>
+            prevFiles.filter(
+                (_, i) => i !== index
+            )
+        );
+
+        setPaymentProofPreviews(prevPreviews => {
+            const previewToRemove =
+                prevPreviews[index];
+
+            if (previewToRemove) {
+                URL.revokeObjectURL(
+                    previewToRemove
+                );
+            }
+
+            return prevPreviews.filter(
+                (_, i) => i !== index
             );
-
-            setPaymentProofPreviews(
-                prevPreviews => {
-                    const previewToRemove =
-                        prevPreviews[
-                        index
-                        ];
-
-                    if (
-                        previewToRemove
-                    ) {
-                        URL.revokeObjectURL(
-                            previewToRemove
-                        );
-                    }
-
-                    return prevPreviews.filter(
-                        (_, i) =>
-                            i !== index
-                    );
-                }
-            );
-        };
+        });
+    };
 
     // =========================================================
     // Remove Existing Payment Proof
     // =========================================================
 
-    const handleRemoveExistingProof =
-        index => {
-            setExistingPaymentProof(
-                prevFiles =>
-                    prevFiles.filter(
-                        (_, i) =>
-                            i !== index
-                    )
-            );
-        };
-
-    // =========================================================
-    // Existing Image URL
-    // =========================================================
-
-    const getExistingImageUrl =
-        file => {
-            if (!file) {
-                return '';
-            }
-
-            if (
-                typeof file ===
-                'string'
-            ) {
-                return file;
-            }
-
-            return (
-                file?.url ||
-                file?.image ||
-                file?.file_url ||
-                file?.path ||
-                file?.image_url ||
-                ''
-            );
-        };
+    const handleRemoveExistingProof = index => {
+        setExistingPaymentProof(prevFiles =>
+            prevFiles.filter(
+                (_, i) => i !== index
+            )
+        );
+    };
 
     // =========================================================
     // Validation
@@ -975,30 +626,26 @@ const EditOfflineleads = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (
-            !customerName.trim()
-        ) {
+        // =====================================================
+        // Customer Details
+        // =====================================================
+
+        if (!customerName.trim()) {
             newErrors.customerName =
                 'Customer Name is required.';
         }
 
-        if (
-            !phoneNumber.trim()
-        ) {
+        if (!phoneNumber.trim()) {
             newErrors.phoneNumber =
                 'Phone Number is required.';
         } else if (
-            !/^[0-9]{10}$/.test(
-                phoneNumber
-            )
+            !/^[0-9]{10}$/.test(phoneNumber)
         ) {
             newErrors.phoneNumber =
                 'Please enter a valid 10 digit phone number.';
         }
 
-        if (
-            !emailId.trim()
-        ) {
+        if (!emailId.trim()) {
             newErrors.emailId =
                 'Email ID is required.';
         } else if (
@@ -1010,82 +657,55 @@ const EditOfflineleads = () => {
                 'Please enter a valid email ID.';
         }
 
-        if (
-            !locationLink.trim()
-        ) {
+        if (!locationLink.trim()) {
             newErrors.locationLink =
                 'Location Link is required.';
-        } else {
-            try {
-                new URL(
-                    locationLink
-                );
-            } catch {
-                newErrors.locationLink =
-                    'Please enter a valid location URL.';
-            }
         }
 
-        if (
-            !address.trim()
-        ) {
+        if (!address.trim()) {
             newErrors.address =
                 'Address is required.';
         }
 
-        if (
-            !price.trim()
-        ) {
+        if (!price.trim()) {
             newErrors.price =
                 'Price including GST is required.';
-        } else if (
-            Number(price) <= 0
-        ) {
-            newErrors.price =
-                'Price must be greater than 0.';
         }
 
-        if (
-            !vehicleMake
-        ) {
+        // =====================================================
+        // Vehicle Details
+        // =====================================================
+
+        if (!vehicleMake.trim()) {
             newErrors.vehicleMake =
                 'Vehicle Make is required.';
         }
 
-        if (
-            !vehicleModel
-        ) {
+        if (!vehicleModel.trim()) {
             newErrors.vehicleModel =
                 'Vehicle Model is required.';
         }
 
-        if (
-            !batteryLevel
-        ) {
+        if (!batteryLevel) {
             newErrors.batteryLevel =
                 'Battery Level is required.';
         }
 
-        if (
-            !jumpStartRequired
-        ) {
+        if (!jumpStartRequired) {
             newErrors.jumpStartRequired =
                 'Jump Start Required is required.';
         }
 
-        if (
-            !paymentMode
-        ) {
+        // =====================================================
+        // Payment Details
+        // =====================================================
+
+        if (!paymentMode) {
             newErrors.paymentMode =
                 'Mode of Payment is required.';
         }
 
-        // Payment proof required for Online
-        //
-        // Existing proof also satisfies requirement.
         if (
-            paymentMode?.value ===
-            'Online' &&
             paymentProof.length === 0 &&
             existingPaymentProof.length === 0
         ) {
@@ -1093,33 +713,32 @@ const EditOfflineleads = () => {
                 'Payment Proof is required.';
         }
 
-        if (
-            !bookingStatus
-        ) {
+        // =====================================================
+        // Booking Details
+        // =====================================================
+
+        if (!bookingStatus) {
             newErrors.bookingStatus =
                 'Booking Status is required.';
         }
 
         if (
-            !bookingCompletedBy
+            bookingStatus?.value === 'completed' &&
+            !bookingCompletedBy.trim()
         ) {
             newErrors.bookingCompletedBy =
                 'Booking Completed By is required.';
         }
 
-        setErrors(
-            newErrors
-        );
+        setErrors(newErrors);
 
         return (
-            Object.keys(
-                newErrors
-            ).length === 0
+            Object.keys(newErrors).length === 0
         );
     };
 
     // =========================================================
-    // Submit
+    // Submit / Update
     // =========================================================
 
     const handleSubmit = e => {
@@ -1129,38 +748,29 @@ const EditOfflineleads = () => {
             return;
         }
 
-        const isValid =
-            validateForm();
+        const isValid = validateForm();
 
         if (!isValid) {
             toast.error(
                 'Some fields are missing.'
             );
-
             return;
         }
 
-        const currentUserDetails =
-            getUserDetails();
+        const userDetails = getUserDetails();
 
-        if (
-            !currentUserDetails
-        ) {
+        if (!userDetails) {
             toast.error(
                 'User session expired. Please login again.'
             );
 
-            navigate(
-                '/login'
-            );
-
+            navigate('/login');
             return;
         }
 
         setLoading(true);
 
-        const formData =
-            new FormData();
+        const formData = new FormData();
 
         // =====================================================
         // Common
@@ -1168,14 +778,12 @@ const EditOfflineleads = () => {
 
         formData.append(
             'userId',
-            currentUserDetails?.user_id ||
-            ''
+            userDetails?.user_id || ''
         );
 
         formData.append(
             'email',
-            currentUserDetails?.email ||
-            ''
+            userDetails?.email || ''
         );
 
         formData.append(
@@ -1221,32 +829,24 @@ const EditOfflineleads = () => {
         // Vehicle Details
         // =====================================================
 
-        // IMPORTANT:
-        // vehicleMake is an object.
-        // vehicleModel is an object.
-
         formData.append(
             'vehicle_make',
-            vehicleMake?.value ||
-            ''
+            vehicleMake.trim()
         );
 
         formData.append(
             'vehicle_model',
-            vehicleModel?.value ||
-            ''
+            vehicleModel.trim()
         );
 
         formData.append(
             'battery_level',
-            batteryLevel?.value ||
-            ''
+            batteryLevel?.value || ''
         );
 
         formData.append(
             'jump_start_required',
-            jumpStartRequired?.value ||
-            ''
+            jumpStartRequired?.value || ''
         );
 
         // =====================================================
@@ -1255,26 +855,28 @@ const EditOfflineleads = () => {
 
         formData.append(
             'payment_mode',
-            paymentMode?.value ||
-            ''
+            paymentMode?.value || ''
         );
 
         // =====================================================
-        // New Payment Proof
+        // New Payment Proof Files
         // =====================================================
 
-        paymentProof.forEach(
-            file => {
-                formData.append(
-                    'payment_proof[]',
-                    file
-                );
-            }
-        );
+        paymentProof.forEach(file => {
+            formData.append(
+                'payment_proof[]',
+                file
+            );
+        });
 
         // =====================================================
         // Existing Payment Proof
         // =====================================================
+
+        /*
+         * This contains only the existing files that
+         * the user has NOT removed.
+         */
 
         formData.append(
             'existing_payment_proof',
@@ -1289,27 +891,16 @@ const EditOfflineleads = () => {
 
         formData.append(
             'booking_status',
-            bookingStatus?.value ||
-            ''
+            bookingStatus?.value || ''
         );
 
-        // Driver name
         formData.append(
             'booking_completed_by',
-            bookingCompletedBy?.value ||
-            ''
-        );
-
-        // IMPORTANT:
-        // Send RSA ID too.
-        formData.append(
-            'rsa_id',
-            bookingCompletedBy?.id ||
-            ''
+            bookingCompletedBy.trim()
         );
 
         // =====================================================
-        // Debug
+        // Debug FormData
         // =====================================================
 
         console.log(
@@ -1317,32 +908,10 @@ const EditOfflineleads = () => {
             id
         );
 
-        console.log(
-            'Vehicle Make:',
-            vehicleMake
-        );
-
-        console.log(
-            'Vehicle Model:',
-            vehicleModel
-        );
-
-        console.log(
-            'Booking Completed By:',
-            bookingCompletedBy
-        );
-
-        console.log(
-            'RSA ID:',
-            bookingCompletedBy?.id
-        );
-
-        for (
-            const [
-                key,
-                value,
-            ] of formData.entries()
-        ) {
+        for (const [
+            key,
+            value
+        ] of formData.entries()) {
             console.log(
                 key,
                 value
@@ -1363,10 +932,8 @@ const EditOfflineleads = () => {
                 );
 
                 if (
-                    response?.code ===
-                    200 ||
-                    response?.status ===
-                    1
+                    response?.code === 200 ||
+                    response?.status === 1
                 ) {
                     toast.success(
                         getResponseMessage(
@@ -1375,18 +942,13 @@ const EditOfflineleads = () => {
                         )
                     );
 
-                    setTimeout(
-                        () => {
-                            setLoading(
-                                false
-                            );
+                    setTimeout(() => {
+                        setLoading(false);
 
-                            navigate(
-                                '/electric/ev-road-assistance/rsa-offline-leads'
-                            );
-                        },
-                        1000
-                    );
+                        navigate(
+                            '/electric/ev-road-assistance/rsa-offline-leads'
+                        );
+                    }, 1000);
                 } else {
                     toast.error(
                         getResponseMessage(
@@ -1395,30 +957,25 @@ const EditOfflineleads = () => {
                         )
                     );
 
-                    setLoading(
-                        false
-                    );
+                    setLoading(false);
                 }
             }
         );
     };
 
     // =========================================================
-    // Authentication + Initial API Calls
+    // Authentication + Fetch
     // =========================================================
 
     useEffect(() => {
-        const currentUserDetails =
+        const userDetails =
             getUserDetails();
 
         if (
-            !currentUserDetails ||
-            !currentUserDetails.access_token
+            !userDetails ||
+            !userDetails.access_token
         ) {
-            navigate(
-                '/login'
-            );
-
+            navigate('/login');
             return;
         }
 
@@ -1435,13 +992,7 @@ const EditOfflineleads = () => {
         }
 
         getBookingDetails();
-        getDriverList();
-        getVehicleList();
-
-    }, [
-        id,
-        navigate,
-    ]);
+    }, [id, navigate]);
 
     // =========================================================
     // Cleanup Preview URLs
@@ -1449,17 +1000,11 @@ const EditOfflineleads = () => {
 
     useEffect(() => {
         return () => {
-            paymentProofPreviews.forEach(
-                url => {
-                    URL.revokeObjectURL(
-                        url
-                    );
-                }
-            );
+            paymentProofPreviews.forEach(url => {
+                URL.revokeObjectURL(url);
+            });
         };
-    }, [
-        paymentProofPreviews,
-    ]);
+    }, [paymentProofPreviews]);
 
     // =========================================================
     // Cancel
@@ -1493,20 +1038,16 @@ const EditOfflineleads = () => {
                         styles.addHeading
                     }
                 >
-                    Edit EV Road Assistance
-                    Offline Booking
+                    Edit EV Road Assistance Offline
+                    Booking
                 </div>
 
                 <div
                     style={{
-                        display:
-                            'flex',
-                        justifyContent:
-                            'center',
-                        alignItems:
-                            'center',
-                        minHeight:
-                            '300px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '300px'
                     }}
                 >
                     <div
@@ -1539,8 +1080,8 @@ const EditOfflineleads = () => {
                     styles.addHeading
                 }
             >
-                Edit EV Road Assistance
-                Offline Booking
+                Edit EV Road Assistance Offline
+                Booking
             </div>
 
             <div
@@ -1552,23 +1093,19 @@ const EditOfflineleads = () => {
                     className={
                         styles.formSection
                     }
-                    onSubmit={
-                        handleSubmit
-                    }
+                    onSubmit={handleSubmit}
                 >
 
                     {/* =================================================
                         CUSTOMER DETAILS
                     ================================================= */}
 
-                    <div className="row">
-                        <div className="col-xl-11 col-lg-12">
-                            <label
-                                className={
-                                    styles.featureLabel
-                                }
-                            >
-                                Customer Details
+                    
+
+                    <div className={`row`}>
+                        <div className={`col-xl-11 col-lg-12`}>
+                            <label className={styles.featureLabel} htmlFor="Features"> Customer Details
+
                             </label>
                         </div>
                     </div>
@@ -1599,15 +1136,11 @@ const EditOfflineleads = () => {
                                         value={
                                             customerName
                                         }
-                                        onChange={e => {
+                                        onChange={e =>
                                             setCustomerName(
                                                 e.target.value
-                                            );
-
-                                            clearFieldError(
-                                                'customerName'
-                                            );
-                                        }}
+                                            )
+                                        }
                                     />
 
                                     {errors.customerName && (
@@ -1661,10 +1194,6 @@ const EditOfflineleads = () => {
                                             setPhoneNumber(
                                                 value
                                             );
-
-                                            clearFieldError(
-                                                'phoneNumber'
-                                            );
                                         }}
                                     />
 
@@ -1712,15 +1241,11 @@ const EditOfflineleads = () => {
                                         value={
                                             emailId
                                         }
-                                        onChange={e => {
+                                        onChange={e =>
                                             setEmailId(
                                                 e.target.value
-                                            );
-
-                                            clearFieldError(
-                                                'emailId'
-                                            );
-                                        }}
+                                            )
+                                        }
                                     />
 
                                     {errors.emailId && (
@@ -1763,15 +1288,11 @@ const EditOfflineleads = () => {
                                         value={
                                             locationLink
                                         }
-                                        onChange={e => {
+                                        onChange={e =>
                                             setLocationLink(
                                                 e.target.value
-                                            );
-
-                                            clearFieldError(
-                                                'locationLink'
-                                            );
-                                        }}
+                                            )
+                                        }
                                     />
 
                                     {errors.locationLink && (
@@ -1808,8 +1329,8 @@ const EditOfflineleads = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
 
-                                    <input
-                                        type="text"
+                                    <textarea
+                                        rows="3"
                                         placeholder="Address"
                                         className={
                                             styles.inputField
@@ -1817,15 +1338,11 @@ const EditOfflineleads = () => {
                                         value={
                                             address
                                         }
-                                        onChange={e => {
+                                        onChange={e =>
                                             setAddress(
                                                 e.target.value
-                                            );
-
-                                            clearFieldError(
-                                                'address'
-                                            );
-                                        }}
+                                            )
+                                        }
                                     />
 
                                     {errors.address && (
@@ -1880,10 +1397,6 @@ const EditOfflineleads = () => {
                                                 setPrice(
                                                     value
                                                 );
-
-                                                clearFieldError(
-                                                    'price'
-                                                );
                                             }
                                         }}
                                     />
@@ -1910,14 +1423,12 @@ const EditOfflineleads = () => {
                         VEHICLE DETAILS
                     ================================================= */}
 
-                    <div className="row">
-                        <div className="col-xl-11 col-lg-12">
-                            <label
-                                className={
-                                    styles.featureLabel
-                                }
-                            >
-                                Vehicle Details
+                    
+
+                    <div className={`row`}>
+                        <div className={`col-xl-11 col-lg-12`}>
+                            <label className={styles.featureLabel} htmlFor="Features"> Vehicle Details
+
                             </label>
                         </div>
                     </div>
@@ -1938,22 +1449,20 @@ const EditOfflineleads = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
 
-                                    <CustomDropdown
-                                        options={
-                                            vehicleMakeList
+                                    <input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Vehicle Make"
+                                        className={
+                                            styles.inputField
                                         }
                                         value={
                                             vehicleMake
                                         }
-                                        onChange={
-                                            handleVehicleMakeChange
-                                        }
-                                        labelledBy="Select Vehicle Make"
-                                        closeOnChangedValue={
-                                            true
-                                        }
-                                        closeOnSelect={
-                                            true
+                                        onChange={e =>
+                                            setVehicleMake(
+                                                e.target.value
+                                            )
                                         }
                                     />
 
@@ -1987,31 +1496,20 @@ const EditOfflineleads = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
 
-                                    <CustomDropdown
-                                        options={
-                                            vehicleModelList
+                                    <input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Vehicle Model"
+                                        className={
+                                            styles.inputField
                                         }
                                         value={
                                             vehicleModel
                                         }
-                                        onChange={selectedModel => {
+                                        onChange={e =>
                                             setVehicleModel(
-                                                selectedModel
-                                            );
-
-                                            clearFieldError(
-                                                'vehicleModel'
-                                            );
-                                        }}
-                                        labelledBy="Select Vehicle Model"
-                                        closeOnChangedValue={
-                                            true
-                                        }
-                                        closeOnSelect={
-                                            true
-                                        }
-                                        disabled={
-                                            !vehicleMake
+                                                e.target.value
+                                            )
                                         }
                                     />
 
@@ -2056,15 +1554,21 @@ const EditOfflineleads = () => {
                                         value={
                                             batteryLevel
                                         }
-                                        onChange={value => {
-                                            setBatteryLevel(
-                                                value
-                                            );
+                                        onChange={
+                                            selectedOption => {
+                                                setBatteryLevel(
+                                                    selectedOption
+                                                );
 
-                                            clearFieldError(
-                                                'batteryLevel'
-                                            );
-                                        }}
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        batteryLevel:
+                                                            ''
+                                                    })
+                                                );
+                                            }
+                                        }
                                         labelledBy="Select Battery Level"
                                         closeOnChangedValue
                                         closeOnSelect
@@ -2107,15 +1611,21 @@ const EditOfflineleads = () => {
                                         value={
                                             jumpStartRequired
                                         }
-                                        onChange={value => {
-                                            setJumpStartRequired(
-                                                value
-                                            );
+                                        onChange={
+                                            selectedOption => {
+                                                setJumpStartRequired(
+                                                    selectedOption
+                                                );
 
-                                            clearFieldError(
-                                                'jumpStartRequired'
-                                            );
-                                        }}
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        jumpStartRequired:
+                                                            ''
+                                                    })
+                                                );
+                                            }
+                                        }
                                         labelledBy="Select Option"
                                         closeOnChangedValue
                                         closeOnSelect
@@ -2143,14 +1653,12 @@ const EditOfflineleads = () => {
                         PAYMENT DETAILS
                     ================================================= */}
 
-                    <div className="row">
-                        <div className="col-xl-11 col-lg-12">
-                            <label
-                                className={
-                                    styles.featureLabel
-                                }
-                            >
-                                Payment Details
+                    
+
+                    <div className={`row`}>
+                        <div className={`col-xl-11 col-lg-12`}>
+                            <label className={styles.featureLabel} htmlFor="Features"> Payment Details
+
                             </label>
                         </div>
                     </div>
@@ -2178,24 +1686,21 @@ const EditOfflineleads = () => {
                                         value={
                                             paymentMode
                                         }
-                                        onChange={value => {
-                                            setPaymentMode(
-                                                value
-                                            );
+                                        onChange={
+                                            selectedOption => {
+                                                setPaymentMode(
+                                                    selectedOption
+                                                );
 
-                                            clearFieldError(
-                                                'paymentMode'
-                                            );
-
-                                            if (
-                                                value?.value !==
-                                                'Online'
-                                            ) {
-                                                clearFieldError(
-                                                    'paymentProof'
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        paymentMode:
+                                                            ''
+                                                    })
                                                 );
                                             }
-                                        }}
+                                        }
                                         labelledBy="Select Payment Mode"
                                         closeOnChangedValue
                                         closeOnSelect
@@ -2219,295 +1724,295 @@ const EditOfflineleads = () => {
 
                         {/* Payment Proof */}
 
-                        {paymentMode?.value ===
-                            'Online' && (
-                                <div className="col-lg-6">
+                        <div className="col-lg-6">
 
-                                    <label
+                            <label
+                                className={
+                                    styles.labelText
+                                }
+                            >
+                                Payment Proof
+                            </label>
+
+                            <div className="row">
+
+                                <div className="col-xl-10 col-lg-12">
+
+                                    <div
                                         className={
-                                            styles.labelText
+                                            styles.uploadContainer
                                         }
                                     >
-                                        Payment Proof
-                                    </label>
 
-                                    <div className="row">
+                                        <span
+                                            className={
+                                                styles.uploadLabel
+                                            }
+                                        >
+                                            {paymentProof.length >
+                                                0
+                                                ? paymentProof.length >
+                                                    2
+                                                    ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
+                                                    : paymentProof
+                                                        .map(
+                                                            file =>
+                                                                file.name
+                                                        )
+                                                        .join(
+                                                            ', '
+                                                        )
+                                                : 'Upload Payment Proof'}
+                                        </span>
+
+                                        <label
+                                            htmlFor="galleryImage"
+                                            className={
+                                                styles.uploadButton
+                                            }
+                                        >
+                                            <MdOutlineCloudUpload />
+                                            Upload
+                                        </label>
+
+                                        <input
+                                            type="file"
+                                            multiple
+                                            id="galleryImage"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={
+                                                handleGalleryChange
+                                            }
+                                            className={
+                                                styles.hiddenInput
+                                            }
+                                        />
+
+                                    </div>
+
+                                    {errors.paymentProof &&
+                                        paymentProof.length ===
+                                        0 &&
+                                        existingPaymentProof.length ===
+                                        0 && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.paymentProof
+                                                }
+                                            </p>
+                                        )}
+
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                Existing Payment Proof
+                            ================================================= */}
+
+                            {existingPaymentProof.length >
+                                0 && (
+                                    <div className="row mt-2">
 
                                         <div className="col-xl-10 col-lg-12">
 
                                             <div
+                                                style={{
+                                                    fontWeight: 600,
+                                                    marginBottom:
+                                                        '10px'
+                                                }}
+                                            >
+                                                Existing Payment
+                                                Proof
+                                            </div>
+
+                                            <div
                                                 className={
-                                                    styles.uploadContainer
+                                                    styles.galleryContainer
                                                 }
                                             >
 
-                                                <span
-                                                    className={
-                                                        styles.uploadLabel
-                                                    }
-                                                >
-                                                    {paymentProof.length >
-                                                        0
-                                                        ? paymentProof.length >
-                                                            2
-                                                            ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
-                                                            : paymentProof
-                                                                .map(
-                                                                    file =>
-                                                                        file.name
-                                                                )
-                                                                .join(
-                                                                    ', '
-                                                                )
-                                                        : 'Upload Payment Proof'}
-                                                </span>
+                                                {existingPaymentProof.map(
+                                                    (
+                                                        file,
+                                                        index
+                                                    ) => {
+                                                        const imageUrl =
+                                                            getExistingImageUrl(
+                                                                file
+                                                            );
 
-                                                <label
-                                                    htmlFor="galleryImage"
-                                                    className={
-                                                        styles.uploadButton
-                                                    }
-                                                >
-                                                    <MdOutlineCloudUpload />
-                                                    Upload
-                                                </label>
+                                                        return (
+                                                            <div
+                                                                className={
+                                                                    styles.imageContainer
+                                                                }
+                                                                key={
+                                                                    file?.id ||
+                                                                    index
+                                                                }
+                                                            >
 
-                                                <input
-                                                    type="file"
-                                                    multiple
-                                                    id="galleryImage"
-                                                    accept=".jpg,.jpeg,.png"
-                                                    onChange={
-                                                        handleGalleryChange
-                                                    }
-                                                    className={
-                                                        styles.hiddenInput
-                                                    }
-                                                />
-
-                                            </div>
-
-                                            {errors.paymentProof &&
-                                                paymentProof.length ===
-                                                0 &&
-                                                existingPaymentProof.length ===
-                                                0 && (
-                                                    <p
-                                                        className={
-                                                            styles.error
-                                                        }
-                                                    >
-                                                        {
-                                                            errors.paymentProof
-                                                        }
-                                                    </p>
-                                                )}
-
-                                        </div>
-
-                                    </div>
-
-                                    {/* Existing Proof */}
-
-                                    {existingPaymentProof.length >
-                                        0 && (
-                                            <div className="row mt-2">
-
-                                                <div className="col-xl-10 col-lg-12">
-
-                                                    <div
-                                                        style={{
-                                                            fontWeight:
-                                                                600,
-                                                            marginBottom:
-                                                                '10px',
-                                                        }}
-                                                    >
-                                                        Existing Payment
-                                                        Proof
-                                                    </div>
-
-                                                    <div
-                                                        className={
-                                                            styles.galleryContainer
-                                                        }
-                                                    >
-
-                                                        {existingPaymentProof.map(
-                                                            (
-                                                                file,
-                                                                index
-                                                            ) => {
-                                                                const imageUrl =
-                                                                    getExistingImageUrl(
-                                                                        file
-                                                                    );
-
-                                                                return (
-                                                                    <div
-                                                                        className={
-                                                                            styles.imageContainer
-                                                                        }
-                                                                        key={
-                                                                            file?.id ||
-                                                                            index
-                                                                        }
-                                                                    >
-
-                                                                        {imageUrl ? (
-                                                                            <img
-                                                                                src={
-                                                                                    imageUrl
-                                                                                }
-                                                                                alt={`Existing Payment Proof ${index + 1}`}
-                                                                                className={
-                                                                                    styles.previewImage
-                                                                                }
-                                                                            />
-                                                                        ) : (
-                                                                            <div
-                                                                                style={{
-                                                                                    width:
-                                                                                        '100%',
-                                                                                    height:
-                                                                                        '100px',
-                                                                                    display:
-                                                                                        'flex',
-                                                                                    alignItems:
-                                                                                        'center',
-                                                                                    justifyContent:
-                                                                                        'center',
-                                                                                    background:
-                                                                                        '#f5f5f5',
-                                                                                    color:
-                                                                                        '#777',
-                                                                                }}
-                                                                            >
-                                                                                Image
-                                                                                not
-                                                                                available
-                                                                            </div>
-                                                                        )}
-
-                                                                        <button
-                                                                            type="button"
-                                                                            className={
-                                                                                styles.removeButton
-                                                                            }
-                                                                            onClick={() =>
-                                                                                handleRemoveExistingProof(
-                                                                                    index
-                                                                                )
-                                                                            }
-                                                                        >
-                                                                            <AiOutlineClose
-                                                                                size={
-                                                                                    20
-                                                                                }
-                                                                                style={{
-                                                                                    padding:
-                                                                                        '2px',
-                                                                                }}
-                                                                            />
-                                                                        </button>
-
-                                                                    </div>
-                                                                );
-                                                            }
-                                                        )}
-
-                                                    </div>
-
-                                                </div>
-
-                                            </div>
-                                        )}
-
-                                    {/* New Proof */}
-
-                                    {paymentProof.length >
-                                        0 && (
-                                            <div className="row mt-2">
-
-                                                <div className="col-xl-10 col-lg-12">
-
-                                                    <div
-                                                        style={{
-                                                            fontWeight:
-                                                                600,
-                                                            marginBottom:
-                                                                '10px',
-                                                        }}
-                                                    >
-                                                        New Payment
-                                                        Proof
-                                                    </div>
-
-                                                    <div
-                                                        className={
-                                                            styles.galleryContainer
-                                                        }
-                                                    >
-
-                                                        {paymentProof.map(
-                                                            (
-                                                                file,
-                                                                index
-                                                            ) => (
-                                                                <div
-                                                                    className={
-                                                                        styles.imageContainer
-                                                                    }
-                                                                    key={`${file.name}-${file.lastModified}-${index}`}
-                                                                >
-
+                                                                {imageUrl ? (
                                                                     <img
                                                                         src={
-                                                                            paymentProofPreviews[
-                                                                            index
-                                                                            ]
+                                                                            imageUrl
                                                                         }
-                                                                        alt={`Preview ${index + 1}`}
+                                                                        alt={`Existing Payment Proof ${index +
+                                                                            1
+                                                                            }`}
                                                                         className={
                                                                             styles.previewImage
                                                                         }
                                                                     />
-
-                                                                    <button
-                                                                        type="button"
-                                                                        className={
-                                                                            styles.removeButton
-                                                                        }
-                                                                        onClick={() =>
-                                                                            handleRemoveGalleryImage(
-                                                                                index
-                                                                            )
-                                                                        }
+                                                                ) : (
+                                                                    <div
+                                                                        style={{
+                                                                            width:
+                                                                                '100%',
+                                                                            height:
+                                                                                '100px',
+                                                                            display:
+                                                                                'flex',
+                                                                            alignItems:
+                                                                                'center',
+                                                                            justifyContent:
+                                                                                'center',
+                                                                            background:
+                                                                                '#f5f5f5',
+                                                                            color:
+                                                                                '#777'
+                                                                        }}
                                                                     >
-                                                                        <AiOutlineClose
-                                                                            size={
-                                                                                20
-                                                                            }
-                                                                            style={{
-                                                                                padding:
-                                                                                    '2px',
-                                                                            }}
-                                                                        />
-                                                                    </button>
+                                                                        Image
+                                                                        not
+                                                                        available
+                                                                    </div>
+                                                                )}
 
-                                                                </div>
-                                                            )
-                                                        )}
+                                                                <button
+                                                                    type="button"
+                                                                    className={
+                                                                        styles.removeButton
+                                                                    }
+                                                                    onClick={() =>
+                                                                        handleRemoveExistingProof(
+                                                                            index
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <AiOutlineClose
+                                                                        size={
+                                                                            20
+                                                                        }
+                                                                        style={{
+                                                                            padding:
+                                                                                '2px'
+                                                                        }}
+                                                                    />
+                                                                </button>
 
-                                                    </div>
-
-                                                </div>
+                                                            </div>
+                                                        );
+                                                    }
+                                                )}
 
                                             </div>
-                                        )}
 
-                                </div>
-                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                            {/* =================================================
+                                Newly Selected Payment Proof
+                            ================================================= */}
+
+                            {paymentProof.length >
+                                0 && (
+                                    <div className="row mt-2">
+
+                                        <div className="col-xl-10 col-lg-12">
+
+                                            <div
+                                                style={{
+                                                    fontWeight: 600,
+                                                    marginBottom:
+                                                        '10px'
+                                                }}
+                                            >
+                                                New Payment
+                                                Proof
+                                            </div>
+
+                                            <div
+                                                className={
+                                                    styles.galleryContainer
+                                                }
+                                            >
+
+                                                {paymentProof.map(
+                                                    (
+                                                        file,
+                                                        index
+                                                    ) => (
+                                                        <div
+                                                            className={
+                                                                styles.imageContainer
+                                                            }
+                                                            key={`${file.name}-${file.lastModified}-${index}`}
+                                                        >
+
+                                                            <img
+                                                                src={
+                                                                    paymentProofPreviews[
+                                                                    index
+                                                                    ]
+                                                                }
+                                                                alt={`Preview ${index +
+                                                                    1
+                                                                    }`}
+                                                                className={
+                                                                    styles.previewImage
+                                                                }
+                                                            />
+
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    styles.removeButton
+                                                                }
+                                                                onClick={() =>
+                                                                    handleRemoveGalleryImage(
+                                                                        index
+                                                                    )
+                                                                }
+                                                            >
+                                                                <AiOutlineClose
+                                                                    size={
+                                                                        20
+                                                                    }
+                                                                    style={{
+                                                                        padding:
+                                                                            '2px'
+                                                                    }}
+                                                                />
+                                                            </button>
+
+                                                        </div>
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+
+                        </div>
 
                     </div>
 
@@ -2515,14 +2020,12 @@ const EditOfflineleads = () => {
                         BOOKING DETAILS
                     ================================================= */}
 
-                    <div className="row">
-                        <div className="col-xl-11 col-lg-12">
-                            <label
-                                className={
-                                    styles.featureLabel
-                                }
-                            >
-                                Booking Details
+                    
+
+                    <div className={`row`}>
+                        <div className={`col-xl-11 col-lg-12`}>
+                            <label className={styles.featureLabel} htmlFor="Features"> Booking Details
+
                             </label>
                         </div>
                     </div>
@@ -2550,15 +2053,32 @@ const EditOfflineleads = () => {
                                         value={
                                             bookingStatus
                                         }
-                                        onChange={value => {
-                                            setBookingStatus(
-                                                value
-                                            );
+                                        onChange={
+                                            selectedOption => {
+                                                setBookingStatus(
+                                                    selectedOption
+                                                );
 
-                                            clearFieldError(
-                                                'bookingStatus'
-                                            );
-                                        }}
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        bookingStatus:
+                                                            '',
+                                                        bookingCompletedBy:
+                                                            ''
+                                                    })
+                                                );
+
+                                                if (
+                                                    selectedOption?.value !==
+                                                    'completed'
+                                                ) {
+                                                    setBookingCompletedBy(
+                                                        ''
+                                                    );
+                                                }
+                                            }
+                                        }
                                         labelledBy="Select Booking Status"
                                         closeOnChangedValue
                                         closeOnSelect
@@ -2583,7 +2103,6 @@ const EditOfflineleads = () => {
                         {/* Completed By */}
 
                         <div className="col-lg-6">
-
                             <label
                                 className={
                                     styles.labelText
@@ -2595,33 +2114,32 @@ const EditOfflineleads = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
 
-                                    <CustomDropdown
-                                        options={
-                                            rsaList
+                                    <input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Booking Completed By"
+                                        className={
+                                            styles.inputField
                                         }
                                         value={
                                             bookingCompletedBy
                                         }
-                                        onChange={value => {
+                                        onChange={e => {
                                             setBookingCompletedBy(
-                                                value
+                                                e.target.value
                                             );
 
-                                            setBookingCompletedById(
-                                                value?.id ||
-                                                null
-                                            );
-
-                                            clearFieldError(
-                                                'bookingCompletedBy'
+                                            setErrors(
+                                                prev => ({
+                                                    ...prev,
+                                                    bookingCompletedBy:
+                                                        ''
+                                                })
                                             );
                                         }}
-                                        labelledBy="Select Driver"
-                                        closeOnChangedValue={
-                                            true
-                                        }
-                                        closeOnSelect={
-                                            true
+                                        disabled={
+                                            bookingStatus?.value !==
+                                            'completed'
                                         }
                                     />
 
@@ -2639,7 +2157,6 @@ const EditOfflineleads = () => {
 
                                 </div>
                             </div>
-
                         </div>
 
                     </div>

@@ -112,12 +112,14 @@ const EditOffer = () => {
                 setDetails(data);
                 setCouponName(data?.offer_name || "");
                 setUrl(data?.offer_url || "")
-                // setFile(data?.offer_image || "");
-                setFile({
-                    name: data?.offer_image,
-                    url: `${response?.base_url}${data?.offer_image}`,
-                    type: "image/*"
-                });
+                
+                if(data?.offer_image || ""){
+                    setFile({
+                        name: data?.offer_image,
+                        url: `${response?.base_url}${data?.offer_image}`,
+                        type: "image/*"
+                    });
+                }
                 const formattedDate = moment(data?.offer_exp_date).format('DD-MM-YYYY');
                 setExpiry(formattedDate);
                 setIsActive(data?.status === '1' ? true : false)

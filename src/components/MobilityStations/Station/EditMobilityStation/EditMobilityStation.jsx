@@ -266,12 +266,14 @@ const EditMobilityStation = () => {
                 setServiceStartTime(stationData.open_time || "");
                 setserviceEndtTime(stationData.close_time || "");
 
-                setFile({
-                    name: stationData?.station_image || [],
-                    url : `${baseUrl}${stationData?.station_image}`,
-                    type: "image/*",
-                    file: null,
-                });
+                if(stationData?.station_image) {
+                    setFile({
+                        name: stationData?.station_image || [],
+                        url : `${baseUrl}${stationData?.station_image}`,
+                        type: "image/*",
+                        file: null,
+                    });
+                }
                 const galleryArr = (response?.data?.imgName || []).map((img, index) => ({
                     name: img,
                     url : `${baseUrl}${img}`,

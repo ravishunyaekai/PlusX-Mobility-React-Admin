@@ -98,18 +98,21 @@ const EditEVCharger = () => {
                 setwarrantyType(data?.warrantyType);
                 setDescription(data?.description);
                 setfeature(data?.charger_feature);
-                // setFile(data?.charger_image);
-                // setspecification(data?.specification_pdf);
-                setFile({
-                    name: data?.charger_image,
-                    url: `${response?.base_url}${data?.charger_image}`,
-                    type: "image/*"
-                });
-                setspecification({
-                    name: data?.specification_pdf,
-                    url: `${response?.base_url}${data?.specification_pdf}`,
-                    type: "application/pdf"
-                });
+                 
+                if(data?.charger_image) {
+                    setFile({
+                        name : data?.charger_image,
+                        url  : `${response?.base_url}${data?.charger_image}`,
+                        type : "image/*"
+                    });
+                }
+                if(data?.specification_pdf) {
+                    setspecification({
+                        name: data?.specification_pdf,
+                        url: `${response?.base_url}${data?.specification_pdf}`,
+                        type: "application/pdf"
+                    });
+                }
                 const galleryArr = (response?.image_data || []).map((img) => ({
                     id:img.id,
                     name: img.image,

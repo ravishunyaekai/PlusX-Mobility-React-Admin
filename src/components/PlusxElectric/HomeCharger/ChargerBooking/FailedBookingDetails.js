@@ -87,7 +87,7 @@ const ChargerBookingDetails = () => {
             slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
             slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
             vehicle: bookingDetails?.vehicle_data,
-            current_percent: bookingDetails?.current_percent > 0 ? "More than 5%" : "0",
+            current_percent: bookingDetails?.current_percent > 0 ? "More than 10%" : "0",
             parkingNumber: bookingDetails?.parking_number,
             parkingFloor: bookingDetails?.parking_floor,
             address: (

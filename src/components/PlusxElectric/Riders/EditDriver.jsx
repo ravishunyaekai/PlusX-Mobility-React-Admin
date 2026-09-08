@@ -160,12 +160,13 @@ const EditDriver = () => {
                 // setServiceType(data?.booking_type || "");
                 // setPassword(data?.password || "");
                 // setConfirmPassword(data?.password || "");
-                // setFile(data?.profile_img || "")
-                setFile({
-                    name: data?.profile_img,
-                    url: `${response?.base_url}${data?.profile_img}`,
-                    type: "image/*"
-                });
+                if(data?.profile_img) {
+                    setFile({
+                        name : data?.profile_img,
+                        url  : `${response?.base_url}${data?.profile_img}`,
+                        type : "image/*"
+                    });
+                }
                 const initialType = data.booking_type ? { label: data.booking_type, value: data.booking_type } : null;
                 setServiceType(initialType);
 
