@@ -26,6 +26,13 @@ export const menuItems = {
         { id: "chargerBooking",         label: "Charger Installation Booking",  path: "/electric/charger-installation/charger-installation-list" },
         { id: "brandList",              label: "Brands",                        path: "/electric/charger-installation/ev-charger-brand-list" },
     ],    
+    communityList: [
+        { id: "communityList",   label: "Community List",      path: "/electric/community/community-list" },
+        { id: "residentList",    label: "Resident List",      path: "/electric/community/resident-list" },
+        { id: "invoiceList",     label: "Invoice List",        path: "/electric/community/invoice-list" },
+        // { id: "addCommunity",    label: "Add Community",       path: "/electric/community/add-community" },
+        // { id: "editCommunity",   label: "Edit Community",      path: "/electric/community/edit-community" },
+    ],  
 
     //Mobility Routes
     userList: [

@@ -100,6 +100,13 @@ import PublicChargerStationDetails from "../components/PlusxElectric/PublicCharg
 import AddChargerStation from "../components/PlusxElectric/PublicChargerStation/AddChargerStation.jsx";
 import EditPublicChargerStation from "../components/PlusxElectric/PublicChargerStation/EditPublicChargerStation.jsx";
 
+// Community List
+import CommunityList from "../components/PlusxElectric/CommunityList/index.jsx";
+// import PublicChargerStationList from "../components/PlusxElectric/PublicChargerStation/StationList.jsx";
+// import PublicChargerStationDetails from "../components/PlusxElectric/PublicChargerStation/StationDetails.jsx";
+import AddCommunity from "../components/PlusxElectric/CommunityList/AddCommunity.jsx";
+import EditCommunity from "../components/PlusxElectric/CommunityList/EditCommunity.jsx";
+
 // Charger Installation
 import ChargerInstallation from "../components/PlusxElectric/ChargerInstallation/index.jsx";
 import ChargerInstallationList from "../components/PlusxElectric/ChargerInstallation/ChargerInstallationList.jsx";
@@ -589,6 +596,57 @@ const router = createBrowserRouter([
                     {
                         path: "edit-charger-station/:stationId",
                         element: <EditPublicChargerStation />,
+                    },
+                ],
+            },
+            // community charger
+            {
+                path: "community",
+                element: <CommunityList />,
+                children: [
+                    {
+                        path: "community-list",
+                        element: <PublicChargerStationList />,
+                    },
+                    {
+                        path: "community-details/:stationId",
+                        element: <PublicChargerStationDetails />,
+                    },
+                    {
+                        path: "add-community",
+                        element: <AddCommunity />,
+                    },
+                    {
+                        path: "edit-community/:stationId",
+                        element: <EditCommunity />,
+                    },
+                    {
+                        path: "resident-list",
+                        element: <PublicChargerStationList />,
+                    },
+                    {
+                        path: "resident-details/:stationId",
+                        element: <PublicChargerStationDetails />,
+                    },
+                    {
+                        path: "add-resident",
+                        element: <AddChargerStation />,
+                    },
+                    {
+                        path: "edit-resident/:stationId",
+                        element: <EditPublicChargerStation />,
+                    },
+                    {
+                        path: "invoice-list",
+                        element: <PublicChargerStationList />,
+                    },
+                    {
+                        path: "invoice-details/:stationId",
+                        element: <PublicChargerStationDetails />,
+                    },
+                    {
+                        path: "add-invoice",
+                        element: <AddChargerStation />,
                     },
                 ],
             },

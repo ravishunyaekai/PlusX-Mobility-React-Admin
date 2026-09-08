@@ -20,7 +20,7 @@ const SideNavbar = () => {
             timeSlot: false,
             deviceList: false,
             areaList: false,
-            failedList: false
+            failedList: false,
         },
         chargerInstallation: {
             chargerBooking: false,
@@ -29,6 +29,11 @@ const SideNavbar = () => {
             brandList: false,
             chargerList: false,
             productBookingList: false
+        },
+        communityList: {
+            communityList: false,
+            residentList: false,
+            invoiceList: false,
         },
         evRoadAssistance: { bookingList: false, invoiceList: false, failedBookingList: false },
         userList: { activeUserList: false, deletedUserList: false },
@@ -109,6 +114,14 @@ const SideNavbar = () => {
 
             universities: location.pathname.includes("/mobility/universities")
                 ? prevState.universities : { universitiesList: false, studentList: false },
+
+            communityList: location.pathname.includes("/electric/community")
+                ? prevState.communityList
+                : {
+                    communityList: false,
+                    residentList: false,
+                    invoiceList: false,
+                },
         }));
         const dropdownPaths = [
             "/electric/mobile-ev-charging",
@@ -211,6 +224,14 @@ const SideNavbar = () => {
                                 handleItemClick={(id, e) => handleItemClicked("chargerInstallation", id, e)}
                                 toggleDropdown={toggleDropdown}
                                 checkedItems={checkedItems.chargerInstallation}
+                            />
+                            <SidebarDropdown
+                                menuName="Community List"
+                                menuItems={menuItems.communityList}
+                                openDropdown={openDropdown}
+                                handleItemClick={(id, e) => handleItemClicked("communityList", id, e)}
+                                toggleDropdown={toggleDropdown}
+                                checkedItems={checkedItems.communityList}
                             />
 
                             <SideBarLinkItem label="Charge Share Listings" path="/electric/charge-share/charge-share-list" isActive={isActive("/electric/charge-share/charge-share-list")} />
