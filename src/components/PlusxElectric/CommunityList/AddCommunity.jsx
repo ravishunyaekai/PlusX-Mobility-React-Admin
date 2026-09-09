@@ -24,7 +24,9 @@ const AddCommunity = () => {
     const [errors, setErrors] = useState({});
     const [selectedBrands, setSelectedBrands] = useState([]);
     const [selectedType, setSelectedType] = useState([])
-    const [stationName, setStationName] = useState('')
+    const [communityName, setCommunityName] = useState()
+    const [areaName, setAreaName] = useState()
+    const [totalResidents, setTotalResidents] = useState()
     const [chargingFor, setChargingFor] = useState([])
     const [chargingType, setChargingType] = useState('')
     const [chargingPoint, setChargingPoint] = useState('')
@@ -178,19 +180,18 @@ const AddCommunity = () => {
 
     const validateForm = () => {
         const fields = [
-            { name: "stationName", value: stationName, errorMessage: "Station Name is required." },
+            { name: "communityName", value: communityName, errorMessage: "Community Name is required." },
+            { name: "areaName", value: areaName, errorMessage: "Area Name is required." },
+            { name: "totalResidents", value: totalResidents, errorMessage: "Total No. of Residents is required." },
             { name: "chargerType", value: selectedType, errorMessage: "Charging Type is required.", isArray: true },
             { name: "chargingFor", value: selectedBrands, errorMessage: "Charging For is required.", isArray: true },
             { name: "chargingPoint", value: chargingPoint, errorMessage: "Charging Point is required." },
-            { name: "availableChargingPoint", value: availableChargingPoint, errorMessage: "Available Charging Point is required." },
-            { name: "occupiedChargingPoint", value: occupiedChargingPoint, errorMessage: "Occupied Charging Point is required." },
             { name: "description", value: description, errorMessage: "Description is required." },
             { name: "address", value: address, errorMessage: "Address is required." },
             { name: "latitude", value: latitude, errorMessage: "Latitude is required." },
             { name: "longitude", value: longitude, errorMessage: "Longitude is required." },
-            { name: "price", value: price, errorMessage: "Price is required." },
+            { name: "price", value: price, errorMessage: "Price selection is required." }
         ];
-
         const newErrors = fields.reduce((errors, { name, value, errorMessage, isArray }) => {
             if ((isArray && (!value || value.length === 0)) || (!isArray && !value)) {
                 errors[name] = errorMessage;
@@ -198,17 +199,7 @@ const AddCommunity = () => {
             return errors;
         }, {});
 
-        if (chargingPoint && availableChargingPoint) {
-            if (parseInt(availableChargingPoint) > parseInt(chargingPoint)) {
-                newErrors.availableChargingPoint = "Available Charging Point must be less than or equal to Charging Point.";
-            }
-        }
 
-        if (chargingPoint && occupiedChargingPoint) {
-            if (parseInt(occupiedChargingPoint) > parseInt(chargingPoint)) {
-                newErrors.occupiedChargingPoint = "Occupied Charging Point must be less than or equal to Charging Point.";
-            }
-        }
 
         if (chargingPoint && availableChargingPoint && occupiedChargingPoint) {
             if (parseInt(availableChargingPoint) + parseInt(occupiedChargingPoint) !== parseInt(chargingPoint)) {
@@ -220,11 +211,9 @@ const AddCommunity = () => {
         const hasValidTimeSlot = Object.values(timeSlots).some(
             (times) => times.open && times.close
         );
-
         if (!isAlwaysOpen && !hasValidTimeSlot) {
             newErrors["timeSlots"] = "Either select 'Always Open' or fill at least one time slot.";
         }
-
         // Validate time slots only if not always open
         if (!isAlwaysOpen) {
             Object.entries(timeSlots).forEach(([day, times]) => {
@@ -236,7 +225,6 @@ const AddCommunity = () => {
                 }
             });
         }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -259,7 +247,9 @@ const AddCommunity = () => {
             const formData = new FormData();
             formData.append("userId", userDetails?.user_id);
             formData.append("email", userDetails?.email);
-            formData.append("station_name", stationName);
+            formData.append("community_name", communityName);
+            formData.append("area_name", areaName);
+            formData.append("total_residents", totalResidents);
 
             if (selectedBrands && selectedBrands.length > 0) {
                 const selectedBrandsString = selectedBrands.map(brand => brand.value).join(', ');
@@ -359,28 +349,66 @@ const AddCommunity = () => {
     return (
         <div className={styles.addStationContainer}>
 
-            <div className={styles.addHeading}>Add Public Chargers</div>
+            <div className={styles.addHeading}>Add Community</div>
             <div className={styles.addStationFormSection}>
                 <ToastContainer />
                 <form className={styles.formSection} onSubmit={handleSubmit}>
 
                     <div className={`row`}>
                         <div className={`col-lg-6`}>
-                            <label htmlFor="station" className={styles.labelText}>Station Name</label>
+                            <label htmlFor="station" className={styles.labelText}>Community Name</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <input type="text" autoComplete="off" id="stationName" placeholder="Station Name" className={styles.inputField} value={stationName} onChange={(e) => setStationName(e.target.value.slice(0, 50))} />
-                                    {errors.stationName && stationName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.stationName}</p>}
+                                    <input type="text" autoComplete="off" id="communityName" placeholder="Community Name" className={styles.inputField} value={communityName} onChange={(e) => setCommunityName(e.target.value.slice(0, 50))} />
+                                    {errors.communityName && communityName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.communityName}</p>}
                                 </div>
                             </div>
                         </div>
                         <div className={`col-lg-6`}>
-                            <label htmlFor="Cycle" className={styles.labelText}>Charging For</label>
+                            <label htmlFor="station" className={styles.labelText}>Area Name</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <MultiCustomDropdown options={chargingFor} value={selectedBrands} onChange={handleChargingFor} labelledBy="Charging For" closeOnChangedValue={false} closeOnSelect={false} enableSelectAll />
-                                    {errors.chargingFor && selectedBrands.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.selectedBrands}</p>}
-                                    {/* selectAllValue={"All EV`s"} allSelectedLabel={"All EV`s"} */}
+                                    <input type="text" autoComplete="off" id="areaName" placeholder="Area Name" className={styles.inputField} value={areaName} onChange={(e) => setAreaName(e.target.value.slice(0, 50))} />
+                                    {errors.areaName && areaName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.areaName}</p>}
+                                </div>
+                            </div>
+                        </div>
+                        <div className={`col-lg-6`}>
+                            <label htmlFor="station" className={styles.labelText}>Total No. of Residents</label>
+                            <div className={`row`}>
+                                <div className={`col-xl-10 col-lg-12`}>
+                                    <input type="text" autoComplete="off" id="totalResidents" placeholder="Total No. of Residents" className={styles.inputField} value={totalResidents} onChange={(e) => setTotalResidents(e.target.value.slice(0, 50))} />
+                                    {errors.totalResidents && totalResidents === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.totalResidents}</p>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={`row`}>
+                        <div className={`col-lg-6`}>
+                            <label htmlFor="station" className={styles.labelText}>Community Name</label>
+                            <div className={`row`}>
+                                <div className={`col-xl-10 col-lg-12`}>
+                                    <input type="text" autoComplete="off" id="communityName" placeholder="Community Name" className={styles.inputField} value={communityName} onChange={(e) => setCommunityName(e.target.value.slice(0, 50))} />
+                                    {errors.communityName && communityName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.communityName}</p>}
+                                </div>
+                            </div>
+                        </div>
+                        <div className={`col-lg-6`}>
+                            <label htmlFor="station" className={styles.labelText}>Area Name</label>
+                            <div className={`row`}>
+                                <div className={`col-xl-10 col-lg-12`}>
+                                    <input type="text" autoComplete="off" id="areaName" placeholder="Area Name" className={styles.inputField} value={areaName} onChange={(e) => setAreaName(e.target.value.slice(0, 50))} />
+                                    {errors.areaName && areaName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.areaName}</p>}
+                                </div>
+                            </div>
+                        </div>
+                        <div className={`col-lg-6`}>
+                            <label htmlFor="station" className={styles.labelText}>Total No. of Residents</label>
+                            <div className={`row`}>
+                                <div className={`col-xl-10 col-lg-12`}>
+                                    <input type="text" autoComplete="off" id="totalResidents" placeholder="Total No. of Residents" className={styles.inputField} value={totalResidents} onChange={(e) => setTotalResidents(e.target.value.slice(0, 50))} />
+                                    {errors.totalResidents && totalResidents === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.totalResidents}</p>}
                                 </div>
                             </div>
                         </div>

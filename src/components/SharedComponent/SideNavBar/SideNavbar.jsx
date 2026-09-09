@@ -125,6 +125,7 @@ const SideNavbar = () => {
         }));
         const dropdownPaths = [
             "/electric/mobile-ev-charging",
+            "/electric/community",
             "/electric/ev-road-assistance",
             "/electric/charger-installation",
             // "/electric/ev-charger",

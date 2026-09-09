@@ -179,6 +179,8 @@ import ChargeShareDetails from "../components/PlusxElectric/ChargeShare/ChargeSh
 import RSAOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/RSAOfflineleads.js";
 import AddOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/AddOfflineleads.jsx";
 import EditOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/EditOfflineleads.jsx";
+import PublicCommunityList from "../components/PlusxElectric/CommunityList/CommunityList.jsx";
+import PublicResidentList from "../components/PlusxElectric/CommunityList/ResidentList.jsx";
 
 const router = createBrowserRouter([
     {
@@ -606,7 +608,7 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: "community-list",
-                        element: <PublicChargerStationList />,
+                        element: <PublicCommunityList />,
                     },
                     {
                         path: "community-details/:stationId",
@@ -622,7 +624,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "resident-list",
-                        element: <PublicChargerStationList />,
+                        element: <PublicResidentList />,
                     },
                     {
                         path: "resident-details/:stationId",

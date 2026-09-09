@@ -24,7 +24,9 @@ const EditCommunity = () => {
     const [selectedType, setSelectedType] = useState([])
     const [isActive, setIsActive] = useState(false);
 
-    const [stationName, setStationName] = useState()
+    const [communityName, setCommunityName] = useState()
+    const [areaName, setAreaName] = useState()
+    const [totalResidents, setTotalResidents] = useState()
     const [chargingFor, setChargingFor] = useState([])
     const [chargingType, setChargingType] = useState()
     const [chargingPoint, setChargingPoint] = useState()
@@ -147,7 +149,9 @@ const EditCommunity = () => {
 
     const validateForm = () => {
         const fields = [
-            { name: "stationName", value: stationName, errorMessage: "Station Name is required." },
+            { name: "communityName", value: communityName, errorMessage: "Community Name is required." },
+            { name: "areaName", value: areaName, errorMessage: "Area Name is required." },
+            { name: "totalResidents", value: totalResidents, errorMessage: "Total No. of Residents is required." },
             { name: "chargerType", value: selectedType, errorMessage: "Charging Type is required.", isArray: true },
             { name: "chargingFor", value: selectedBrands, errorMessage: "Charging For is required.", isArray: true },
             { name: "chargingPoint", value: chargingPoint, errorMessage: "Charging Point is required." },
@@ -213,7 +217,9 @@ const EditCommunity = () => {
             formData.append("userId", userDetails?.user_id);
             formData.append("email", userDetails?.email);
             formData.append("station_id", stationId);
-            formData.append("station_name", stationName);
+            formData.append("community_name", communityName);
+            formData.append("area_name", areaName);
+            formData.append("total_residents", totalResidents);
 
             if (selectedBrands && selectedBrands.length > 0) {
                 const selectedBrandsString = selectedBrands.map(brand => brand.value).join(', ');
@@ -319,7 +325,7 @@ const EditCommunity = () => {
                 const selectedPrice = priceOptions.find(option => option.value === data.price);
                 setPrice(selectedPrice);
                 setTimeSlots(updatedTimeSlots);
-                setStationName(data?.station_name || "");
+                setCommunityName(data?.community_name || "");
                 setChargingFor(data?.charging_for || []);
                 setChargingType(data?.charger_type || []);
                 setChargingPoint(data?.charging_point || "");
@@ -393,28 +399,66 @@ const EditCommunity = () => {
         <div className={styles.addStationContainer}>
             {showLoader ? <Loader /> :
                 <>
-                    <div className={styles.addHeading}>Edit Public Chargers</div>
+                    <div className={styles.addHeading}>Edit Community</div>
                     <div className={styles.addStationFormSection}>
                         <ToastContainer />
                         <form className={styles.formSection} onSubmit={handleSubmit}>
 
                             <div className={`row`}>
                                 <div className={`col-lg-6`}>
-                                    <label htmlFor="station" className={styles.labelText}>Station Name</label>
+                                    <label htmlFor="station" className={styles.labelText}>Community Name</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <input type="text" autoComplete="off" id="stationName" placeholder="Station Name" className={styles.inputField} value={stationName} onChange={(e) => setStationName(e.target.value.slice(0, 50))} />
-                                            {errors.stationName && stationName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.stationName}</p>}
+                                            <input type="text" autoComplete="off" id="communityName" placeholder="Community Name" className={styles.inputField} value={communityName} onChange={(e) => setCommunityName(e.target.value.slice(0, 50))} />
+                                            {errors.communityName && communityName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.communityName}</p>}
                                         </div>
                                     </div>
                                 </div>
                                 <div className={`col-lg-6`}>
-                                    <label htmlFor="Cycle" className={styles.labelText}>Charging For</label>
+                                    <label htmlFor="areaName" className={styles.labelText}>Area Name</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <MultiCustomDropdown options={chargingFor} value={selectedBrands} onChange={handleChargingFor} labelledBy="Charging For" closeOnChangedValue={false} closeOnSelect={false} enableSelectAll />
-                                            {errors.chargingFor && selectedBrands.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.selectedBrands}</p>}
-                                            {/* selectAllValue={"All EV`s"} allSelectedLabel={"All EV`s"} */}
+                                            <input type="text" autoComplete="off" id="areaName" placeholder="Area Name" className={styles.inputField} value={areaName} onChange={(e) => setAreaName(e.target.value.slice(0, 50))} />
+                                            {errors.areaName && areaName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.areaName}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={`col-lg-6`}>
+                                    <label htmlFor="totalResidents" className={styles.labelText}>Total No. of Residents</label>
+                                    <div className={`row`}>
+                                        <div className={`col-xl-10 col-lg-12`}>
+                                            <input type="text" autoComplete="off" id="totalResidents" placeholder="Total No. of Residents" className={styles.inputField} value={totalResidents} onChange={(e) => setTotalResidents(e.target.value.slice(0, 50))} />
+                                            {errors.totalResidents && totalResidents === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.totalResidents}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={`row`}>
+                                <div className={`col-lg-6`}>
+                                    <label htmlFor="station" className={styles.labelText}>Community Name</label>
+                                    <div className={`row`}>
+                                        <div className={`col-xl-10 col-lg-12`}>
+                                            <input type="text" autoComplete="off" id="communityName" placeholder="Community Name" className={styles.inputField} value={communityName} onChange={(e) => setCommunityName(e.target.value.slice(0, 50))} />
+                                            {errors.communityName && communityName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.communityName}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={`col-lg-6`}>
+                                    <label htmlFor="areaName" className={styles.labelText}>Area Name</label>
+                                    <div className={`row`}>
+                                        <div className={`col-xl-10 col-lg-12`}>
+                                            <input type="text" autoComplete="off" id="areaName" placeholder="Area Name" className={styles.inputField} value={areaName} onChange={(e) => setAreaName(e.target.value.slice(0, 50))} />
+                                            {errors.areaName && areaName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.areaName}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className={`col-lg-6`}>
+                                    <label htmlFor="totalResidents" className={styles.labelText}>Total No. of Residents</label>
+                                    <div className={`row`}>
+                                        <div className={`col-xl-10 col-lg-12`}>
+                                            <input type="text" autoComplete="off" id="totalResidents" placeholder="Total No. of Residents" className={styles.inputField} value={totalResidents} onChange={(e) => setTotalResidents(e.target.value.slice(0, 50))} />
+                                            {errors.totalResidents && totalResidents === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.totalResidents}</p>}
                                         </div>
                                     </div>
                                 </div>

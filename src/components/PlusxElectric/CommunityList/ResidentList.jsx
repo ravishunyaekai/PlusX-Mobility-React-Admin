@@ -14,7 +14,7 @@ const dynamicFilters = [
     // { label: 'Name', name: 'search', type: 'text' },
 ]
 
-const PublicCommunityList = () => {
+const PublicResidentList = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
     const [stationList, setStationList] = useState([]);
@@ -32,8 +32,8 @@ const PublicCommunityList = () => {
         }
     ]
     const addButtonProps = {
-        heading: "Add Community",
-        link: "/electric/community/add-community"
+        heading: "Add Resident",
+        link: "/electric/public-charger-station/add-charger-station"
     };
 
     const fetchList = (page, appliedFilters = {}) => {
@@ -106,7 +106,7 @@ const PublicCommunityList = () => {
     return (
         <div className='main-container'>
             <ToastContainer />
-            <SubHeader heading="Total Community List"
+            <SubHeader heading="Total Resident List"
                 addButtonProps={addButtonProps}
                 fetchFilteredData={fetchFilteredData}
                 dynamicFilters={dynamicFilters} filterValues={filters}
@@ -117,23 +117,29 @@ const PublicCommunityList = () => {
             {loading ? <Loader /> :
                 stationList.length === 0 ? (
                     <EmptyList
-                        tableHeaders={["Community Name", "Area", "Total Residents", "No. of Chargers", "Action"]}
+                        tableHeaders={["Resident Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
                         message="No data available"
                     />
                 ) : (
                     <>
                         <List
-                            tableHeaders={["Community Name", "Area", "Total Residents", "No. of Chargers", "Action"]}
+                            tableHeaders={["Resident Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
                             listData={stationList}
-                            pageHeading="Total Community List"
+                            pageHeading="Total Resident List"
                             onDeleteSlot={handleDeleteSlot}
                             keyMapping={[
-                                { key: 'station_name', label: 'Community Name' },
-                                { key: 'charging_for', label: 'Area' },
-                                { key: 'charger_type', label: 'Total Residents' },
+                                { key: 'station_id', label: 'Resident Id' },
+                                { key: 'station_name', label: 'Resident Name' },
+                                { key: 'charging_for', label: 'Session Allocated' },
+                                { key: 'charger_type', label: 'Session Used' },
                                 {
                                     key: 'price',
-                                    label: 'No. of Chargers',
+                                    label: 'kWh',
+                                    format: (price) => (price ? `INR ${price}` : '')
+                                },
+                                {
+                                    key: 'price',
+                                    label: 'kWh Used',
                                     format: (price) => (price ? `INR ${price}` : '')
                                 },
                                 // {
@@ -154,4 +160,4 @@ const PublicCommunityList = () => {
     );
 };
 
-export default PublicCommunityList;
+export default PublicResidentList;
