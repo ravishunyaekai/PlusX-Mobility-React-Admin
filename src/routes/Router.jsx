@@ -181,6 +181,8 @@ import AddOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlin
 import EditOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/EditOfflineleads.jsx";
 import PublicCommunityList from "../components/PlusxElectric/CommunityList/CommunityList.jsx";
 import PublicResidentList from "../components/PlusxElectric/CommunityList/ResidentList.jsx";
+import EditResident from "../components/PlusxElectric/CommunityList/EditResident.jsx";
+import AddResident from "../components/PlusxElectric/CommunityList/AddResident.jsx";
 
 const router = createBrowserRouter([
     {
@@ -632,11 +634,11 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "add-resident",
-                        element: <AddChargerStation />,
+                        element: <AddResident />,
                     },
                     {
                         path: "edit-resident/:stationId",
-                        element: <EditPublicChargerStation />,
+                        element: <EditResident />,
                     },
                     {
                         path: "invoice-list",

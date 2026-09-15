@@ -921,7 +921,7 @@ const EditCommunity = () => {
                                         type="text"
                                         autoComplete="off"
                                         id="managerContact"
-                                        placeholder="+971 Contact No"
+                                        placeholder="+91 Contact No"
                                         className={
                                             styles.inputField
                                         }

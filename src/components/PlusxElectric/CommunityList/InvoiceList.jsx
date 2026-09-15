@@ -14,7 +14,7 @@ const dynamicFilters = [
     // { label: 'Name', name: 'search', type: 'text' },
 ]
 
-const PublicResidentList = () => {
+const InvoiceList = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
     const [stationList, setStationList] = useState([]);
@@ -106,7 +106,7 @@ const PublicResidentList = () => {
     return (
         <div className='main-container'>
             <ToastContainer />
-            <SubHeader heading="Total Resident List"
+            <SubHeader heading="Total Invoice List"
                 addButtonProps={addButtonProps}
                 fetchFilteredData={fetchFilteredData}
                 dynamicFilters={dynamicFilters} filterValues={filters}
@@ -117,18 +117,18 @@ const PublicResidentList = () => {
             {loading ? <Loader /> :
                 stationList.length === 0 ? (
                     <EmptyList
-                        tableHeaders={["Resident Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
+                        tableHeaders={["Invoice Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
                         message="No data available"
                     />
                 ) : (
                     <>
                         <List
-                            tableHeaders={["Resident Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
+                            tableHeaders={["Invoice Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
                             listData={stationList}
-                            pageHeading="Total Resident List"
+                            pageHeading="Total Invoice List"
                             onDeleteSlot={handleDeleteSlot}
                             keyMapping={[
-                                { key: 'station_id', label: 'Resident Id' },
+                                { key: 'station_id', label: 'Invoice Id' },
                                 { key: 'station_name', label: 'Resident Name' },
                                 { key: 'charging_for', label: 'Session Allocated' },
                                 { key: 'charger_type', label: 'Session Used' },
@@ -160,4 +160,4 @@ const PublicResidentList = () => {
     );
 };
 
-export default PublicResidentList;
+export default InvoiceList;
