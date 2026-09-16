@@ -67,7 +67,7 @@ const getFormattedOpeningHours = (details) => {
 };
 
 
-const CommunityDetails = () => {
+const CommunityInvoiceDetails = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
     const { stationId } = useParams();
@@ -207,7 +207,7 @@ const CommunityDetails = () => {
     return (
         <div className='main-container'>
             <ToastContainer />
-            "community"
+            "invoice"
             {loading ? <Loader /> :
                 <>
                     <BookingDetailsHeader content={content} titles={headerTitles} type='publicChargingStation' />
@@ -223,4 +223,4 @@ const CommunityDetails = () => {
     )
 }
 
-export default CommunityDetails
+export default CommunityInvoiceDetails

@@ -299,6 +299,14 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                         </>
                                     )}
 
+                                    {pageHeading === 'Total Invoice List' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/invoice-details', data.offer_id)} />
+                                            )}
+                                        </>
+                                    )}
+
                                     {pageHeading === 'Offer List' && (
                                         <>
                                             {access.includes('edit') && (

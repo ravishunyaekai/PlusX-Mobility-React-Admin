@@ -106,7 +106,8 @@ const PublicCommunityList = () => {
     return (
         <div className='main-container'>
             <ToastContainer />
-            <SubHeader heading="Total Community List"
+            <SubHeader 
+                heading="Total Community List"
                 addButtonProps={addButtonProps}
                 fetchFilteredData={fetchFilteredData}
                 dynamicFilters={dynamicFilters} filterValues={filters}

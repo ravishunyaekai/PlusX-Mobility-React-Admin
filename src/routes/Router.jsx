@@ -183,6 +183,11 @@ import PublicCommunityList from "../components/PlusxElectric/CommunityList/Commu
 import PublicResidentList from "../components/PlusxElectric/CommunityList/ResidentList.jsx";
 import EditResident from "../components/PlusxElectric/CommunityList/EditResident.jsx";
 import AddResident from "../components/PlusxElectric/CommunityList/AddResident.jsx";
+import PublicInvoiceList from "../components/PlusxElectric/CommunityList/InvoiceList.jsx";
+import AddInvoice from "../components/PlusxElectric/CommunityList/AddInvoice.jsx";
+import CommunityDetails from "../components/PlusxElectric/CommunityList/CommunityDetails.jsx";
+import ResidentDetails from "../components/PlusxElectric/CommunityList/ResidentDetails.jsx";
+import CommunityInvoiceDetails from "../components/PlusxElectric/CommunityList/InvoiceDetails.jsx";
 
 const router = createBrowserRouter([
     {
@@ -614,7 +619,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "community-details/:stationId",
-                        element: <PublicChargerStationDetails />,
+                        element: <CommunityDetails />,
                     },
                     {
                         path: "add-community",
@@ -630,7 +635,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "resident-details/:stationId",
-                        element: <PublicChargerStationDetails />,
+                        element: <ResidentDetails />,
                     },
                     {
                         path: "add-resident",
@@ -642,15 +647,15 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "invoice-list",
-                        element: <PublicChargerStationList />,
+                        element: <PublicInvoiceList />,
                     },
                     {
                         path: "invoice-details/:stationId",
-                        element: <PublicChargerStationDetails />,
+                        element: <CommunityInvoiceDetails />,
                     },
                     {
-                        path: "add-invoice",
-                        element: <AddChargerStation />,
+                        path: "create-invoice",
+                        element: <AddInvoice />,
                     },
                 ],
             },

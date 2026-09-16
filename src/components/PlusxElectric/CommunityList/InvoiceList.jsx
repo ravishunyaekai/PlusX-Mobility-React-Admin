@@ -14,7 +14,7 @@ const dynamicFilters = [
     // { label: 'Name', name: 'search', type: 'text' },
 ]
 
-const InvoiceList = () => {
+const PublicInvoiceList = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
     const [stationList, setStationList] = useState([]);
@@ -32,8 +32,8 @@ const InvoiceList = () => {
         }
     ]
     const addButtonProps = {
-        heading: "Add Resident",
-        link: "/electric/community/add-resident"
+        heading: "Create Invoice",
+        link: "/electric/community/create-invoice"
     };
 
     const fetchList = (page, appliedFilters = {}) => {
@@ -117,29 +117,40 @@ const InvoiceList = () => {
             {loading ? <Loader /> :
                 stationList.length === 0 ? (
                     <EmptyList
-                        tableHeaders={["Invoice Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
+                        tableHeaders={["Resident Name", "Community", "Area", "kWh Allocated", "kWh Used", "Per kWh Charge", "Price (INR)","Over Time (INR)", "Status", "Action"]}
                         message="No data available"
                     />
                 ) : (
                     <>
                         <List
-                            tableHeaders={["Invoice Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
+                            tableHeaders={["Resident Name", "Community", "Area", "kWh Allocated", "kWh Used", "Per kWh Charge", "Price (INR)","Over Time (INR)", "Status", "Action"]}
                             listData={stationList}
                             pageHeading="Total Invoice List"
                             onDeleteSlot={handleDeleteSlot}
                             keyMapping={[
-                                { key: 'station_id', label: 'Invoice Id' },
                                 { key: 'station_name', label: 'Resident Name' },
-                                { key: 'charging_for', label: 'Session Allocated' },
-                                { key: 'charger_type', label: 'Session Used' },
+                                { key: 'station_id', label: 'Community' },
+                                { key: 'station_id', label: 'Area' },
+                                { key: 'charging_for', label: 'kWh Allocated' },
+                                { key: 'charger_type', label: 'kWh Used' },
                                 {
                                     key: 'price',
-                                    label: 'kWh',
+                                    label: 'Per kWh Charge',
                                     format: (price) => (price ? `INR ${price}` : '')
                                 },
                                 {
                                     key: 'price',
-                                    label: 'kWh Used',
+                                    label: 'Price (INR)',
+                                    format: (price) => (price ? `INR ${price}` : '')
+                                },
+                                {
+                                    key: 'price',
+                                    label: 'Over Time (INR)',
+                                    format: (price) => (price ? `INR ${price}` : '')
+                                },
+                                {
+                                    key: 'price',
+                                    label: 'Status',
                                     format: (price) => (price ? `INR ${price}` : '')
                                 },
                                 // {
@@ -160,4 +171,4 @@ const InvoiceList = () => {
     );
 };
 
-export default InvoiceList;
+export default PublicInvoiceList;
