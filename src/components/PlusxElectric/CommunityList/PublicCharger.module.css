@@ -22,3 +22,12 @@
   flex-direction: column;
   row-gap: 40px;
 }
+
+.addHeading {
+  padding-left: 20px;
+  color: #00b26b;
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}

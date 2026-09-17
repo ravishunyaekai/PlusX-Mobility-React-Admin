@@ -11,6 +11,11 @@ import moment from 'moment';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../../SharedComponent/Loader/Loader.jsx';
+import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
+import Pagination from '../../SharedComponent/Pagination/Pagination'
+import List from '../../SharedComponent/List/List.jsx';
+import SubHeader from '../../SharedComponent/SubHeader/SubHeader.jsx';
+// import { List } from 'rsuite';
 
 const formatTime = (timeStr) => {
     if (timeStr === "Closed") return "Closed";
@@ -69,13 +74,36 @@ const getFormattedOpeningHours = (details) => {
 
 const CommunityDetails = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+    const [totalCount, setTotalCount] = useState(null);
+    const [totalCount2, setTotalCount2] = useState(null);
+    const [filters, setFilters] = useState({ start_date: null, end_date: null });
+    const dynamicFilters = [
+        // { label: 'Name', name: 'search', type: 'text' },
+    ]
     const navigate = useNavigate();
     const { stationId } = useParams();
     const [bookingDetails, setBookingDetails] = useState();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [imageGallery, setImageGallery] = useState();
     const [imageGalleryId, setImageGalleryId] = useState();
     const [baseUrl, setBaseUrl] = useState();
     const [loading, setLoading] = useState(false);
+    const fetchFilteredData = (newFilters = {}) => {
+        setFilters(newFilters);
+        setCurrentPage(1);
+    };
+    const searchTerm = [
+        {
+            label: 'search',
+            name: 'search_text',
+            type: 'text'
+        }
+    ]
+    const addButtonProps = {
+        heading: "Create Invoice",
+        link: "/electric/community/create-invoice"
+    };
 
     const fetchDetails = () => {
         setLoading(true);
@@ -148,22 +176,21 @@ const CommunityDetails = () => {
         }
     };
     const headerTitles = {
-        bookingIdTitle: "Station ID",
-        stationDetailsTitle: "Station Name",
-        feeDetailsTitle: "Price",
+        bookingIdTitle: "Community ID",
+        stationDetailsTitle: "Community Name",
+        // feeDetailsTitle: "Price",
     };
     const sectionTitles1 = {
-        address: "Address",
-        chargerType: "Charger Type",
-        chargingFor: "Charger For",
-        // openingDetails : "Working Hours",
+        managerId: "Manager Id",
+        managerName: "Manager Name",
+        emailId: "Email Id",
+        contactNo: "Contact No",
     }
     const sectionTitles2 = {
         // chargingFor : "Charger For",
         // slotDate    : "Slot Date",
-        available_point: "Available Charging Point",
-        occupied_point: "Occupied Charging Point",
-        openingDetails: "Working Hours",
+        areaName: "Area Name",
+        totalResidents: "Total Residents",
         status: "Status",
     }
     const sectionTitles4 = {
@@ -171,27 +198,26 @@ const CommunityDetails = () => {
     }
     const imageTitles = {
         coverImage: "Cover Gallery",
-        galleryImages: "Station Gallery",
+        galleryImages: "Community Gallery",
     }
 
     const content = {
-        bookingId: bookingDetails?.station_id,
-        createdAt: moment(bookingDetails?.created_at).format('DD MMM YYYY'),
-        stationName: bookingDetails?.station_name,
-        price: bookingDetails?.price,
-        chargingPoint: bookingDetails?.charging_point,
+        bookingId: bookingDetails?.station_id || "Test",
+        createdAt: moment(bookingDetails?.created_at).format('DD MMM YYYY') || "Test",
+        stationName: bookingDetails?.station_name || "Test",
+        price: bookingDetails?.price || "Test",
+        chargingPoint: bookingDetails?.charging_point || "Test",
     };
     const sectionContent1 = {
-        address: bookingDetails?.address,
-        chargerType: bookingDetails?.charger_type,
-        chargingFor: bookingDetails?.charging_for,
-
+        managerId: bookingDetails?.address || "test",
+        managerName: bookingDetails?.charger_type || "test",
+        emailId: bookingDetails?.charging_for || "test",
+        contactNo: bookingDetails?.contact_no || "test"
     }
     const sectionContent2 = {
         // slotDate     : moment(bookingDetails?.slot_date_time).format('DD MMM YYYY h:mm A'),
-        available_point: bookingDetails?.available_charging_point || 0,
-        occupied_point: bookingDetails?.occupied_charging_point || 0,
-        openingDetails: getFormattedOpeningHours(bookingDetails),
+        areaName: bookingDetails?.area_name || "Test",
+        totalResidents: bookingDetails?.total_residents || 0,
         status: bookingDetails?.status === 1 ? "Active" : "Un-Active",
     }
     const sectionContent4 = {
@@ -207,16 +233,85 @@ const CommunityDetails = () => {
     return (
         <div className='main-container'>
             <ToastContainer />
-            "community"
             {loading ? <Loader /> :
                 <>
-                    <BookingDetailsHeader content={content} titles={headerTitles} type='publicChargingStation' />
+                    <BookingDetailsHeader content={content} titles={headerTitles} type='communityDetails' />
                     <div className={styles.ChargerDetailsSection}>
-                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} sectionTitles2={sectionTitles2} sectionContent2={sectionContent2}
-                            sectionTitles4={sectionTitles4} sectionContent4={sectionContent4} type='portableChargerBooking' />
-                        <BookingImageSection titles={imageTitles} content={imageContent} type='publicChargingStation' onRemoveImage={handleRemoveCoverImage} />
-                        <BookingMultipleImages titles={imageTitles} content={imageContent} type='publicChargingStation' onRemoveImage={handleRemoveGalleryImage} />
+                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} sectionTitles2={{}} sectionContent2={{}}
+                            sectionTitles4={{}} sectionContent4={{}} type='communityDetails' />
+                        <BookingLeftDetails titles={sectionTitles2} content={sectionContent2} sectionTitles2={{}} sectionContent2={{}}
+                            sectionTitles4={{}} sectionContent4={{}} type='communityDetails' />
                     </div>
+                    <SubHeader heading="Charger List"
+                        addButtonProps={addButtonProps}
+                        fetchFilteredData={fetchFilteredData}
+                        dynamicFilters={dynamicFilters} filterValues={filters}
+                        searchTerm={searchTerm}
+                        count={totalCount}
+                    />
+                    {
+                        [].length === 0 ? (
+                            <EmptyList
+                                tableHeaders={["Sr No", "Charger Id", "KW",]}
+                                message="No data available"
+                            />
+                        ) : (
+                            <>
+                                <List
+                                    tableHeaders={["Sr No", "Charger Id", "KW",]}
+                                    listData={[]}
+                                    pageHeading="Charger List"
+                                    onDeleteSlot={{}}
+                                    keyMapping={[
+                                        { key: 'station_name', label: 'Sr No' },
+                                        { key: 'charging_for', label: 'Charger Id' },
+                                        { key: 'charger_type', label: 'KW' },
+                                    ]}
+                                />
+
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={{}}
+                                />
+                            </>
+                        )
+                    }
+                    <SubHeader heading="Resident List"
+                        addButtonProps={addButtonProps}
+                        fetchFilteredData={fetchFilteredData}
+                        dynamicFilters={dynamicFilters} filterValues={filters}
+                        searchTerm={searchTerm}
+                        count={totalCount2}
+                    />
+                    {
+                        [].length === 0 ? (
+                            <EmptyList
+                                tableHeaders={["Sr No", "Redident Id", "Mobile", "Email", "Session Allocated", "Session Used", "kWh Allocated", "kWh Used", "Action"]}
+                                message="No data available"
+                            />
+                        ) : (
+                            <>
+                                <List
+                                    tableHeaders={["Sr No", "Redident Id", "Mobile", "Email", "Session Allocated", "Session Used", "kWh Allocated", "kWh Used", "Action"]}
+                                    listData={[]}
+                                    pageHeading="Resident List"
+                                    onDeleteSlot={{}}
+                                    keyMapping={[
+                                        { key: 'station_name', label: 'Sr No' },
+                                        { key: 'charging_for', label: 'Charger Id' },
+                                        { key: 'charger_type', label: 'KW' },
+                                    ]}
+                                />
+
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={{}}
+                                />
+                            </>
+                        )
+                    }
                 </>
             }
         </div>

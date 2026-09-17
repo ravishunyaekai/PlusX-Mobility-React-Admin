@@ -11,6 +11,11 @@ import moment from 'moment';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../../SharedComponent/Loader/Loader.jsx';
+import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
+import Pagination from '../../SharedComponent/Pagination/Pagination'
+import List from '../../SharedComponent/List/List.jsx';
+import SubHeader from '../../SharedComponent/SubHeader/SubHeader.jsx';
+// import { List } from 'rsuite';
 
 const formatTime = (timeStr) => {
     if (timeStr === "Closed") return "Closed";
@@ -71,7 +76,11 @@ const ResidentDetails = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
     const { stationId } = useParams();
+    const [totalCount, setTotalCount] = useState(null);
+    const [totalCount2, setTotalCount2] = useState(null);
     const [bookingDetails, setBookingDetails] = useState();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [imageGallery, setImageGallery] = useState();
     const [imageGalleryId, setImageGalleryId] = useState();
     const [baseUrl, setBaseUrl] = useState();
@@ -148,22 +157,26 @@ const ResidentDetails = () => {
         }
     };
     const headerTitles = {
-        bookingIdTitle: "Station ID",
-        stationDetailsTitle: "Station Name",
-        feeDetailsTitle: "Price",
+        bookingIdTitle: "Resident ID",
+        stationDetailsTitle: "Resident Details",
+        // feeDetailsTitle: "Price",
     };
     const sectionTitles1 = {
-        address: "Address",
-        chargerType: "Charger Type",
-        chargingFor: "Charger For",
-        // openingDetails : "Working Hours",
-    }
+        emailAddress: "Email Address",
+        communities: "Communities",
+        fullAddress: "Full Address",
+        monthlySessionAllocated: "Monthly Session Allocated",
+        allocatedTimeInMinutes: "Allocated Time in Minutes",
+        kwhAllocationPerMonth: "kWh Allocation/Month",
+        perKwhCharge: "Per kWh Charge (INR)",
+        extraChargePerMinOverAllocatedTime: "Extra Charge/Min Over Allocated Time (INR)",
+        status: "Status",
+    };
     const sectionTitles2 = {
         // chargingFor : "Charger For",
         // slotDate    : "Slot Date",
-        available_point: "Available Charging Point",
-        occupied_point: "Occupied Charging Point",
-        openingDetails: "Working Hours",
+        areaName: "Area Name",
+        totalResidents: "Total Residents",
         status: "Status",
     }
     const sectionTitles4 = {
@@ -171,27 +184,32 @@ const ResidentDetails = () => {
     }
     const imageTitles = {
         coverImage: "Cover Gallery",
-        galleryImages: "Station Gallery",
+        galleryImages: "Community Gallery",
     }
 
     const content = {
-        bookingId: bookingDetails?.station_id,
-        createdAt: moment(bookingDetails?.created_at).format('DD MMM YYYY'),
-        stationName: bookingDetails?.station_name,
-        price: bookingDetails?.price,
-        chargingPoint: bookingDetails?.charging_point,
+        bookingId: bookingDetails?.station_id || "Test",
+        createdAt: moment(bookingDetails?.created_at).format('DD MMM YYYY') || "Test",
+        stationName: bookingDetails?.station_name || "Test",
+        price: bookingDetails?.price || "Test",
+        chargingPoint: bookingDetails?.charging_point || "Test",
     };
     const sectionContent1 = {
-        address: bookingDetails?.address,
-        chargerType: bookingDetails?.charger_type,
-        chargingFor: bookingDetails?.charging_for,
-
-    }
+        emailAddress: bookingDetails?.email_address || "test",
+        communities: bookingDetails?.communities || "test",
+        fullAddress: bookingDetails?.address || "test",
+        monthlySessionAllocated: bookingDetails?.monthly_session_allocated || "test",
+        allocatedTimeInMinutes: bookingDetails?.allocated_time_in_minutes || "test",
+        kwhAllocationPerMonth: bookingDetails?.kwh_allocation_per_month || "test",
+        perKwhCharge: bookingDetails?.per_kwh_charge || "test",
+        extraChargePerMinOverAllocatedTime:
+            bookingDetails?.extra_charge_per_min_over_allocated_time || "test",
+        status: bookingDetails?.status || "test",
+    };
     const sectionContent2 = {
         // slotDate     : moment(bookingDetails?.slot_date_time).format('DD MMM YYYY h:mm A'),
-        available_point: bookingDetails?.available_charging_point || 0,
-        occupied_point: bookingDetails?.occupied_charging_point || 0,
-        openingDetails: getFormattedOpeningHours(bookingDetails),
+        areaName: bookingDetails?.area_name || "Test",
+        totalResidents: bookingDetails?.total_residents || 0,
         status: bookingDetails?.status === 1 ? "Active" : "Un-Active",
     }
     const sectionContent4 = {
@@ -207,16 +225,84 @@ const ResidentDetails = () => {
     return (
         <div className='main-container'>
             <ToastContainer />
-            "resident"
             {loading ? <Loader /> :
                 <>
-                    <BookingDetailsHeader content={content} titles={headerTitles} type='publicChargingStation' />
+                    <BookingDetailsHeader content={content} titles={headerTitles} type='communityDetails' />
                     <div className={styles.ChargerDetailsSection}>
-                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} sectionTitles2={sectionTitles2} sectionContent2={sectionContent2}
-                            sectionTitles4={sectionTitles4} sectionContent4={sectionContent4} type='portableChargerBooking' />
-                        <BookingImageSection titles={imageTitles} content={imageContent} type='publicChargingStation' onRemoveImage={handleRemoveCoverImage} />
-                        <BookingMultipleImages titles={imageTitles} content={imageContent} type='publicChargingStation' onRemoveImage={handleRemoveGalleryImage} />
+                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} sectionTitles2={{}} sectionContent2={{}}
+                            sectionTitles4={{}} sectionContent4={{}} type='communityDetails' />
                     </div>
+                    
+                    <SubHeader heading="Total Session History"
+                        // addButtonProps={addButtonProps}
+                        // fetchFilteredData={fetchFilteredData}
+                        // dynamicFilters={dynamicFilters} filterValues={filters}
+                        // searchTerm={searchTerm}
+                        count={totalCount}
+                    />
+                    {
+                        [].length === 0 ? (
+                            <EmptyList
+                                tableHeaders={["Date", "Session Id","Resident Name", "Area", "Charger Id", "KWh Used","Duration (In Min.)", "Status", "Action"]}
+                                message="No data available"
+                            />
+                        ) : (
+                            <>
+                                <List
+                                    tableHeaders={["Date", "Session Id","Resident Name", "Area", "Charger Id", "KWh Used","Duration (In Min.)", "Status", "Action"]}
+                                    listData={[]}
+                                    pageHeading="Total Session History"
+                                    onDeleteSlot={{}}
+                                    keyMapping={[
+                                        { key: 'station_name', label: 'Sr No' },
+                                        { key: 'charging_for', label: 'Charger Id' },
+                                        { key: 'charger_type', label: 'KW' },
+                                    ]}
+                                />
+
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={{}}
+                                />
+                            </>
+                        )
+                    }
+                    <SubHeader heading="Total Invoice History"
+                        // addButtonProps={addButtonProps}
+                        // fetchFilteredData={fetchFilteredData}
+                        // dynamicFilters={dynamicFilters} filterValues={filters}
+                        // searchTerm={searchTerm}
+                        count={totalCount2}
+                    />
+                    {
+                        [].length === 0 ? (
+                            <EmptyList
+                                tableHeaders={["Sr No", "Redident Id", "Mobile", "Email", "Session Allocated", "Session Used", "kWh Allocated", "kWh Used", "Action"]}
+                                message="No data available"
+                            />
+                        ) : (
+                            <>
+                                <List
+                                    tableHeaders={["Sr No", "Redident Id", "Mobile", "Email", "Session Allocated", "Session Used", "kWh Allocated", "kWh Used", "Action"]}
+                                    listData={[]}
+                                    pageHeading="Charger List"
+                                    onDeleteSlot={{}}
+                                    keyMapping={[
+                                        { key: 'station_name', label: 'Sr No' },
+                                        { key: 'charging_for', label: 'Charger Id' },
+                                        { key: 'charger_type', label: 'KW' },
+                                    ]}
+                                />
+
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={{}}
+                                />
+                            </>
+                        )
+                    }
                 </>
             }
         </div>
