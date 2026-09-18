@@ -148,16 +148,27 @@ const CommunityInvoiceDetails = () => {
         }
     };
     const headerTitles = {
-        bookingIdTitle: "Station ID",
-        stationDetailsTitle: "Station Name",
-        feeDetailsTitle: "Price",
+        bookingIdTitle: "Invoice ID",
+        stationDetailsTitle: "Resident Details",
     };
     const sectionTitles1 = {
-        address: "Address",
-        chargerType: "Charger Type",
-        chargingFor: "Charger For",
-        // openingDetails : "Working Hours",
-    }
+        address: "Community Name",
+        chargerType: "Area Name",
+        chargingFor: "Full Address",
+        noOfStation: "No of Station",
+        kwhAllocation: "kWh Allocation/Month",
+        billingMonth: "Billing Month",
+        totalConsumption: "Total Consumption",
+        perKwhCharge: "Per kWh Charge (INR)",
+        energyKwhPrice: "Energy kWh Price",
+        overTime: "Over Time (Min)",
+        extraChargePerMin: "Extra Charge/Min Over Allocated Time (Min)",
+        extraCharge: "Extra Charge (INR)",
+        subTotal: "Sub Total",
+        vat: "Vat (5%)",
+        totalAmount: "Total Amount",
+        status: "Status",
+    };
     const sectionTitles2 = {
         // chargingFor : "Charger For",
         // slotDate    : "Slot Date",
@@ -175,18 +186,30 @@ const CommunityInvoiceDetails = () => {
     }
 
     const content = {
-        bookingId: bookingDetails?.station_id,
-        createdAt: moment(bookingDetails?.created_at).format('DD MMM YYYY'),
-        stationName: bookingDetails?.station_name,
-        price: bookingDetails?.price,
-        chargingPoint: bookingDetails?.charging_point,
+        bookingId: bookingDetails?.station_id || "Test",
+        createdAt: moment(bookingDetails?.created_at).format('DD MMM YYYY') || "Test",
+        stationName: bookingDetails?.station_name || "Test",
+        price: bookingDetails?.price || "Test",
+        chargingPoint: bookingDetails?.charging_point || "Test",
     };
     const sectionContent1 = {
-        address: bookingDetails?.address,
-        chargerType: bookingDetails?.charger_type,
-        chargingFor: bookingDetails?.charging_for,
-
-    }
+        address: bookingDetails?.address || "Green Valley Community",
+        chargerType: bookingDetails?.charger_type || "Parking Area",
+        chargingFor: bookingDetails?.charging_for || "EV Charging Station",
+        noOfStation: bookingDetails?.no_of_station || "10",
+        kwhAllocation: bookingDetails?.kwh_allocation || "500 kWh",
+        billingMonth: bookingDetails?.billing_month || "September 2026",
+        totalConsumption: bookingDetails?.total_consumption || "425 kWh",
+        perKwhCharge: bookingDetails?.per_kwh_charge || "₹12",
+        energyKwhPrice: bookingDetails?.energy_kwh_price || "₹5,100",
+        overTime: bookingDetails?.over_time || "30 Min",
+        extraChargePerMin: bookingDetails?.extra_charge_per_min || "₹2",
+        extraCharge: bookingDetails?.extra_charge || "₹60",
+        subTotal: bookingDetails?.sub_total || "₹5,160",
+        vat: bookingDetails?.vat || "₹258",
+        totalAmount: bookingDetails?.total_amount || "₹5,418",
+        status: bookingDetails?.status || "Paid",
+    };
     const sectionContent2 = {
         // slotDate     : moment(bookingDetails?.slot_date_time).format('DD MMM YYYY h:mm A'),
         available_point: bookingDetails?.available_charging_point || 0,
@@ -207,15 +230,12 @@ const CommunityInvoiceDetails = () => {
     return (
         <div className='main-container'>
             <ToastContainer />
-            "invoice"
             {loading ? <Loader /> :
                 <>
-                    <BookingDetailsHeader content={content} titles={headerTitles} type='publicChargingStation' />
+                    <BookingDetailsHeader content={content} titles={headerTitles} type='communityInvoiceDetails' />
                     <div className={styles.ChargerDetailsSection}>
-                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} sectionTitles2={sectionTitles2} sectionContent2={sectionContent2}
-                            sectionTitles4={sectionTitles4} sectionContent4={sectionContent4} type='portableChargerBooking' />
-                        <BookingImageSection titles={imageTitles} content={imageContent} type='publicChargingStation' onRemoveImage={handleRemoveCoverImage} />
-                        <BookingMultipleImages titles={imageTitles} content={imageContent} type='publicChargingStation' onRemoveImage={handleRemoveGalleryImage} />
+                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} sectionTitles2={{}} sectionContent2={{}}
+                            sectionTitles4={{}} sectionContent4={{}} type='communityInvoiceDetails' />
                     </div>
                 </>
             }
