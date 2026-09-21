@@ -190,9 +190,7 @@ const EditCommunity = () => {
     // ---------------------------------------------------
 
     const handleCancel = () => {
-        navigate(
-            "/electric/public-charger-station/public-charger-station-list"
-        );
+        navigate(-1);
     };
 
     // ---------------------------------------------------

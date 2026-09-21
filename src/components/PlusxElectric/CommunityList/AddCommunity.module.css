@@ -1374,3 +1374,250 @@
         font-size: 14px;
     }
 }
+/* =====================================================
+   COUNTRY CODE + CONTACT NUMBER
+===================================================== */
+
+.contactDetailsRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+}
+
+/* Country Code */
+
+.countryCodeField {
+  width: 100%;
+  min-width: 0;
+}
+
+.countryCodeField .inputField {
+  width: 100%;
+  /* border-top-right-radius: 0;
+  border-bottom-right-radius: 0; */
+}
+
+/* Contact Number */
+
+.contactNumberField {
+  width: 100%;
+  min-width: 0;
+}
+
+.contactNumberField .inputField {
+  width: 100%;
+  /* border-top-left-radius: 0;
+  border-bottom-left-radius: 0; */
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 992px) {
+
+  .contactDetailsRow {
+    grid-template-columns: 40% 60%;
+  }
+
+}
+
+@media (max-width: 576px) {
+
+  .contactDetailsRow {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .countryCodeField .inputField,
+  .contactNumberField .inputField {
+    border-radius: 10px;
+  }
+
+}/* =====================================================
+   MANAGER DETAILS ALIGNMENT FIX
+===================================================== */
+
+.managerField {
+  width: 100%;
+}
+
+.managerFieldInner {
+  width: 83.333333%;
+}
+
+.managerContactField {
+  width: 83.333333%;
+}
+
+.managerContactRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 45% minmax(0, 1fr);
+  gap: 15px;
+  align-items: start;
+}
+
+.managerContactColumn {
+  width: 100%;
+  min-width: 0;
+}
+
+.managerPasswordField {
+  /* width: 100%; */
+  padding-top: 40px;
+}
+
+.managerPasswordField .managerFieldInner {
+  width: 83.333333%;
+}
+
+/* Keep same alignment on smaller screens */
+@media (max-width: 992px) {
+  .managerFieldInner,
+  .managerContactField,
+  .managerPasswordField .managerFieldInner {
+    width: 100%;
+  }
+
+  .managerContactRow {
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .managerPasswordField {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .managerContactRow {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+/* =====================================================
+   COUNTRY CODE CUSTOM DROPDOWN
+   Same UI as .inputField
+===================================================== */
+
+.countryDropdown {
+  position: relative;
+  width: 100%;
+}
+
+/* Selected country code */
+.countryDropdownButton {
+  outline: none;
+  background-color: #f9f9f9;
+  border: 2px solid #00b26b;
+  padding: 16px 10px;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  width: 100%;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  line-height: normal;
+}
+
+.countryDropdownButton:hover {
+  border-color: #00b26b;
+}
+
+.countryDropdownButton:focus {
+  border-color: #00b26b;
+  outline: none;
+}
+
+/* Arrow */
+.dropdownArrow {
+  color: #000;
+  font-size: 16px;
+  margin-left: 8px;
+  line-height: 1;
+}
+
+/* =====================================================
+   DROPDOWN OPTIONS
+===================================================== */
+
+.countryDropdownMenu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+
+  width: 100%;
+  max-height: 250px;
+
+  overflow-y: auto;
+
+  background-color: #f9f9f9;
+
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+
+  z-index: 9999;
+
+  box-sizing: border-box;
+}
+
+/* Individual country */
+.countryDropdownOption {
+  width: 100%;
+
+  padding: 12px 10px;
+
+  border: none;
+  outline: none;
+
+  background-color: #f9f9f9;
+
+  color: #000;
+
+  font-size: 16px;
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.countryDropdownOption:hover {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+.countryDropdownOption:focus {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+/* Scrollbar */
+.countryDropdownMenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.countryDropdownMenu::-webkit-scrollbar-track {
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.countryDropdownMenu::-webkit-scrollbar-thumb {
+  background-color: #00b26b;
+  border-radius: 10px;
+}

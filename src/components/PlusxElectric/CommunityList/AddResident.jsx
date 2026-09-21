@@ -1,146 +1,555 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
-    postRequestWithTokenAndFile,
+    postRequestWithToken,
 } from "../../../api/Requests";
 
 import styles from "./AddCommunity.module.css";
 
-const AddResident = () => {
-    const userDetails = JSON.parse(
-        sessionStorage.getItem("userDetails")
-    );
+import {
+    getCountries,
+    getCountryCallingCode,
+} from "libphonenumber-js";
 
+import CustomDropdown from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
+
+import MultiSelectDropdown from "../../SharedComponent/UI/CustomMultiDropdown/MultiSelectDropdown";
+
+const AddResident = () => {
     const navigate = useNavigate();
 
-    // ---------------------------------------------------
-    // Form State
-    // ---------------------------------------------------
+    // =========================================================
+    // USER DETAILS
+    // =========================================================
 
-    const [residentName, setResidentName] = useState("");
-    const [mobileNumber, setMobileNumber] = useState("");
-    const [emailAddress, setEmailAddress] = useState("");
-    const [community, setCommunity] = useState("");
-    const [fullAddress, setFullAddress] = useState("");
+    const [userDetails, setUserDetails] = useState(null);
 
-    const [monthlySessionAllocation, setMonthlySessionAllocation] =
+    // =========================================================
+    // COUNTRY CODE OPTIONS
+    // =========================================================
+
+    const countryCodeOptions = useMemo(() => {
+        const displayNames = new Intl.DisplayNames(
+            ["en"],
+            {
+                type: "region",
+            }
+        );
+
+        return getCountries()
+            .map((country) => {
+                let countryName = country;
+
+                try {
+                    countryName =
+                        displayNames.of(country) || country;
+                } catch (error) {
+                    countryName = country;
+                }
+
+                let callingCode = "";
+
+                try {
+                    callingCode =
+                        `+${getCountryCallingCode(country)}`;
+                } catch (error) {
+                    console.error(
+                        `Unable to get calling code for ${country}`,
+                        error
+                    );
+
+                    return null;
+                }
+
+                return {
+                    value: callingCode,
+                    label: `${countryName} (${callingCode})`,
+                    countryName,
+                    country,
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) =>
+                a.countryName.localeCompare(
+                    b.countryName
+                )
+            );
+    }, []);
+
+    // =========================================================
+    // FORM STATE
+    // =========================================================
+
+    // Default country code = India
+    const [countryCode, setCountryCode] =
+        useState("+91");
+
+    const [residentName, setResidentName] =
         useState("");
 
-    const [allocatedTimeInMinute, setAllocatedTimeInMinute] =
+    const [mobileNumber, setMobileNumber] =
         useState("");
 
-    const [kwhAllocationPerMonth, setKwhAllocationPerMonth] =
+    const [residentEmail, setResidentEmail] =
         useState("");
 
-    const [perKwhCharge, setPerKwhCharge] = useState("");
+    /*
+     * IMPORTANT:
+     *
+     * Community is now MULTI SELECT.
+     *
+     * Example:
+     *
+     * [
+     *     {
+     *         value: "CMT0026",
+     *         label: "Green Valley"
+     *     },
+     *     {
+     *         value: "CMT0027",
+     *         label: "Palm Residency"
+     *     }
+     * ]
+     */
+    const [communityIds, setCommunityIds] =
+        useState([]);
 
-    const [extraChargePerMin, setExtraChargePerMin] = useState("");
+    const [address, setAddress] =
+        useState("");
 
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
+    const [
+        monthlySessionAllocation,
+        setMonthlySessionAllocation,
+    ] = useState("");
 
-    // ---------------------------------------------------
-    // Cancel
-    // ---------------------------------------------------
+    const [
+        allotedTime,
+        setAllotedTime,
+    ] = useState("");
 
-    const handleCancel = () => {
-        navigate(
-            "/electric/public-charger-station/public-charger-station-list"
+    const [
+        kwhAllocated,
+        setKwhAllocated,
+    ] = useState("");
+
+    const [
+        perKwhCharge,
+        setPerKwhCharge,
+    ] = useState("");
+
+    const [
+        extraCharge,
+        setExtraCharge,
+    ] = useState("");
+
+    // =========================================================
+    // COMMUNITY STATE
+    // =========================================================
+
+    const [communityOptions, setCommunityOptions] =
+        useState([]);
+
+    const [communityLoading, setCommunityLoading] =
+        useState(false);
+
+    // =========================================================
+    // FORM / API STATE
+    // =========================================================
+
+    const [errors, setErrors] =
+        useState({});
+
+    const [loading, setLoading] =
+        useState(false);
+
+    // =========================================================
+    // SELECTED COUNTRY CODE
+    // =========================================================
+
+    const selectedCountryCode =
+        countryCodeOptions.find(
+            (option) =>
+                option.value === countryCode
+        ) || null;
+
+    // =========================================================
+    // GET USER DETAILS
+    // =========================================================
+
+    useEffect(() => {
+        try {
+            const storedUserDetails =
+                sessionStorage.getItem("userDetails");
+
+            if (!storedUserDetails) {
+                navigate("/login");
+                return;
+            }
+
+            const parsedUserDetails =
+                JSON.parse(storedUserDetails);
+
+            if (!parsedUserDetails?.access_token) {
+                navigate("/login");
+                return;
+            }
+
+            setUserDetails(parsedUserDetails);
+        } catch (error) {
+            console.error(
+                "Error parsing userDetails:",
+                error
+            );
+
+            navigate("/login");
+        }
+    }, [navigate]);
+
+    // =========================================================
+    // GET ALL COMMUNITY LIST
+    // =========================================================
+
+    useEffect(() => {
+        if (!userDetails?.user_id) {
+            return;
+        }
+
+        getAllCommunityList();
+    }, [userDetails]);
+
+    // =========================================================
+    // COMMUNITY API
+    // =========================================================
+
+    const getAllCommunityList = () => {
+        if (!userDetails?.user_id) {
+            return;
+        }
+
+        setCommunityLoading(true);
+
+        const obj = {
+            userId: userDetails.user_id,
+            email: userDetails.email,
+        };
+
+        console.log(
+            "all-community-list request:",
+            obj
+        );
+
+        postRequestWithToken(
+            "all-community-list",
+            obj,
+            (response) => {
+                console.log(
+                    "all-community-list response:",
+                    response
+                );
+
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
+                    /*
+                     * API response:
+                     *
+                     * {
+                     *     status: 1,
+                     *     code: 200,
+                     *     data: [
+                     *         {
+                     *             value: "CMT0026",
+                     *             label: "Green Valley"
+                     *         }
+                     *     ]
+                     * }
+                     */
+
+                    const options =
+                        Array.isArray(response?.data)
+                            ? response.data
+                            : [];
+
+                    setCommunityOptions(options);
+
+                    /*
+                     * Clear previously selected values
+                     * which are no longer available.
+                     */
+                    setCommunityIds(
+                        (currentSelected) => {
+                            if (
+                                !Array.isArray(
+                                    currentSelected
+                                )
+                            ) {
+                                return [];
+                            }
+
+                            return currentSelected.filter(
+                                (selected) =>
+                                    options.some(
+                                        (option) =>
+                                            String(
+                                                option.value
+                                            ) ===
+                                            String(
+                                                selected.value
+                                            )
+                                    )
+                            );
+                        }
+                    );
+                } else {
+                    setCommunityOptions([]);
+                    setCommunityIds([]);
+
+                    toast.error(
+                        response?.message ||
+                        "Unable to fetch community list."
+                    );
+
+                    console.error(
+                        "Error in all-community-list API:",
+                        response
+                    );
+                }
+
+                setCommunityLoading(false);
+            }
         );
     };
 
-    // ---------------------------------------------------
-    // Validation
-    // ---------------------------------------------------
+    // =========================================================
+    // COUNTRY CODE CHANGE
+    // =========================================================
+
+    const handleCountryCodeChange = (
+        selectedOption
+    ) => {
+        let selectedValue = "";
+
+        if (
+            selectedOption &&
+            typeof selectedOption === "object"
+        ) {
+            selectedValue =
+                selectedOption?.value || "";
+        } else {
+            selectedValue =
+                selectedOption || "";
+        }
+
+        setCountryCode(selectedValue);
+
+        if (selectedValue) {
+            setErrors((prev) => ({
+                ...prev,
+                countryCode: "",
+            }));
+        }
+    };
+
+    // =========================================================
+    // COMMUNITY CHANGE
+    // =========================================================
+
+    const handleCommunityChange = (
+        selectedOptions
+    ) => {
+        /*
+         * MultiSelectDropdown returns:
+         *
+         * [
+         *     {
+         *         value: "CMT0026",
+         *         label: "Green Valley"
+         *     }
+         * ]
+         */
+
+        const selected =
+            Array.isArray(selectedOptions)
+                ? selectedOptions
+                : [];
+
+        setCommunityIds(selected);
+
+        if (selected.length > 0) {
+            setErrors((prev) => ({
+                ...prev,
+                communityIds: "",
+            }));
+        }
+    };
+
+    // =========================================================
+    // CANCEL
+    // =========================================================
+
+    const handleCancel = () => {
+        navigate(-1);
+    };
+
+    // =========================================================
+    // VALIDATION
+    // =========================================================
 
     const validateForm = () => {
         const newErrors = {};
 
+        // -----------------------------------------------------
         // Resident Name
+        // -----------------------------------------------------
+
         if (!residentName.trim()) {
             newErrors.residentName =
                 "Resident Name is required.";
         }
 
-        // Mobile Number
+        // -----------------------------------------------------
+        // Country Code
+        // -----------------------------------------------------
+
+        if (!countryCode) {
+            newErrors.countryCode =
+                "Country Code is required.";
+        }
+
+        // -----------------------------------------------------
+        // Mobile
+        // -----------------------------------------------------
+
         if (!mobileNumber.trim()) {
             newErrors.mobileNumber =
                 "Mobile Number is required.";
+        } else if (
+            !/^\d{7,15}$/.test(
+                mobileNumber
+            )
+        ) {
+            newErrors.mobileNumber =
+                "Please enter a valid Mobile Number.";
         }
 
+        // -----------------------------------------------------
         // Email
-        if (!emailAddress.trim()) {
-            newErrors.emailAddress =
+        // -----------------------------------------------------
+
+        if (!residentEmail.trim()) {
+            newErrors.residentEmail =
                 "Email Address is required.";
         } else {
             const emailRegex =
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!emailRegex.test(emailAddress)) {
-                newErrors.emailAddress =
+            if (
+                !emailRegex.test(
+                    residentEmail.trim()
+                )
+            ) {
+                newErrors.residentEmail =
                     "Please enter a valid Email Address.";
             }
         }
 
+        // -----------------------------------------------------
         // Community
-        if (!community.trim()) {
-            newErrors.community =
+        // -----------------------------------------------------
+
+        if (
+            !Array.isArray(communityIds) ||
+            communityIds.length === 0
+        ) {
+            newErrors.communityIds =
                 "Community is required.";
         }
 
-        // Full Address
-        if (!fullAddress.trim()) {
-            newErrors.fullAddress =
+        // -----------------------------------------------------
+        // Address
+        // -----------------------------------------------------
+
+        if (!address.trim()) {
+            newErrors.address =
                 "Full Address is required.";
         }
 
+        // -----------------------------------------------------
         // Monthly Session Allocation
+        // -----------------------------------------------------
+
         if (!monthlySessionAllocation) {
             newErrors.monthlySessionAllocation =
                 "Monthly Session Allocation is required.";
         }
 
+        // -----------------------------------------------------
         // Allocated Time
-        if (!allocatedTimeInMinute) {
-            newErrors.allocatedTimeInMinute =
+        // -----------------------------------------------------
+
+        if (!allotedTime) {
+            newErrors.allotedTime =
                 "Allocated Time is required.";
         }
 
-        // kWh Allocation
-        if (!kwhAllocationPerMonth) {
-            newErrors.kwhAllocationPerMonth =
+        // -----------------------------------------------------
+        // kWh Allocated
+        // -----------------------------------------------------
+
+        if (!kwhAllocated) {
+            newErrors.kwhAllocated =
                 "kWh Allocation/Month is required.";
         }
 
+        // -----------------------------------------------------
         // Per kWh Charge
+        // -----------------------------------------------------
+
         if (!perKwhCharge) {
             newErrors.perKwhCharge =
-                "Per kWh charge is required.";
+                "Per kWh Charge is required.";
         }
 
+        // -----------------------------------------------------
         // Extra Charge
-        if (!extraChargePerMin) {
-            newErrors.extraChargePerMin =
+        // -----------------------------------------------------
+
+        if (!extraCharge) {
+            newErrors.extraCharge =
                 "Extra Charge/Min Over Allocated Time is required.";
         }
 
         setErrors(newErrors);
 
-        return Object.keys(newErrors).length === 0;
+        return (
+            Object.keys(newErrors).length === 0
+        );
     };
 
-    // ---------------------------------------------------
-    // Submit
-    // ---------------------------------------------------
+    // =========================================================
+    // SUBMIT
+    // =========================================================
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!validateForm()) {
-            toast.error("Some fields are missing");
+            toast.error(
+                "Some fields are missing."
+            );
+            return;
+        }
+
+        if (!userDetails) {
+            toast.error(
+                "User session expired."
+            );
+
+            navigate("/login");
             return;
         }
 
@@ -148,9 +557,9 @@ const AddResident = () => {
 
         const formData = new FormData();
 
-        // ---------------------------------------------------
-        // Existing User Details
-        // ---------------------------------------------------
+        // =====================================================
+        // AUTH DETAILS
+        // =====================================================
 
         formData.append(
             "userId",
@@ -162,13 +571,18 @@ const AddResident = () => {
             userDetails?.email || ""
         );
 
-        // ---------------------------------------------------
-        // Resident Details
-        // ---------------------------------------------------
+        // =====================================================
+        // RESIDENT DETAILS
+        // =====================================================
 
         formData.append(
             "resident_name",
-            residentName
+            residentName.trim()
+        );
+
+        formData.append(
+            "country_code",
+            countryCode
         );
 
         formData.append(
@@ -177,19 +591,50 @@ const AddResident = () => {
         );
 
         formData.append(
-            "email_address",
-            emailAddress
+            "resident_email",
+            residentEmail.trim()
+        );
+
+        // =====================================================
+        // COMMUNITY
+        // =====================================================
+
+        /*
+         * Convert selected community objects into IDs.
+         *
+         * Example:
+         *
+         * [
+         *   { value: "CMT0026", label: "Green Valley" },
+         *   { value: "CMT0027", label: "Palm Residency" }
+         * ]
+         *
+         * becomes:
+         *
+         * CMT0026,CMT0027
+         */
+
+        const selectedCommunityIds =
+            communityIds
+                .map(
+                    (community) =>
+                        community.value
+                )
+                .join(",");
+
+        formData.append(
+            "community_ids",
+            selectedCommunityIds
         );
 
         formData.append(
-            "community",
-            community
+            "address",
+            address.trim()
         );
 
-        formData.append(
-            "full_address",
-            fullAddress
-        );
+        // =====================================================
+        // ALLOCATION DETAILS
+        // =====================================================
 
         formData.append(
             "monthly_session_allocation",
@@ -197,13 +642,13 @@ const AddResident = () => {
         );
 
         formData.append(
-            "allocated_time_in_minute",
-            allocatedTimeInMinute
+            "alloted_time",
+            allotedTime
         );
 
         formData.append(
-            "kwh_allocation_per_month",
-            kwhAllocationPerMonth
+            "kwh_allocated",
+            kwhAllocated
         );
 
         formData.append(
@@ -212,39 +657,62 @@ const AddResident = () => {
         );
 
         formData.append(
-            "extra_charge_per_min",
-            extraChargePerMin
+            "extra_charge",
+            extraCharge
         );
 
-        // ---------------------------------------------------
-        // API
-        // ---------------------------------------------------
+        // =====================================================
+        // DEBUG
+        // =====================================================
 
-        postRequestWithTokenAndFile(
-            "public-charger-add-station",
+        console.log(
+            "Resident Form Data:"
+        );
+
+        for (
+            const [key, value]
+            of formData.entries()
+        ) {
+            console.log(
+                key,
+                value
+            );
+        }
+
+        // =====================================================
+        // API
+        // =====================================================
+
+        postRequestWithToken(
+            "resident-add",
             formData,
-            async (response) => {
-                if (response.status === 1) {
+            (response) => {
+                console.log(
+                    "resident-add response:",
+                    response
+                );
+
+                if (
+                    response?.status === 1 ||
+                    response?.code === 200
+                ) {
                     toast.success(
-                        response.message ||
+                        response?.message ||
                         "Resident added successfully."
                     );
 
                     setTimeout(() => {
                         setLoading(false);
-
-                        navigate(
-                            "/electric/public-charger-station/public-charger-station-list"
-                        );
+                        navigate(-1);
                     }, 1000);
                 } else {
                     toast.error(
-                        response.message ||
+                        response?.message ||
                         "Something went wrong."
                     );
 
-                    console.log(
-                        "Error in public-charger-add-station API:",
+                    console.error(
+                        "Error in resident-add API:",
                         response
                     );
 
@@ -254,27 +722,25 @@ const AddResident = () => {
         );
     };
 
-    // ---------------------------------------------------
-    // Authentication Check
-    // ---------------------------------------------------
-
-    useEffect(() => {
-        if (
-            !userDetails ||
-            !userDetails.access_token
-        ) {
-            navigate("/login");
-        }
-    }, [navigate, userDetails]);
-
-    // ---------------------------------------------------
+    // =========================================================
     // UI
-    // ---------------------------------------------------
+    // =========================================================
 
     return (
-        <div className={styles.addStationContainer}>
+        <div
+            className={
+                styles.addStationContainer
+            }
+        >
+            {/* =================================================
+                HEADING
+            ================================================= */}
 
-            <div className={styles.addHeading}>
+            <div
+                className={
+                    styles.addHeading
+                }
+            >
                 Add Resident
             </div>
 
@@ -283,21 +749,22 @@ const AddResident = () => {
                     styles.addStationFormSection
                 }
             >
-
                 <ToastContainer />
 
                 <form
-                    className={styles.formSection}
-                    onSubmit={handleSubmit}
+                    className={
+                        styles.formSection
+                    }
+                    onSubmit={
+                        handleSubmit
+                    }
                 >
-
-                    {/* =====================================================
-                        RESIDENT DETAILS
-                    ====================================================== */}
-
                     <div className="row">
 
-                        {/* Resident Name */}
+                        {/* =================================================
+                            RESIDENT NAME
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
                                 htmlFor="residentName"
@@ -310,7 +777,6 @@ const AddResident = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="text"
                                         autoComplete="off"
@@ -319,7 +785,9 @@ const AddResident = () => {
                                         className={
                                             styles.inputField
                                         }
-                                        value={residentName}
+                                        value={
+                                            residentName
+                                        }
                                         onChange={(e) =>
                                             setResidentName(
                                                 e.target.value.slice(
@@ -341,70 +809,135 @@ const AddResident = () => {
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* Mobile Number */}
+                        {/* =================================================
+                            CONTACT DETAILS
+                        ================================================= */}
+
                         <div className="col-lg-6">
-                            <label
-                                htmlFor="mobileNumber"
+                            <div
                                 className={
-                                    styles.labelText
+                                    styles.managerContactField
                                 }
                             >
-                                Mobile Number
-                            </label>
+                                <div
+                                    className={
+                                        styles.managerContactRow
+                                    }
+                                >
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
+                                    {/* COUNTRY CODE */}
 
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="mobileNumber"
-                                        placeholder="+91"
+                                    <div
                                         className={
-                                            styles.inputField
+                                            styles.managerContactColumn
                                         }
-                                        value={mobileNumber}
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\+?\d{0,15}$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setMobileNumber(
-                                                    value
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.mobileNumber && (
-                                        <p
+                                    >
+                                        <label
+                                            htmlFor="countryCode"
                                             className={
-                                                styles.error
+                                                styles.labelText
                                             }
                                         >
-                                            {
-                                                errors.mobileNumber
-                                            }
-                                        </p>
-                                    )}
+                                            Country Code
+                                        </label>
 
+                                        <CustomDropdown
+                                            options={
+                                                countryCodeOptions
+                                            }
+                                            value={
+                                                selectedCountryCode
+                                            }
+                                            onChange={
+                                                handleCountryCodeChange
+                                            }
+                                            placeholder="+91"
+                                        />
+
+                                        {errors.countryCode && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.countryCode
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* MOBILE NUMBER */}
+
+                                    <div
+                                        className={
+                                            styles.managerContactColumn
+                                        }
+                                    >
+                                        <label
+                                            htmlFor="mobileNumber"
+                                            className={
+                                                styles.labelText
+                                            }
+                                        >
+                                            Mobile No
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="off"
+                                            id="mobileNumber"
+                                            placeholder="Mobile Number"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                mobileNumber
+                                            }
+                                            onChange={(e) => {
+                                                const value =
+                                                    e.target.value;
+
+                                                if (
+                                                    /^\d{0,15}$/.test(
+                                                        value
+                                                    )
+                                                ) {
+                                                    setMobileNumber(
+                                                        value
+                                                    );
+                                                }
+                                            }}
+                                        />
+
+                                        {errors.mobileNumber && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.mobileNumber
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Email Address */}
+                        {/* =================================================
+                            EMAIL
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
-                                htmlFor="emailAddress"
+                                htmlFor="residentEmail"
                                 className={
                                     styles.labelText
                                 }
@@ -414,40 +947,43 @@ const AddResident = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="email"
                                         autoComplete="off"
-                                        id="emailAddress"
+                                        id="residentEmail"
                                         placeholder="Email ID"
                                         className={
                                             styles.inputField
                                         }
-                                        value={emailAddress}
+                                        value={
+                                            residentEmail
+                                        }
                                         onChange={(e) =>
-                                            setEmailAddress(
+                                            setResidentEmail(
                                                 e.target.value
                                             )
                                         }
                                     />
 
-                                    {errors.emailAddress && (
+                                    {errors.residentEmail && (
                                         <p
                                             className={
                                                 styles.error
                                             }
                                         >
                                             {
-                                                errors.emailAddress
+                                                errors.residentEmail
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* Community */}
+                        {/* =================================================
+                            COMMUNITY - MULTI SELECT
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
                                 htmlFor="community"
@@ -461,50 +997,43 @@ const AddResident = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
 
-                                    <select
-                                        id="community"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={community}
-                                        onChange={(e) =>
-                                            setCommunity(
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-                                        <option value="">
-                                            Select...
-                                        </option>
+                                    <MultiSelectDropdown
+                                        options={communityOptions} value={communityIds} onChange={handleCommunityChange} labelledBy="Compatible" closeOnChangedValue={false} closeOnSelect={false} enableSelectAll
+                                    />
 
-                                        {/* 
-                                          Add your community
-                                          options here or
-                                          populate them from API.
-                                        */}
+                                    {!communityLoading &&
+                                        communityOptions.length === 0 && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                No communities available.
+                                            </p>
+                                        )}
 
-                                    </select>
-
-                                    {errors.community && (
+                                    {errors.communityIds && (
                                         <p
                                             className={
                                                 styles.error
                                             }
                                         >
                                             {
-                                                errors.community
+                                                errors.communityIds
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* Full Address */}
+                        {/* =================================================
+                            FULL ADDRESS
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
-                                htmlFor="fullAddress"
+                                htmlFor="address"
                                 className={
                                     styles.labelText
                                 }
@@ -514,18 +1043,19 @@ const AddResident = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="text"
                                         autoComplete="off"
-                                        id="fullAddress"
+                                        id="address"
                                         placeholder="Enter full address"
                                         className={
                                             styles.inputField
                                         }
-                                        value={fullAddress}
+                                        value={
+                                            address
+                                        }
                                         onChange={(e) =>
-                                            setFullAddress(
+                                            setAddress(
                                                 e.target.value.slice(
                                                     0,
                                                     250
@@ -534,23 +1064,25 @@ const AddResident = () => {
                                         }
                                     />
 
-                                    {errors.fullAddress && (
+                                    {errors.address && (
                                         <p
                                             className={
                                                 styles.error
                                             }
                                         >
                                             {
-                                                errors.fullAddress
+                                                errors.address
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* Monthly Session Allocation */}
+                        {/* =================================================
+                            MONTHLY SESSION ALLOCATION
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
                                 htmlFor="monthlySessionAllocation"
@@ -563,9 +1095,9 @@ const AddResident = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="text"
+                                        inputMode="numeric"
                                         autoComplete="off"
                                         id="monthlySessionAllocation"
                                         placeholder="Monthly Session Allocation"
@@ -602,15 +1134,17 @@ const AddResident = () => {
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* Allocated Time In Minute */}
+                        {/* =================================================
+                            ALLOCATED TIME
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
-                                htmlFor="allocatedTimeInMinute"
+                                htmlFor="allotedTime"
                                 className={
                                     styles.labelText
                                 }
@@ -620,17 +1154,17 @@ const AddResident = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="text"
+                                        inputMode="numeric"
                                         autoComplete="off"
-                                        id="allocatedTimeInMinute"
+                                        id="allotedTime"
                                         placeholder="Allocated Time"
                                         className={
                                             styles.inputField
                                         }
                                         value={
-                                            allocatedTimeInMinute
+                                            allotedTime
                                         }
                                         onChange={(e) => {
                                             const value =
@@ -641,33 +1175,35 @@ const AddResident = () => {
                                                     value
                                                 )
                                             ) {
-                                                setAllocatedTimeInMinute(
+                                                setAllotedTime(
                                                     value
                                                 );
                                             }
                                         }}
                                     />
 
-                                    {errors.allocatedTimeInMinute && (
+                                    {errors.allotedTime && (
                                         <p
                                             className={
                                                 styles.error
                                             }
                                         >
                                             {
-                                                errors.allocatedTimeInMinute
+                                                errors.allotedTime
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* kWh Allocation/Month */}
+                        {/* =================================================
+                            KWH
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
-                                htmlFor="kwhAllocationPerMonth"
+                                htmlFor="kwhAllocated"
                                 className={
                                     styles.labelText
                                 }
@@ -677,17 +1213,17 @@ const AddResident = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="text"
+                                        inputMode="decimal"
                                         autoComplete="off"
-                                        id="kwhAllocationPerMonth"
+                                        id="kwhAllocated"
                                         placeholder="kWh Allocation/Month"
                                         className={
                                             styles.inputField
                                         }
                                         value={
-                                            kwhAllocationPerMonth
+                                            kwhAllocated
                                         }
                                         onChange={(e) => {
                                             const value =
@@ -698,30 +1234,32 @@ const AddResident = () => {
                                                     value
                                                 )
                                             ) {
-                                                setKwhAllocationPerMonth(
+                                                setKwhAllocated(
                                                     value
                                                 );
                                             }
                                         }}
                                     />
 
-                                    {errors.kwhAllocationPerMonth && (
+                                    {errors.kwhAllocated && (
                                         <p
                                             className={
                                                 styles.error
                                             }
                                         >
                                             {
-                                                errors.kwhAllocationPerMonth
+                                                errors.kwhAllocated
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* Per kWh Charge */}
+                        {/* =================================================
+                            PER KWH CHARGE
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
                                 htmlFor="perKwhCharge"
@@ -729,21 +1267,23 @@ const AddResident = () => {
                                     styles.labelText
                                 }
                             >
-                                Per kWh charge (AED)
+                                Per kWh Charge (AED)
                             </label>
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="text"
+                                        inputMode="decimal"
                                         autoComplete="off"
                                         id="perKwhCharge"
-                                        placeholder="Per kWh charge (AED)"
+                                        placeholder="Per kWh Charge (AED)"
                                         className={
                                             styles.inputField
                                         }
-                                        value={perKwhCharge}
+                                        value={
+                                            perKwhCharge
+                                        }
                                         onChange={(e) => {
                                             const value =
                                                 e.target.value;
@@ -771,15 +1311,17 @@ const AddResident = () => {
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
 
-                        {/* Extra Charge */}
+                        {/* =================================================
+                            EXTRA CHARGE
+                        ================================================= */}
+
                         <div className="col-lg-6">
                             <label
-                                htmlFor="extraChargePerMin"
+                                htmlFor="extraCharge"
                                 className={
                                     styles.labelText
                                 }
@@ -789,16 +1331,18 @@ const AddResident = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
                                     <input
                                         type="text"
+                                        inputMode="decimal"
                                         autoComplete="off"
-                                        id="extraChargePerMin"
+                                        id="extraCharge"
                                         placeholder="Extra Charge/Min Over Allocated Time (AED)"
                                         className={
                                             styles.inputField
                                         }
-                                        value={extraChargePerMin}
+                                        value={
+                                            extraCharge
+                                        }
                                         onChange={(e) => {
                                             const value =
                                                 e.target.value;
@@ -808,29 +1352,27 @@ const AddResident = () => {
                                                     value
                                                 )
                                             ) {
-                                                setExtraChargePerMin(
+                                                setExtraCharge(
                                                     value
                                                 );
                                             }
                                         }}
                                     />
 
-                                    {errors.extraChargePerMin && (
+                                    {errors.extraCharge && (
                                         <p
                                             className={
                                                 styles.error
                                             }
                                         >
                                             {
-                                                errors.extraChargePerMin
+                                                errors.extraCharge
                                             }
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     {/* =====================================================
@@ -842,19 +1384,22 @@ const AddResident = () => {
                             styles.editButton
                         }
                     >
-
                         <button
                             type="button"
                             className={
                                 styles.editCancelBtn
                             }
-                            onClick={handleCancel}
+                            onClick={
+                                handleCancel
+                            }
                         >
                             Cancel
                         </button>
 
                         <button
-                            disabled={loading}
+                            disabled={
+                                loading
+                            }
                             type="submit"
                             className={
                                 styles.editSubmitBtn
@@ -869,9 +1414,7 @@ const AddResident = () => {
                                 "Add Resident"
                             )}
                         </button>
-
                     </div>
-
                 </form>
             </div>
         </div>

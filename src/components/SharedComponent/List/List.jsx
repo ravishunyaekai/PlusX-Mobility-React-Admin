@@ -280,10 +280,10 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     {pageHeading === 'Total Community List' && (
                                         <>
                                             {access.includes('edit') && (
-                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/community/edit-community', data.offer_id)} />
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/community/edit-community', data.community_id)} />
                                             )}
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/community-details', data.offer_id)} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/community-details', data.community_id)} />
                                             )}
                                         </>
                                     )}

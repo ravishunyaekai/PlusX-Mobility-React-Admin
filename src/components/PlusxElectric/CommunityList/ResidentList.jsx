@@ -1,43 +1,55 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import styles from './PublicCharger.module.css';
+
 import List from '../../SharedComponent/List/List';
 import SubHeader from '../../SharedComponent/SubHeader/SubHeader';
-import Pagination from '../../SharedComponent/Pagination/Pagination'
+import Pagination from '../../SharedComponent/Pagination/Pagination';
 import { postRequestWithToken } from '../../../api/Requests';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from "../../SharedComponent/Loader/Loader";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList';
 
-const dynamicFilters = [
-    // { label: 'Name', name: 'search', type: 'text' },
-]
+const dynamicFilters = [];
 
 const PublicResidentList = () => {
-    const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+    const userDetails = JSON.parse(
+        sessionStorage.getItem('userDetails')
+    );
+
     const navigate = useNavigate();
-    const [stationList, setStationList] = useState([]);
+
+    const [residentList, setResidentList] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(null);
-    const [filters, setFilters] = useState({ start_date: null, end_date: null });
-    const [refresh, setRefresh] = useState(false);
+
+    const [filters, setFilters] = useState({
+        start_date: null,
+        end_date: null
+    });
+
     const [loading, setLoading] = useState(false);
+
     const searchTerm = [
         {
             label: 'search',
             name: 'search_text',
             type: 'text'
         }
-    ]
+    ];
+
     const addButtonProps = {
         heading: "Add Resident",
         link: "/electric/community/add-resident"
     };
 
     const fetchList = (page, appliedFilters = {}) => {
-        if (page === 1 && Object.keys(appliedFilters).length === 0) {
+
+        if (
+            page === 1 &&
+            Object.keys(appliedFilters).length === 0
+        ) {
             setLoading(false);
         } else {
             setLoading(true);
@@ -48,114 +60,217 @@ const PublicResidentList = () => {
             email: userDetails?.email,
             page_no: page,
             ...appliedFilters,
-        }
+        };
 
-        postRequestWithToken('public-charger-station-list', obj, async (response) => {
-            if (response.code === 200) {
-                setStationList(response?.data)
-                setTotalPages(response?.total_page || 1);
-                setTotalCount(response?.total || 0)
-            } else {
-                // toast(response.message, {type:'error'})
-                console.log('error in public-charger-station-list api', response);
+        postRequestWithToken(
+            'resident-list',
+            obj,
+            async (response) => {
+
+                if (response.code === 200) {
+
+                    setResidentList(
+                        response?.data || []
+                    );
+
+                    setTotalPages(
+                        response?.total_page || 1
+                    );
+
+                    setTotalCount(
+                        response?.total || 0
+                    );
+
+                } else {
+
+                    console.log(
+                        'error in resident-list api',
+                        response
+                    );
+
+                    setResidentList([]);
+                    setTotalPages(1);
+                    setTotalCount(0);
+                }
+
+                setLoading(false);
             }
-            setLoading(false);
-        })
-    }
+        );
+    };
 
     useEffect(() => {
-        if (!userDetails || !userDetails.access_token) {
+
+        if (
+            !userDetails ||
+            !userDetails.access_token
+        ) {
             navigate('/login');
             return;
         }
-        fetchList(currentPage, filters);
+
+        fetchList(
+            currentPage,
+            filters
+        );
+
     }, [currentPage, filters]);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
+
     const fetchFilteredData = (newFilters = {}) => {
         setFilters(newFilters);
         setCurrentPage(1);
     };
 
-    const handleDeleteSlot = (stationId) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this?");
-        if (confirmDelete) {
-            const obj = {
-                userId: userDetails?.user_id,
-                email: userDetails?.email,
-                station_id: stationId
-            };
-            postRequestWithToken('public-chargers-delete', obj, async (response) => {
+    const handleDeleteResident = (residentId) => {
+
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this resident?"
+        );
+
+        if (!confirmDelete) {
+            return;
+        }
+
+        const obj = {
+            userId: userDetails?.user_id,
+            email: userDetails?.email,
+            resident_id: residentId
+        };
+
+        postRequestWithToken(
+            'resident-delete',
+            obj,
+            async (response) => {
+
                 if (response.code === 200) {
-                    // setRefresh(prev => !prev);
-                    toast(response.message, { type: "success" });
+
+                    toast(
+                        response.message,
+                        { type: "success" }
+                    );
 
                     setTimeout(() => {
-                        fetchList(currentPage);
+                        fetchList(
+                            currentPage,
+                            filters
+                        );
                     }, 1000);
+
                 } else {
-                    toast(response.message, { type: 'error' });
-                    console.log('error in delete-charger-slot api', response);
+
+                    toast(
+                        response.message,
+                        { type: 'error' }
+                    );
+
+                    console.log(
+                        'error in resident-delete api',
+                        response
+                    );
                 }
-            });
-        }
+            }
+        );
     };
 
     return (
         <div className='main-container'>
+
             <ToastContainer />
-            <SubHeader heading="Total Resident List"
+
+            <SubHeader
+                heading="Total Resident List"
                 addButtonProps={addButtonProps}
                 fetchFilteredData={fetchFilteredData}
-                dynamicFilters={dynamicFilters} filterValues={filters}
+                dynamicFilters={dynamicFilters}
+                filterValues={filters}
                 searchTerm={searchTerm}
                 count={totalCount}
             />
 
-            {loading ? <Loader /> :
-                stationList.length === 0 ? (
-                    <EmptyList
-                        tableHeaders={["Resident Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
-                        message="No data available"
-                    />
-                ) : (
-                    <>
-                        <List
-                            tableHeaders={["Resident Id", "Resident Name", "Session Allocated", "Session Used", "kWh", "kWh Used", "Action"]}
-                            listData={stationList}
-                            pageHeading="Total Resident List"
-                            onDeleteSlot={handleDeleteSlot}
-                            keyMapping={[
-                                { key: 'station_id', label: 'Resident Id' },
-                                { key: 'station_name', label: 'Resident Name' },
-                                { key: 'charging_for', label: 'Session Allocated' },
-                                { key: 'charger_type', label: 'Session Used' },
-                                {
-                                    key: 'price',
-                                    label: 'kWh',
-                                    format: (price) => (price ? `INR ${price}` : '')
-                                },
-                                {
-                                    key: 'price',
-                                    label: 'kWh Used',
-                                    format: (price) => (price ? `INR ${price}` : '')
-                                },
-                                // {
-                                //     key: 'address',
-                                //     label: 'Address',
-                                // },
-                            ]}
-                        />
+            {loading ? (
 
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    </>
-                )}
+                <Loader />
+
+            ) : residentList.length === 0 ? (
+
+                <EmptyList
+                    tableHeaders={[
+                        "Resident Id",
+                        "Resident Name",
+                        "Session Allocated",
+                        "Session Used",
+                        "kWh",
+                        "kWh Used",
+                        "Action"
+                    ]}
+                    message="No data available"
+                />
+
+            ) : (
+
+                <>
+                    <List
+                        tableHeaders={[
+                            "Resident Id",
+                            "Resident Name",
+                            "Session Allocated",
+                            "Session Used",
+                            "kWh",
+                            "kWh Used",
+                            "Action"
+                        ]}
+                        listData={residentList}
+                        pageHeading="Total Resident List"
+                        onDeleteSlot={handleDeleteResident}
+
+                        keyMapping={[
+                            {
+                                key: 'resident_id',
+                                label: 'Resident Id'
+                            },
+                            {
+                                key: 'resident_name',
+                                label: 'Resident Name'
+                            },
+                            {
+                                key: 'monthly_session_allocation',
+                                label: 'Session Allocated',
+                                format: (value) =>
+                                    value ?? 0
+                            },
+                            {
+                                key: 'session_used',
+                                label: 'Session Used',
+                                format: (value) =>
+                                    value ?? 0
+                            },
+                            {
+                                key: 'kwh_allocated',
+                                label: 'kWh',
+                                format: (value) =>
+                                    value ?? 0
+                            },
+                            {
+                                key: 'kwh_used',
+                                label: 'kWh Used',
+                                format: (value) =>
+                                    value ?? 0
+                            }
+                        ]}
+                    />
+
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                </>
+
+            )}
+
         </div>
     );
 };
