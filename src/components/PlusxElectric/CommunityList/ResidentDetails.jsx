@@ -12,6 +12,10 @@ import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 import Loader from '../../SharedComponent/Loader/Loader.jsx';
+import SubHeader from '../../SharedComponent/SubHeader/SubHeader.jsx';
+import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
+import List from '../../SharedComponent/List/List.jsx';
+import Pagination from '../../SharedComponent/Pagination/Pagination.jsx';
 
 const ResidentDetails = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
@@ -20,6 +24,13 @@ const ResidentDetails = () => {
 
     const [bookingDetails, setBookingDetails] = useState({});
     const [loading, setLoading] = useState(false);
+    const [totalCount, setTotalCount] = useState(null);
+    const [totalCount2, setTotalCount2] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [imageGallery, setImageGallery] = useState();
+    const [imageGalleryId, setImageGalleryId] = useState();
+    const [baseUrl, setBaseUrl] = useState();
 
     const fetchDetails = () => {
         setLoading(true);
@@ -147,6 +158,76 @@ const ResidentDetails = () => {
                             type='residentDetails'
                         />
                     </div>
+                    <SubHeader heading="Total Session History"
+                        // addButtonProps={addButtonProps}
+                        // fetchFilteredData={fetchFilteredData}
+                        // dynamicFilters={dynamicFilters} filterValues={filters}
+                        // searchTerm={searchTerm}
+                        count={totalCount}
+                    />
+                    {
+                        [].length === 0 ? (
+                            <EmptyList
+                                tableHeaders={["Date", "Session Id", "Resident Name", "Area", "Charger Id", "KWh Used", "Duration (In Min.)", "Status", "Action"]}
+                                message="No data available"
+                            />
+                        ) : (
+                            <>
+                                <List
+                                    tableHeaders={["Date", "Session Id", "Resident Name", "Area", "Charger Id", "KWh Used", "Duration (In Min.)", "Status", "Action"]}
+                                    listData={[]}
+                                    pageHeading="Total Session History"
+                                    onDeleteSlot={{}}
+                                    keyMapping={[
+                                        { key: 'station_name', label: 'Sr No' },
+                                        { key: 'charging_for', label: 'Charger Id' },
+                                        { key: 'charger_type', label: 'KW' },
+                                    ]}
+                                />
+
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={{}}
+                                />
+                            </>
+                        )
+                    }
+                    <SubHeader heading="Total Invoice History"
+                        // addButtonProps={addButtonProps}
+                        // fetchFilteredData={fetchFilteredData}
+                        // dynamicFilters={dynamicFilters} filterValues={filters}
+                        // searchTerm={searchTerm}
+                        count={totalCount2}
+                    />
+                    {
+                        [].length === 0 ? (
+                            <EmptyList
+                                tableHeaders={["Sr No", "Redident Id", "Mobile", "Email", "Session Allocated", "Session Used", "kWh Allocated", "kWh Used", "Action"]}
+                                message="No data available"
+                            />
+                        ) : (
+                            <>
+                                <List
+                                    tableHeaders={["Sr No", "Redident Id", "Mobile", "Email", "Session Allocated", "Session Used", "kWh Allocated", "kWh Used", "Action"]}
+                                    listData={[]}
+                                    pageHeading="Charger List"
+                                    onDeleteSlot={{}}
+                                    keyMapping={[
+                                        { key: 'station_name', label: 'Sr No' },
+                                        { key: 'charging_for', label: 'Charger Id' },
+                                        { key: 'charger_type', label: 'KW' },
+                                    ]}
+                                />
+
+                                <Pagination
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    onPageChange={{}}
+                                />
+                            </>
+                        )
+                    }
                 </>
             )}
         </div>

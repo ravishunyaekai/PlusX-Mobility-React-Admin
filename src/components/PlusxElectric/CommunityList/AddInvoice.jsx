@@ -1,6 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+
+import {
+    toast,
+    ToastContainer,
+} from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 
 import {
@@ -8,6 +13,9 @@ import {
 } from "../../../api/Requests";
 
 import styles from "./AddCommunity.module.css";
+
+import CustomDropdown, { CustomDropdownForResidents } from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
+
 
 const AddInvoice = () => {
     const navigate = useNavigate();
@@ -17,38 +25,101 @@ const AddInvoice = () => {
     );
 
     // =========================================================
-    // FORM STATE
+    // COMMUNITY
     // =========================================================
 
-    const [community, setCommunity] = useState("");
-    const [area, setArea] = useState("");
+    const [community, setCommunity] = useState(null);
 
-    const [residentId, setResidentId] = useState("");
-    const [residentName, setResidentName] = useState("");
+    const [communityOptions, setCommunityOptions] =
+        useState([]);
 
-    const [billingMonth, setBillingMonth] = useState(() => {
-        const date = new Date();
+    const [communityLoading, setCommunityLoading] =
+        useState(false);
 
-        return date.toLocaleString("en-US", {
-            month: "long",
-            year: "numeric",
+
+    // =========================================================
+    // AREA
+    // =========================================================
+
+    const [area, setArea] = useState(null);
+
+    const [areaOptions, setAreaOptions] =
+        useState([]);
+
+    const [areaLoading, setAreaLoading] =
+        useState(false);
+
+
+    // =========================================================
+    // RESIDENT
+    // =========================================================
+
+    const [resident, setResident] = useState(null);
+
+    const [residentOptions, setResidentOptions] =
+        useState([]);
+
+    const [residentLoading, setResidentLoading] =
+        useState(false);
+
+    const [residentSearch, setResidentSearch] =
+        useState("");
+
+    /*
+     * Used to prevent unnecessary duplicate API calls
+     * when react-select fires onInputChange multiple times.
+     */
+    const residentSearchRef = useRef("");
+
+
+    // =========================================================
+    // BILLING MONTH
+    // =========================================================
+
+    const [billingMonth, setBillingMonth] =
+        useState(() => {
+            const date = new Date();
+
+            const year =
+                date.getFullYear();
+
+            const month =
+                String(
+                    date.getMonth() + 1
+                ).padStart(2, "0");
+
+            return `${year}-${month}`;
         });
-    });
+
 
     // =========================================================
     // INVOICE DETAILS
     // =========================================================
 
-    const [invoiceData, setInvoiceData] = useState({
-        residentName: "",
-        kwhUsed: "",
-        kwhAllocated: "",
-        energyCharge: "",
-        overTime: "",
-    });
+    const [invoiceData, setInvoiceData] =
+        useState({
+            residentName: "",
+            kwhUsed: "",
+            kwhAllocated: "",
+            energyCharge: "",
+            overTime: "",
+            totalAmount: "",
+        });
 
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
+
+    // =========================================================
+    // GENERAL STATE
+    // =========================================================
+
+    const [errors, setErrors] =
+        useState({});
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [invoiceLoading, setInvoiceLoading] =
+        useState(false);
+
 
     // =========================================================
     // AUTHENTICATION
@@ -61,27 +132,660 @@ const AddInvoice = () => {
         ) {
             navigate("/login");
         }
-    }, [navigate, userDetails]);
+    }, [navigate]);
+
 
     // =========================================================
-    // COMMUNITY
+    // CLEAR INVOICE DATA
     // =========================================================
 
-    const handleCommunityChange = (e) => {
-        setCommunity(e.target.value);
+    const clearInvoiceData = () => {
+        setInvoiceData({
+            residentName: "",
+            kwhUsed: "",
+            kwhAllocated: "",
+            energyCharge: "",
+            overTime: "",
+            totalAmount: "",
+        });
+    };
+
+
+    // =========================================================
+    // GET ALL COMMUNITY LIST
+    // =========================================================
+
+    const getAllCommunityList = () => {
+        if (!userDetails?.user_id) {
+            return;
+        }
+
+        setCommunityLoading(true);
+
+        const obj = {
+            userId:
+                userDetails.user_id,
+
+            email:
+                userDetails.email,
+        };
+
+        console.log(
+            "all-community-list request:",
+            obj
+        );
+
+        postRequestWithToken(
+            "all-community-list",
+            obj,
+            (response) => {
+                console.log(
+                    "all-community-list response:",
+                    response
+                );
+
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
+                    const options =
+                        Array.isArray(
+                            response?.data
+                        )
+                            ? response.data
+                            : [];
+
+                    setCommunityOptions(
+                        options
+                    );
+                } else {
+                    setCommunityOptions([]);
+
+                    toast.error(
+                        response?.message ||
+                        "Unable to fetch community list."
+                    );
+                }
+
+                setCommunityLoading(false);
+            }
+        );
+    };
+
+
+    // =========================================================
+    // GET COMMUNITY AREA LIST
+    // =========================================================
+
+    const getCommunityAreaList = (
+        selectedCommunity
+    ) => {
+        if (
+            !selectedCommunity?.label ||
+            !userDetails?.user_id
+        ) {
+            setAreaOptions([]);
+            setArea(null);
+
+            return;
+        }
+
+        setAreaLoading(true);
+
+        setArea(null);
+        setAreaOptions([]);
+
+        const obj = {
+            userId:
+                userDetails.user_id,
+
+            email:
+                userDetails.email,
+
+            community:
+                selectedCommunity.label,
+        };
+
+        console.log(
+            "community-area-list request:",
+            obj
+        );
+
+        postRequestWithToken(
+            "community-area-list",
+            obj,
+            (response) => {
+                console.log(
+                    "community-area-list response:",
+                    response
+                );
+
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
+                    const options =
+                        Array.isArray(
+                            response?.data
+                        )
+                            ? response.data
+                            : [];
+
+                    setAreaOptions(
+                        options
+                    );
+
+                    if (
+                        options.length === 0
+                    ) {
+                        toast.info(
+                            "No areas found for this community."
+                        );
+                    }
+                } else {
+                    setAreaOptions([]);
+                    setArea(null);
+
+                    toast.error(
+                        response?.message ||
+                        "Unable to fetch area list."
+                    );
+                }
+
+                setAreaLoading(false);
+            }
+        );
+    };
+
+
+    // =========================================================
+    // RESIDENT SEARCH API
+    // =========================================================
+
+    const searchResidents = (
+        searchValue
+    ) => {
+        if (
+            !community?.value ||
+            !userDetails?.user_id
+        ) {
+            setResidentOptions([]);
+
+            return;
+        }
+
+        const search =
+            searchValue?.trim() || "";
+
+        /*
+         * Don't search with empty value.
+         */
+        if (!search) {
+            setResidentOptions([]);
+
+            return;
+        }
+
+        /*
+         * Prevent duplicate request for exactly
+         * the same search text.
+         */
+        if (
+            residentSearchRef.current ===
+            search
+        ) {
+            return;
+        }
+
+        residentSearchRef.current =
+            search;
+
+        setResidentLoading(true);
+
+        const obj = {
+            userId:
+                userDetails.user_id,
+
+            email:
+                userDetails.email,
+
+            search,
+
+            community_id:
+                community.value,
+        };
+
+        console.log(
+            "resident-search request:",
+            obj
+        );
+
+        postRequestWithToken(
+            "resident-search",
+            obj,
+            (response) => {
+                console.log(
+                    "resident-search response:",
+                    response
+                );
+
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
+                    const residents =
+                        Array.isArray(
+                            response?.data
+                        )
+                            ? response.data
+                            : [];
+
+                    /*
+                     * Convert backend residents
+                     * into react-select options.
+                     */
+                    // const options =
+                    //     residents.map(
+                    //         (item) => ({
+                    //             value:
+                    //                 item.resident_id,
+
+                    //             label:
+                    //                 `${item.resident_id} - ${item.resident_name} - ${item.resident_mobile}`,
+
+                    //             resident_id:
+                    //                 item.resident_id,
+
+                    //             resident_name:
+                    //                 item.resident_name,
+
+                    //             resident_mobile:
+                    //                 item.resident_mobile,
+
+                    //             residentData:
+                    //                 item,
+                    //         })
+                    //     );
+                    const options = residents.map((item) => ({
+                        value: item.resident_id,
+
+                        label: item.resident_id,
+
+                        resident_id: item.resident_id,
+                        resident_name: item.resident_name,
+                        resident_mobile: item.resident_mobile,
+
+                        residentData: item,
+                    }));
+
+                    setResidentOptions(
+                        options
+                    );
+                } else {
+                    setResidentOptions([]);
+
+                    if (
+                        response?.message
+                    ) {
+                        toast.error(
+                            response.message
+                        );
+                    }
+                }
+
+                setResidentLoading(false);
+            }
+        );
+    };
+
+
+    // =========================================================
+    // RESIDENT SEARCH INPUT CHANGE
+    // =========================================================
+
+    const handleResidentSearch = (
+        inputValue,
+        actionMeta
+    ) => {
+        /*
+         * Only perform API search when the user
+         * actually types something.
+         */
+        if (
+            actionMeta?.action !== "input-change"
+        ) {
+            return inputValue;
+        }
+
+        const value = inputValue || "";
+
+        setResidentSearch(value);
+
+        /*
+         * IMPORTANT:
+         *
+         * react-select automatically clears its internal
+         * search input after an option is selected.
+         *
+         * Do NOT clear residentOptions here if a resident
+         * has already been selected.
+         */
+        if (!value.trim()) {
+            residentSearchRef.current = "";
+
+            if (!resident) {
+                setResidentOptions([]);
+            }
+
+            return value;
+        }
+
+        searchResidents(value);
+
+        return value;
+    };
+
+
+    // =========================================================
+    // RESIDENT CHANGE
+    // =========================================================
+
+    const handleResidentChange = (
+        selectedOption
+    ) => {
+        console.log(
+            "Selected Resident:",
+            selectedOption
+        );
+
+        /*
+         * Save selected resident.
+         */
+        setResident(selectedOption);
+
+        /*
+         * Clear validation errors.
+         */
+        setErrors((prev) => ({
+            ...prev,
+            resident: "",
+            residentName: "",
+        }));
+
+        /*
+         * Immediately populate resident name.
+         *
+         * This happens before the invoice API response.
+         */
+        setInvoiceData({
+            residentName:
+                selectedOption?.resident_name || "",
+
+            kwhUsed: "",
+            kwhAllocated: "",
+            energyCharge: "",
+            overTime: "",
+            totalAmount: "",
+        });
+
+        if (selectedOption) {
+
+            /*
+             * Keep selected resident in options.
+             */
+            setResidentOptions((prev) => {
+                const exists = prev.some(
+                    (item) =>
+                        item.resident_id ===
+                        selectedOption.resident_id
+                );
+
+                if (exists) {
+                    return prev;
+                }
+
+                return [
+                    selectedOption,
+                    ...prev,
+                ];
+            });
+
+            /*
+             * Fetch invoice data.
+             *
+             * IMPORTANT:
+             * Pass resident name directly.
+             * Don't wait for resident state to update.
+             */
+            if (
+                billingMonth &&
+                selectedOption.resident_mobile
+            ) {
+                getInvoiceData(
+                    billingMonth,
+                    selectedOption.resident_mobile,
+                    selectedOption.resident_name
+                );
+            }
+        }
+    };
+
+    // =========================================================
+    // GET INVOICE DATA
+    // =========================================================
+
+    const getInvoiceData = (
+        selectedMonth = billingMonth,
+        selectedResidentMobile = resident?.resident_mobile,
+        selectedResidentName = resident?.resident_name
+    ) => {
+        if (
+            !selectedMonth ||
+            !selectedResidentMobile ||
+            !userDetails?.user_id
+        ) {
+            clearInvoiceData();
+
+            return;
+        }
+
+        setInvoiceLoading(true);
+
+        /*
+         * HTML month:
+         *
+         * 2026-09
+         *
+         * Backend:
+         *
+         * 2026-09-01
+         */
+        const invoiceDate =
+            `${selectedMonth}-01`;
+
+        const obj = {
+            userId:
+                userDetails.user_id,
+
+            email:
+                userDetails.email,
+
+            resident_mobile:
+                selectedResidentMobile,
+
+            invoice_month:
+                invoiceDate,
+        };
+
+        console.log(
+            "get-invoice-data request:",
+            obj
+        );
+
+        postRequestWithToken(
+            "get-invoice-data",
+            obj,
+            (response) => {
+                console.log(
+                    "get-invoice-data response:",
+                    response
+                );
+
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
+                    const data =
+                        response?.data || {};
+
+                    /*
+                     * IMPORTANT:
+                     *
+                     * Use the resident name passed to this
+                     * function instead of resident state.
+                     *
+                     * This prevents the name from becoming
+                     * empty because setResident() is async.
+                     */
+                    const updatedResidentName =
+                        data?.resident_name ||
+                        selectedResidentName ||
+                        "";
+
+                    setInvoiceData({
+                        residentName:
+                            updatedResidentName,
+
+                        kwhUsed:
+                            data?.total_consumption ??
+                            "",
+
+                        kwhAllocated:
+                            data?.kwh_allocated ??
+                            "",
+
+                        energyCharge:
+                            data?.energy_price ??
+                            "",
+
+                        overTime:
+                            data?.extra_charge ??
+                            "",
+
+                        totalAmount:
+                            data?.total_amount ??
+                            "0.00",
+                    });
+
+                    setErrors((prev) => ({
+                        ...prev,
+
+                        residentName: "",
+                        kwhUsed: "",
+                        kwhAllocated: "",
+                        energyCharge: "",
+                        overTime: "",
+                    }));
+                } else {
+                    /*
+                     * Don't remove the selected resident name
+                     * when invoice data isn't available.
+                     */
+                    setInvoiceData({
+                        residentName:
+                            selectedResidentName || "",
+
+                        kwhUsed: "",
+                        kwhAllocated: "",
+                        energyCharge: "",
+                        overTime: "",
+                        totalAmount: "",
+                    });
+
+                    toast.error(
+                        response?.message ||
+                        "Unable to fetch invoice data."
+                    );
+                }
+
+                setInvoiceLoading(false);
+            }
+        );
+    };
+
+
+    // =========================================================
+    // LOAD COMMUNITY LIST
+    // =========================================================
+
+    useEffect(() => {
+        if (
+            userDetails?.user_id &&
+            userDetails?.access_token
+        ) {
+            getAllCommunityList();
+        }
+    }, []);
+
+
+    // =========================================================
+    // COMMUNITY CHANGE
+    // =========================================================
+
+    const handleCommunityChange = (
+        selectedOption
+    ) => {
+        console.log(
+            "Selected Community:",
+            selectedOption
+        );
+
+        setCommunity(selectedOption);
+
+        // Reset area
+        setArea(null);
+        setAreaOptions([]);
+
+        // Reset resident
+        setResident(null);
+        setResidentOptions([]);
+        setResidentSearch("");
+        residentSearchRef.current = "";
+
+        // Reset invoice
+        clearInvoiceData();
 
         setErrors((prev) => ({
             ...prev,
             community: "",
+            area: "",
+            resident: "",
+            residentName: "",
         }));
+
+        if (selectedOption) {
+            getCommunityAreaList(
+                selectedOption
+            );
+        }
     };
 
+
     // =========================================================
-    // AREA
+    // AREA CHANGE
     // =========================================================
 
-    const handleAreaChange = (e) => {
-        setArea(e.target.value);
+    const handleAreaChange = (
+        selectedOption
+    ) => {
+        console.log(
+            "Selected Area:",
+            selectedOption
+        );
+
+        setArea(
+            selectedOption
+        );
 
         setErrors((prev) => ({
             ...prev,
@@ -89,34 +793,21 @@ const AddInvoice = () => {
         }));
     };
 
-    // =========================================================
-    // RESIDENT ID
-    // =========================================================
-
-    const handleResidentIdChange = (e) => {
-        const value = e.target.value;
-
-        setResidentId(value);
-
-        setErrors((prev) => ({
-            ...prev,
-            residentId: "",
-        }));
-    };
 
     // =========================================================
-    // RESIDENT NAME
+    // RESIDENT NAME CHANGE
     // =========================================================
 
-    const handleResidentNameChange = (e) => {
-        const value = e.target.value;
+    const handleResidentNameChange = (
+        e
+    ) => {
+        const value =
+            e.target.value;
 
-        setResidentName(value);
-
-        // Keep lower invoice resident name synchronized
         setInvoiceData((prev) => ({
             ...prev,
-            residentName: value,
+            residentName:
+                value,
         }));
 
         setErrors((prev) => ({
@@ -125,11 +816,41 @@ const AddInvoice = () => {
         }));
     };
 
+
+    // =========================================================
+    // BILLING MONTH CHANGE
+    // =========================================================
+
+    const handleBillingMonthChange = (e) => {
+        const value = e.target.value;
+
+        setBillingMonth(value);
+
+        setErrors((prev) => ({
+            ...prev,
+            billingMonth: "",
+        }));
+
+        if (
+            value &&
+            resident?.resident_mobile
+        ) {
+            getInvoiceData(
+                value,
+                resident.resident_mobile,
+                resident.resident_name
+            );
+        }
+    };
+
     // =========================================================
     // INVOICE FIELD CHANGE
     // =========================================================
 
-    const handleInvoiceChange = (field, value) => {
+    const handleInvoiceChange = (
+        field,
+        value
+    ) => {
         setInvoiceData((prev) => ({
             ...prev,
             [field]: value,
@@ -141,31 +862,39 @@ const AddInvoice = () => {
         }));
     };
 
+
     // =========================================================
     // NUMERIC INPUT
     // =========================================================
 
-    const handleNumericChange = (field, value) => {
-        if (/^\d*\.?\d*$/.test(value)) {
-            handleInvoiceChange(field, value);
+    const handleNumericChange = (
+        field,
+        value
+    ) => {
+        if (
+            /^\d*\.?\d*$/.test(
+                value
+            )
+        ) {
+            handleInvoiceChange(
+                field,
+                value
+            );
         }
     };
+
 
     // =========================================================
     // TOTAL
     // =========================================================
 
     const calculateTotal = () => {
-        const energyCharge =
-            parseFloat(invoiceData.energyCharge) || 0;
-
-        const overTime =
-            parseFloat(invoiceData.overTime) || 0;
-
         return (
-            energyCharge + overTime
-        ).toFixed(2);
+            invoiceData.totalAmount ||
+            "0.00"
+        );
     };
+
 
     // =========================================================
     // VALIDATION
@@ -174,24 +903,29 @@ const AddInvoice = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!community.trim()) {
+        if (!community?.value) {
             newErrors.community =
                 "Community is required.";
         }
 
-        if (!area.trim()) {
+        if (!area?.value) {
             newErrors.area =
                 "Area is required.";
         }
 
-        if (!residentId.trim()) {
-            newErrors.residentId =
-                "Resident ID is required.";
+        if (!resident?.resident_id) {
+            newErrors.resident =
+                "Resident is required.";
         }
 
-        if (!residentName.trim()) {
+        if (!invoiceData.residentName?.trim()) {
             newErrors.residentName =
                 "Resident Name is required.";
+        }
+
+        if (!billingMonth) {
+            newErrors.billingMonth =
+                "Billing Month is required.";
         }
 
         if (!invoiceData.kwhUsed) {
@@ -214,47 +948,80 @@ const AddInvoice = () => {
                 "Over Time is required.";
         }
 
-        setErrors(newErrors);
+        setErrors(
+            newErrors
+        );
 
         return (
-            Object.keys(newErrors).length === 0
+            Object.keys(
+                newErrors
+            ).length === 0
         );
     };
+
 
     // =========================================================
     // SUBMIT
     // =========================================================
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (
+        e
+    ) => {
         e.preventDefault();
 
         if (!validateForm()) {
             toast.error(
                 "Some fields are missing."
             );
+
             return;
         }
 
         setLoading(true);
 
+        const invoiceDate =
+            `${billingMonth}-01`;
+
         const payload = {
             userId:
-                userDetails?.user_id || "",
+                userDetails?.user_id ||
+                "",
 
             email:
-                userDetails?.email || "",
+                userDetails?.email ||
+                "",
 
-            community,
-            area,
+            community:
+                community?.value ||
+                "",
 
+            area:
+                area?.value ||
+                "",
+
+            /*
+             * Actual resident ID.
+             */
             resident_id:
-                residentId,
+                resident?.resident_id ||
+                "",
+
+            /*
+             * Resident mobile can also be
+             * sent if your create-invoice
+             * API needs it.
+             */
+            resident_mobile:
+                resident?.resident_mobile ||
+                "",
 
             resident_name:
-                residentName,
+                invoiceData.residentName ||
+                resident?.resident_name ||
+                "",
 
             billing_month:
-                billingMonth,
+                invoiceDate,
 
             kwh_used:
                 invoiceData.kwhUsed,
@@ -277,8 +1044,9 @@ const AddInvoice = () => {
             payload
         );
 
+
         // =====================================================
-        // CONNECT YOUR ACTUAL API HERE
+        // CREATE INVOICE API
         // =====================================================
 
         /*
@@ -286,11 +1054,17 @@ const AddInvoice = () => {
             "create-invoice",
             payload,
             (response) => {
+                console.log(
+                    "create-invoice response:",
+                    response
+                );
 
-                if (response.status === 1) {
-
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
                     toast.success(
-                        response.message ||
+                        response?.message ||
                         "Invoice created successfully."
                     );
 
@@ -300,13 +1074,10 @@ const AddInvoice = () => {
                         navigate(
                             "/electric/community-charger/invoice"
                         );
-
                     }, 1000);
-
                 } else {
-
                     toast.error(
-                        response.message ||
+                        response?.message ||
                         "Something went wrong."
                     );
 
@@ -316,7 +1087,8 @@ const AddInvoice = () => {
         );
         */
 
-        // Temporary success for UI testing
+
+        // Temporary UI testing
         setTimeout(() => {
             setLoading(false);
 
@@ -326,6 +1098,7 @@ const AddInvoice = () => {
         }, 500);
     };
 
+
     // =========================================================
     // CANCEL
     // =========================================================
@@ -333,6 +1106,7 @@ const AddInvoice = () => {
     const handleCancel = () => {
         navigate(-1);
     };
+
 
     // =========================================================
     // UI
@@ -344,7 +1118,6 @@ const AddInvoice = () => {
                 styles.addStationContainer
             }
         >
-
             <ToastContainer />
 
             {/* =================================================
@@ -369,12 +1142,13 @@ const AddInvoice = () => {
                     styles.addStationFormSection
                 }
             >
-
                 <form
                     className={
                         styles.formSection
                     }
-                    onSubmit={handleSubmit}
+                    onSubmit={
+                        handleSubmit
+                    }
                 >
 
                     {/* =================================================
@@ -387,14 +1161,13 @@ const AddInvoice = () => {
                         }
                     >
 
-                        {/* Community */}
+                        {/* COMMUNITY */}
 
                         <div
                             className={
                                 styles.invoiceField
                             }
                         >
-
                             <label
                                 htmlFor="community"
                                 className={
@@ -404,30 +1177,21 @@ const AddInvoice = () => {
                                 Community
                             </label>
 
-                            <select
-                                id="community"
-                                value={community}
+                            <CustomDropdown
+                                options={
+                                    communityOptions
+                                }
+                                value={
+                                    community
+                                }
                                 onChange={
                                     handleCommunityChange
                                 }
-                                className={
-                                    styles.inputField
+                                placeholder="Select Community"
+                                isLoading={
+                                    communityLoading
                                 }
-                            >
-
-                                <option value="">
-                                    Select Community
-                                </option>
-
-                                <option value="Community 1">
-                                    Community 1
-                                </option>
-
-                                <option value="Community 2">
-                                    Community 2
-                                </option>
-
-                            </select>
+                            />
 
                             {errors.community && (
                                 <p
@@ -440,18 +1204,16 @@ const AddInvoice = () => {
                                     }
                                 </p>
                             )}
-
                         </div>
 
 
-                        {/* Area */}
+                        {/* AREA */}
 
                         <div
                             className={
                                 styles.invoiceField
                             }
                         >
-
                             <label
                                 htmlFor="area"
                                 className={
@@ -461,30 +1223,29 @@ const AddInvoice = () => {
                                 Area
                             </label>
 
-                            <select
-                                id="area"
-                                value={area}
+                            <CustomDropdown
+                                options={
+                                    areaOptions
+                                }
+                                value={
+                                    area
+                                }
                                 onChange={
                                     handleAreaChange
                                 }
-                                className={
-                                    styles.inputField
+                                placeholder={
+                                    community
+                                        ? "Select Area"
+                                        : "Select Community First"
                                 }
-                            >
-
-                                <option value="">
-                                    Select Area
-                                </option>
-
-                                <option value="Area 1">
-                                    Area 1
-                                </option>
-
-                                <option value="Area 2">
-                                    Area 2
-                                </option>
-
-                            </select>
+                                isLoading={
+                                    areaLoading
+                                }
+                                isDisabled={
+                                    !community ||
+                                    areaLoading
+                                }
+                            />
 
                             {errors.area && (
                                 <p
@@ -492,17 +1253,17 @@ const AddInvoice = () => {
                                         styles.error
                                     }
                                 >
-                                    {errors.area}
+                                    {
+                                        errors.area
+                                    }
                                 </p>
                             )}
-
                         </div>
-
                     </div>
 
 
                     {/* =================================================
-                        RESIDENT ID + RESIDENT NAME + BILLING MONTH
+                        RESIDENT + BILLING MONTH
                     ================================================== */}
 
                     <div
@@ -511,60 +1272,73 @@ const AddInvoice = () => {
                         }
                     >
 
-                        {/* Resident ID */}
+                        {/* =================================================
+                            RESIDENT DROPDOWN
+                        ================================================= */}
 
                         <div
                             className={
                                 styles.invoiceField
                             }
                         >
-
                             <label
-                                htmlFor="residentId"
+                                htmlFor="resident"
                                 className={
                                     styles.labelText
                                 }
                             >
-                                Resident ID
+                                Resident
                             </label>
 
-                            <input
-                                type="text"
-                                id="residentId"
-                                autoComplete="off"
-                                placeholder="Search resident ID..."
-                                value={residentId}
-                                onChange={
-                                    handleResidentIdChange
+                            <CustomDropdownForResidents
+                                options={
+                                    residentOptions
                                 }
-                                className={
-                                    styles.inputField
+                                value={
+                                    resident
+                                }
+                                onChange={
+                                    handleResidentChange
+                                }
+                                onInputChange={
+                                    handleResidentSearch
+                                }
+                                placeholder={
+                                    community
+                                        ? "Search Resident ID / Name / Mobile"
+                                        : "Select Community First"
+                                }
+                                isLoading={
+                                    residentLoading
+                                }
+                                isDisabled={
+                                    !community
                                 }
                             />
 
-                            {errors.residentId && (
+                            {errors.resident && (
                                 <p
                                     className={
                                         styles.error
                                     }
                                 >
                                     {
-                                        errors.residentId
+                                        errors.resident
                                     }
                                 </p>
                             )}
-
                         </div>
 
 
-                        {/* Resident Name */}
+                        {/* =================================================
+                            RESIDENT NAME
+                        ================================================= */}
 
                         <div
                             className={
                                 styles.invoiceField
                             }
                         >
-
                             <label
                                 htmlFor="residentName"
                                 className={
@@ -578,8 +1352,10 @@ const AddInvoice = () => {
                                 type="text"
                                 id="residentName"
                                 autoComplete="off"
-                                placeholder="Search resident name..."
-                                value={residentName}
+                                placeholder="Resident Name"
+                                value={
+                                    invoiceData.residentName
+                                }
                                 onChange={
                                     handleResidentNameChange
                                 }
@@ -599,18 +1375,18 @@ const AddInvoice = () => {
                                     }
                                 </p>
                             )}
-
                         </div>
 
 
-                        {/* Billing Month */}
+                        {/* =================================================
+                            BILLING MONTH
+                        ================================================= */}
 
                         <div
                             className={
                                 styles.invoiceField
                             }
                         >
-
                             <label
                                 htmlFor="billingMonth"
                                 className={
@@ -621,24 +1397,37 @@ const AddInvoice = () => {
                             </label>
 
                             <input
-                                type="text"
+                                type="month"
                                 id="billingMonth"
-                                value={billingMonth}
-                                placeholder="Billing Month"
-                                readOnly
+                                value={
+                                    billingMonth
+                                }
+                                onChange={
+                                    handleBillingMonthChange
+                                }
                                 className={
                                     styles.inputField
                                 }
                             />
 
+                            {errors.billingMonth && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.billingMonth
+                                    }
+                                </p>
+                            )}
                         </div>
-
                     </div>
 
 
                     {/* =================================================
-                        INVOICE DETAILS BOX
-                    ================================================== */}
+                        INVOICE DETAILS
+                    ================================================= */}
 
                     <div
                         className={
@@ -646,16 +1435,13 @@ const AddInvoice = () => {
                         }
                     >
 
-                        {/* =================================================
-                            RESIDENT NAME
-                        ================================================== */}
+                        {/* RESIDENT NAME */}
 
                         <div
                             className={
                                 styles.invoiceDetailRow
                             }
                         >
-
                             <label
                                 className={
                                     styles.invoiceDetailLabel
@@ -669,11 +1455,9 @@ const AddInvoice = () => {
                                     styles.invoiceDetailValueWrapper
                                 }
                             >
-
                                 <input
                                     type="text"
                                     autoComplete="off"
-                                    // placeholder="Enter resident name"
                                     value={
                                         invoiceData.residentName
                                     }
@@ -687,28 +1471,23 @@ const AddInvoice = () => {
                                         styles.invoiceDetailInput
                                     }
                                 />
-
                             </div>
-
                         </div>
 
 
-                        {/* =================================================
-                            KWH USED / ALLOCATED
-                        ================================================== */}
+                        {/* KWH USED / ALLOCATED */}
 
                         <div
                             className={
                                 styles.invoiceDetailRow
                             }
                         >
-
                             <label
                                 className={
                                     styles.invoiceDetailLabel
                                 }
                             >
-                                Kwh Used/ Allocated
+                                Kwh Used / Allocated
                             </label>
 
                             <div
@@ -716,17 +1495,14 @@ const AddInvoice = () => {
                                     styles.invoiceDetailValueWrapper
                                 }
                             >
-
                                 <div
                                     className={
                                         styles.kwhWrapper
                                     }
                                 >
-
                                     <input
                                         type="text"
                                         autoComplete="off"
-                                        // placeholder="Used"
                                         value={
                                             invoiceData.kwhUsed
                                         }
@@ -740,18 +1516,10 @@ const AddInvoice = () => {
                                             styles.kwhInput
                                         }
                                     />
-{/* 
-                                    <span
-                                        className={
-                                            styles.kwhSlash
-                                        }
-                                    >
-                                    </span> */}
 
                                     <input
                                         type="text"
                                         autoComplete="off"
-                                        // placeholder="Allocated"
                                         value={
                                             invoiceData.kwhAllocated
                                         }
@@ -771,27 +1539,20 @@ const AddInvoice = () => {
                                             styles.invoiceUnit
                                         }
                                     >
-                                        
                                         /kWh
                                     </span>
-
                                 </div>
-
                             </div>
-
                         </div>
 
 
-                        {/* =================================================
-                            ENERGY CHARGE
-                        ================================================== */}
+                        {/* ENERGY CHARGE */}
 
                         <div
                             className={
                                 styles.invoiceDetailRow
                             }
                         >
-
                             <label
                                 className={
                                     styles.invoiceDetailLabel
@@ -805,17 +1566,14 @@ const AddInvoice = () => {
                                     styles.invoiceDetailValueWrapper
                                 }
                             >
-
                                 <div
                                     className={
                                         styles.amountWrapper
                                     }
                                 >
-
                                     <input
                                         type="text"
                                         autoComplete="off"
-                                        // placeholder="Enter energy charge"
                                         value={
                                             invoiceData.energyCharge
                                         }
@@ -837,24 +1595,18 @@ const AddInvoice = () => {
                                     >
                                         INR
                                     </span>
-
                                 </div>
-
                             </div>
-
                         </div>
 
 
-                        {/* =================================================
-                            OVER TIME
-                        ================================================== */}
+                        {/* OVER TIME */}
 
                         <div
                             className={
                                 styles.invoiceDetailRow
                             }
                         >
-
                             <label
                                 className={
                                     styles.invoiceDetailLabel
@@ -868,17 +1620,14 @@ const AddInvoice = () => {
                                     styles.invoiceDetailValueWrapper
                                 }
                             >
-
                                 <div
                                     className={
                                         styles.amountWrapper
                                     }
                                 >
-
                                     <input
                                         type="text"
                                         autoComplete="off"
-                                        // placeholder="Enter overtime charge"
                                         value={
                                             invoiceData.overTime
                                         }
@@ -900,17 +1649,12 @@ const AddInvoice = () => {
                                     >
                                         INR
                                     </span>
-
                                 </div>
-
                             </div>
-
                         </div>
 
 
-                        {/* =================================================
-                            TOTAL AMOUNT
-                        ================================================== */}
+                        {/* TOTAL AMOUNT */}
 
                         <div
                             className={`
@@ -918,7 +1662,6 @@ const AddInvoice = () => {
                                 ${styles.invoiceTotalRow}
                             `}
                         >
-
                             <label
                                 className={
                                     styles.invoiceTotalLabel
@@ -932,13 +1675,11 @@ const AddInvoice = () => {
                                     styles.invoiceDetailValueWrapper
                                 }
                             >
-
                                 <div
                                     className={
                                         styles.amountWrapper
                                     }
                                 >
-
                                     <span
                                         className={
                                             styles.totalAmount
@@ -956,26 +1697,39 @@ const AddInvoice = () => {
                                     >
                                         INR
                                     </span>
-
                                 </div>
-
                             </div>
-
                         </div>
 
+
+                        {/* LOADING */}
+
+                        {invoiceLoading && (
+                            <div
+                                style={{
+                                    textAlign:
+                                        "center",
+                                    padding:
+                                        "10px",
+                                }}
+                            >
+                                <span className="spinner-border spinner-border-sm me-2"></span>
+
+                                Fetching invoice data...
+                            </div>
+                        )}
                     </div>
 
 
                     {/* =================================================
                         BUTTONS
-                    ================================================== */}
+                    ================================================= */}
 
                     <div
                         className={
                             styles.editButton
                         }
                     >
-
                         <button
                             type="button"
                             className={
@@ -990,12 +1744,14 @@ const AddInvoice = () => {
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={
+                                loading ||
+                                invoiceLoading
+                            }
                             className={
                                 styles.editSubmitBtn
                             }
                         >
-
                             {loading ? (
                                 <>
                                     <span className="spinner-border spinner-border-sm me-2"></span>
@@ -1004,15 +1760,10 @@ const AddInvoice = () => {
                             ) : (
                                 "Submit"
                             )}
-
                         </button>
-
                     </div>
-
                 </form>
-
             </div>
-
         </div>
     );
 };

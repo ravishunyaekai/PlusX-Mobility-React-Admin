@@ -15,6 +15,8 @@ import Loader from '../../SharedComponent/Loader/Loader.jsx';
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
 import List from '../../SharedComponent/List/List.jsx';
 import SubHeader from '../../SharedComponent/SubHeader/SubHeader.jsx';
+import Pagination from '../../SharedComponent/Pagination/Pagination.jsx';
+
 
 const CommunityDetails = () => {
 
@@ -25,20 +27,43 @@ const CommunityDetails = () => {
     const navigate = useNavigate();
     const { stationId } = useParams();
 
+
+    // =========================
+    // COMMUNITY DETAILS
+    // =========================
+
     const [bookingDetails, setBookingDetails] = useState({});
     const [chargers, setChargers] = useState([]);
     const [manager, setManager] = useState([]);
 
     const [loading, setLoading] = useState(false);
 
+
+    // =========================
+    // CHARGER PAGINATION / COUNT
+    // =========================
+
     const [totalCount, setTotalCount] = useState(0);
-    const [totalCount2, setTotalCount2] = useState(0);
+
+
+    // =========================
+    // RESIDENT LIST
+    // =========================
+
+    const [residentList, setResidentList] = useState([]);
+    const [residentLoading, setResidentLoading] = useState(false);
+
+    const [residentTotalCount, setResidentTotalCount] = useState(0);
+    const [residentCurrentPage, setResidentCurrentPage] = useState(1);
+    const [residentTotalPages, setResidentTotalPages] = useState(1);
+
 
     /*
-     * ============================
+     * ============================================================
      * FETCH COMMUNITY DETAILS
-     * ============================
+     * ============================================================
      */
+
     const fetchDetails = () => {
 
         setLoading(true);
@@ -46,8 +71,6 @@ const CommunityDetails = () => {
         const obj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
-
-            // Backend expects community_id
             community_id: stationId
         };
 
@@ -58,18 +81,13 @@ const CommunityDetails = () => {
 
                 if (response.code === 200) {
 
-                    /*
-                     * Community details
-                     */
+                    // Community details
                     setBookingDetails(
                         response?.data || {}
                     );
 
-                    /*
-                     * Charger list
-                     *
-                     * Add Sr No dynamically.
-                     */
+
+                    // Charger list
                     const chargerList = (
                         response?.chargers || []
                     ).map((charger, index) => ({
@@ -79,25 +97,17 @@ const CommunityDetails = () => {
 
                     setChargers(chargerList);
 
-                    /*
-                     * Manager details
-                     */
+
+                    // Manager details
                     setManager(
                         response?.manager || []
                     );
 
-                    /*
-                     * Charger count
-                     */
+
+                    // Charger count
                     setTotalCount(
                         chargerList.length
                     );
-
-                    /*
-                     * Resident list is not currently
-                     * returned by the backend.
-                     */
-                    setTotalCount2(0);
 
                 } else {
 
@@ -120,11 +130,105 @@ const CommunityDetails = () => {
         );
     };
 
+
     /*
-     * ============================
-     * INITIAL LOAD
-     * ============================
+     * ============================================================
+     * FETCH RESIDENT LIST
+     * ============================================================
+     *
+     * Backend:
+     * residentListMulti
+     *
+     * Required filter:
+     * community_id
+     *
+     * Backend pagination:
+     * page_no
      */
+
+    const fetchResidentList = (page = 1) => {
+
+        setResidentLoading(true);
+
+        const obj = {
+            userId: userDetails?.user_id,
+            email: userDetails?.email,
+
+            page_no: page,
+
+            // Current community ID
+            community_id: stationId
+        };
+
+        postRequestWithToken(
+            'resident-list',
+            obj,
+            (response) => {
+
+                if (response.code === 200) {
+
+                    const residents = (
+                        response?.data || []
+                    ).map((resident, index) => ({
+
+                        ...resident,
+
+                        /*
+                         * Sr No is calculated based on
+                         * current page.
+                         *
+                         * Backend limit = 10
+                         */
+                        sr_no:
+                            ((page - 1) * 10) +
+                            index +
+                            1
+                    }));
+
+                    setResidentList(residents);
+
+                    setResidentTotalPages(
+                        response?.total_page || 1
+                    );
+
+                    setResidentTotalCount(
+                        response?.total || 0
+                    );
+
+                } else {
+
+                    console.log(
+                        'error in resident-list API',
+                        response
+                    );
+
+                    setResidentList([]);
+
+                    setResidentTotalPages(1);
+
+                    setResidentTotalCount(0);
+
+                    toast(
+                        response?.message ||
+                        'Unable to fetch resident list',
+                        {
+                            type: 'error'
+                        }
+                    );
+                }
+
+                setResidentLoading(false);
+            }
+        );
+    };
+
+
+    /*
+     * ============================================================
+     * INITIAL LOAD
+     * ============================================================
+     */
+
     useEffect(() => {
 
         if (
@@ -139,11 +243,64 @@ const CommunityDetails = () => {
 
     }, []);
 
+
     /*
-     * ============================
-     * COMMUNITY HEADER
-     * ============================
+     * ============================================================
+     * FETCH RESIDENTS
+     * ============================================================
+     *
+     * stationId is the community_id.
+     *
+     * Whenever the community changes, resident list
+     * is fetched from page 1.
      */
+
+    useEffect(() => {
+
+        if (
+            !userDetails ||
+            !userDetails.access_token ||
+            !stationId
+        ) {
+            return;
+        }
+
+        fetchResidentList(
+            residentCurrentPage
+        );
+
+    }, [
+        stationId,
+        residentCurrentPage
+    ]);
+
+
+    /*
+     * ============================================================
+     * RESIDENT PAGE CHANGE
+     * ============================================================
+     */
+
+    const handleResidentPageChange = (pageNumber) => {
+
+        setResidentCurrentPage(
+            pageNumber
+        );
+
+        // Scroll to resident section if required
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+    };
+
+
+    /*
+     * ============================================================
+     * COMMUNITY HEADER
+     * ============================================================
+     */
+
     const headerTitles = {
 
         bookingIdTitle: 'Community ID',
@@ -151,11 +308,13 @@ const CommunityDetails = () => {
         stationDetailsTitle: 'Community Name'
     };
 
+
     /*
-     * ============================
+     * ============================================================
      * MANAGER DETAILS
-     * ============================
+     * ============================================================
      */
+
     const sectionTitles1 = {
 
         managerId: 'Manager Id',
@@ -167,11 +326,13 @@ const CommunityDetails = () => {
         contactNo: 'Contact No'
     };
 
+
     /*
-     * ============================
+     * ============================================================
      * COMMUNITY DETAILS
-     * ============================
+     * ============================================================
      */
+
     const sectionTitles2 = {
 
         areaName: 'Area Name',
@@ -181,11 +342,13 @@ const CommunityDetails = () => {
         status: 'Status'
     };
 
+
     /*
-     * ============================
+     * ============================================================
      * HEADER CONTENT
-     * ============================
+     * ============================================================
      */
+
     const content = {
 
         bookingId:
@@ -195,17 +358,17 @@ const CommunityDetails = () => {
             bookingDetails?.community_name || 'N/A'
     };
 
+
     /*
-     * ============================
+     * ============================================================
      * MANAGER CONTENT
-     * ============================
-     *
-     * Backend returns manager as an array.
-     * Take the first manager.
+     * ============================================================
      */
+
     const managerDetails = Array.isArray(manager)
         ? manager[0]
         : manager || {};
+
 
     const sectionContent1 = {
 
@@ -213,22 +376,30 @@ const CommunityDetails = () => {
             managerDetails?.manager_id || 'N/A',
 
         managerName:
-            managerDetails?.manager_name || 'N/A',
+            managerDetails?.manager_name ||
+            managerDetails?.name ||
+            'N/A',
 
         emailId:
-            managerDetails?.manager_email || 'N/A',
+            managerDetails?.manager_email ||
+            managerDetails?.email ||
+            'N/A',
 
         contactNo:
             managerDetails?.manager_contact
                 ? `${managerDetails?.country_code || ''} ${managerDetails.manager_contact}`
-                : 'N/A'
+                : managerDetails?.contact
+                    ? `${managerDetails?.country_code || ''} ${managerDetails.contact}`
+                    : 'N/A'
     };
 
+
     /*
-     * ============================
+     * ============================================================
      * COMMUNITY CONTENT
-     * ============================
+     * ============================================================
      */
+
     const sectionContent2 = {
 
         areaName:
@@ -243,23 +414,20 @@ const CommunityDetails = () => {
                 : 'Un-Active'
     };
 
+
     /*
-     * ============================
+     * ============================================================
      * CHARGER TABLE
-     * ============================
+     * ============================================================
      */
+
     const chargerTableHeaders = [
         'Sr No',
         'Charger Id',
         'KW'
     ];
 
-    /*
-     * Important:
-     *
-     * Sr No is now coming from `sr_no`
-     * which is added while fetching data.
-     */
+
     const chargerKeyMapping = [
 
         {
@@ -278,14 +446,13 @@ const CommunityDetails = () => {
         }
     ];
 
+
     /*
-     * ============================
+     * ============================================================
      * RESIDENT TABLE
-     * ============================
-     *
-     * Resident data is not currently
-     * returned from community-details API.
+     * ============================================================
      */
+
     const residentTableHeaders = [
 
         'Sr No',
@@ -307,16 +474,74 @@ const CommunityDetails = () => {
         'Action'
     ];
 
+
     /*
-     * ============================
-     * RENDER
-     * ============================
+     * ============================================================
+     * RESIDENT KEY MAPPING
+     * ============================================================
      */
+
+    const residentKeyMapping = [
+
+        {
+            key: 'sr_no',
+            label: 'Sr No'
+        },
+
+        {
+            key: 'resident_id',
+            label: 'Resident Id'
+        },
+
+        {
+            key: 'resident_mobile',
+            label: 'Mobile'
+        },
+
+        {
+            key: 'resident_email',
+            label: 'Email'
+        },
+
+        {
+            key: 'monthly_session_allocation',
+            label: 'Session Allocated'
+        },
+
+        {
+            key: 'session_used',
+            label: 'Session Used'
+        },
+
+        {
+            key: 'kwh_allocated',
+            label: 'kWh Allocated'
+        },
+
+        {
+            key: 'kwh_used',
+            label: 'kWh Used'
+        },
+
+        {
+            key: 'action',
+            label: 'Action'
+        }
+    ];
+
+
+    /*
+     * ============================================================
+     * RENDER
+     * ============================================================
+     */
+
     return (
 
         <div className="main-container">
 
             <ToastContainer />
+
 
             {loading ? (
 
@@ -326,7 +551,9 @@ const CommunityDetails = () => {
 
                 <>
 
-                    {/* ================= COMMUNITY HEADER ================= */}
+                    {/* ==================================================
+                        COMMUNITY HEADER
+                    ================================================== */}
 
                     <BookingDetailsHeader
                         content={content}
@@ -335,8 +562,9 @@ const CommunityDetails = () => {
                     />
 
 
-
-                    {/* ================= COMMUNITY / MANAGER DETAILS ================= */}
+                    {/* ==================================================
+                        COMMUNITY / MANAGER DETAILS
+                    ================================================== */}
 
                     <div
                         className={
@@ -364,7 +592,6 @@ const CommunityDetails = () => {
                         />
 
 
-
                         {/* ================= COMMUNITY DETAILS ================= */}
 
                         <BookingLeftDetails
@@ -387,8 +614,9 @@ const CommunityDetails = () => {
                     </div>
 
 
-
-                    {/* ================= CHARGER LIST ================= */}
+                    {/* ==================================================
+                        CHARGER LIST
+                    ================================================== */}
 
                     <SubHeader
 
@@ -396,7 +624,7 @@ const CommunityDetails = () => {
 
                         addButtonProps={{}}
 
-                        fetchFilteredData={() => {}}
+                        fetchFilteredData={() => { }}
 
                         dynamicFilters={[]}
 
@@ -406,7 +634,6 @@ const CommunityDetails = () => {
 
                         count={totalCount}
                     />
-
 
 
                     {chargers.length === 0 ? (
@@ -432,18 +659,20 @@ const CommunityDetails = () => {
 
                             pageHeading="Charger List"
 
-                            onDeleteSlot={() => {}}
+                            onDeleteSlot={() => { }}
 
                             keyMapping={
                                 chargerKeyMapping
                             }
+
                         />
 
                     )}
 
 
-
-                    {/* ================= RESIDENT LIST ================= */}
+                    {/* ==================================================
+                        RESIDENT LIST
+                    ================================================== */}
 
                     <SubHeader
 
@@ -451,7 +680,7 @@ const CommunityDetails = () => {
 
                         addButtonProps={{}}
 
-                        fetchFilteredData={() => {}}
+                        fetchFilteredData={() => { }}
 
                         dynamicFilters={[]}
 
@@ -459,19 +688,75 @@ const CommunityDetails = () => {
 
                         searchTerm={[]}
 
-                        count={totalCount2}
+                        count={residentTotalCount}
                     />
 
 
+                    {residentLoading ? (
 
-                    <EmptyList
+                        <Loader />
 
-                        tableHeaders={
-                            residentTableHeaders
-                        }
+                    ) : residentList.length === 0 ? (
 
-                        message="No resident data available"
-                    />
+                        <EmptyList
+
+                            tableHeaders={
+                                residentTableHeaders
+                            }
+
+                            message="No residents available"
+                        />
+
+                    ) : (
+
+                        <>
+
+                            <List
+
+                                tableHeaders={
+                                    residentTableHeaders
+                                }
+
+                                listData={
+                                    residentList
+                                }
+
+                                pageHeading="Resident List"
+
+                                onDeleteSlot={() => { }}
+
+                                keyMapping={
+                                    residentKeyMapping
+                                }
+
+                            />
+
+
+                            {/* ================= RESIDENT PAGINATION ================= */}
+
+                            {residentTotalPages > 1 && (
+
+                                <Pagination
+
+                                    currentPage={
+                                        residentCurrentPage
+                                    }
+
+                                    totalPages={
+                                        residentTotalPages
+                                    }
+
+                                    onPageChange={
+                                        handleResidentPageChange
+                                    }
+
+                                />
+
+                            )}
+
+                        </>
+
+                    )}
 
                 </>
 
@@ -480,5 +765,6 @@ const CommunityDetails = () => {
         </div>
     );
 };
+
 
 export default CommunityDetails;

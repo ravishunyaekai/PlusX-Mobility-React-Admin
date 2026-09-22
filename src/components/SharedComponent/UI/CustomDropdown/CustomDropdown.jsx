@@ -1,22 +1,157 @@
 import Select from "react-select";
 
-function CustomDropdown({ options = [], value, onChange, placeholder = "Select Option",onMenuOpen, isLoading }) {
+function CustomDropdown({ options = [], value, onChange, placeholder = "Select Option", onMenuOpen, isLoading }) {
   return (
-     <Select options={options} value={value} onChange={onChange} placeholder={placeholder} isClearable={false} styles={customStyles} onMenuOpen={onMenuOpen} isLoading={isLoading}
+    <Select options={options} value={value} onChange={onChange} placeholder={placeholder} isClearable={false} styles={customStyles} onMenuOpen={onMenuOpen} isLoading={isLoading}
       menuPortalTarget={document.body}  //Help to fix z-index issue on timeslot table with dropdown filter
-     formatOptionLabel={(e, { context }) => {
+      formatOptionLabel={(e, { context }) => {
         const isSelected = value?.value === e.value;
 
         if (context === "menu") {
           return (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <span style={{ flexGrow: 1 }}>{e.label}</span>
-              <span style={{ width: "18px", height: "18px", border: "2px solid #00b26b", borderRadius: "50%", backgroundColor: isSelected ? "#00b26b" : "#f9f9f9",
-                  boxShadow: isSelected ? "inset 0 0 0 3px white" : "none", marginLeft: "12px", flexShrink: 0 }} />
+              <span style={{
+                width: "18px", height: "18px", border: "2px solid #00b26b", borderRadius: "50%", backgroundColor: isSelected ? "#00b26b" : "#f9f9f9",
+                boxShadow: isSelected ? "inset 0 0 0 3px white" : "none", marginLeft: "12px", flexShrink: 0
+              }} />
             </div>
           );
         }
         return e.label;
+      }}
+    />
+  );
+}
+
+export function CustomDropdownForResidents({
+  options = [],
+  value,
+  onChange,
+  placeholder = "Select Resident",
+  onInputChange,
+  isLoading = false,
+  isDisabled = false,
+}) {
+  return (
+    <Select
+      options={options}
+      value={value}
+      onChange={onChange}
+      onInputChange={onInputChange}
+      placeholder={placeholder}
+      isLoading={isLoading}
+      isDisabled={isDisabled}
+      isClearable={false}
+      isSearchable={true}
+      menuPortalTarget={document.body}
+      styles={customStyles}
+
+      formatOptionLabel={(
+        option,
+        { context }
+      ) => {
+        const isSelected =
+          value?.resident_id ===
+          option.resident_id;
+
+        /*
+         * Dropdown menu:
+         *
+         * RD00013
+         * test
+         * 987654321
+         */
+        if (context === "menu") {
+          return (
+            <div
+              style={{
+                display: "flex",
+                alignItems:
+                  "center",
+                justifyContent:
+                  "space-between",
+                width: "100%",
+              }}
+            >
+              <div
+                style={{
+                  display:
+                    "flex",
+                  flexDirection:
+                    "column",
+                  gap: "2px",
+                }}
+              >
+                <span
+                  style={{
+                    fontWeight:
+                      600,
+                  }}
+                >
+                  {
+                    option.resident_id
+                  }
+                </span>
+
+                <span>
+                  {
+                    option.resident_name
+                  }
+                </span>
+
+                <span
+                  style={{
+                    color:
+                      "#666",
+                    fontSize:
+                      "13px",
+                  }}
+                >
+                  {
+                    option.resident_mobile
+                  }
+                </span>
+              </div>
+
+              <span
+                style={{
+                  width:
+                    "18px",
+                  height:
+                    "18px",
+                  border:
+                    "2px solid #00b26b",
+                  borderRadius:
+                    "50%",
+                  backgroundColor:
+                    isSelected
+                      ? "#00b26b"
+                      : "#f9f9f9",
+                  boxShadow:
+                    isSelected
+                      ? "inset 0 0 0 3px white"
+                      : "none",
+                  marginLeft:
+                    "12px",
+                  flexShrink: 0,
+                }}
+              />
+            </div>
+          );
+        }
+
+        /*
+         * Selected value shown inside
+         * the dropdown.
+         */
+        return (
+          <span>
+            {
+              option.resident_id
+            }
+          </span>
+        );
       }}
     />
   );
@@ -99,7 +234,7 @@ const customStyles = {
     '&:hover': {
       borderColor: "#00b26b",
     },
-    
+
   }),
   valueContainer: (base) => ({
     ...base,

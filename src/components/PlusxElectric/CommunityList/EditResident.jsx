@@ -1,359 +1,931 @@
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
-    postRequestWithTokenAndFile,
+    postRequestWithToken,
 } from "../../../api/Requests";
 
 import styles from "./AddCommunity.module.css";
 
+import {
+    getCountries,
+    getCountryCallingCode,
+} from "libphonenumber-js";
+
+import CustomDropdown from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
+
+import MultiSelectDropdown from "../../SharedComponent/UI/CustomMultiDropdown/MultiSelectDropdown";
+
 const EditResident = () => {
     const navigate = useNavigate();
-    const location = useLocation();
+    const { stationId } = useParams();
 
-    // ---------------------------------------------------
-    // User Details
-    // ---------------------------------------------------
+    // =========================================================
+    // USER DETAILS
+    // =========================================================
 
-    const userDetails = JSON.parse(
-        sessionStorage.getItem("userDetails") || "null"
-    );
+    const [userDetails, setUserDetails] = useState(null);
 
-    // ---------------------------------------------------
-    // Existing Resident Data
-    // ---------------------------------------------------
+    // =========================================================
+    // COUNTRY CODE OPTIONS
+    // =========================================================
 
-    const residentData =
-        location.state?.resident ||
-        location.state?.community ||
-        location.state?.residentData ||
-        location.state?.data ||
-        null;
+    const countryCodeOptions = useMemo(() => {
+        const displayNames = new Intl.DisplayNames(
+            ["en"],
+            {
+                type: "region",
+            }
+        );
 
-    // ---------------------------------------------------
-    // Resident ID
-    // ---------------------------------------------------
+        return getCountries()
+            .map((country) => {
+                let countryName = country;
 
-    const residentId =
-        residentData?.resident_id ||
-        residentData?.residentId ||
-        residentData?.id ||
-        location.state?.residentId ||
-        location.state?.resident_id ||
-        "";
+                try {
+                    countryName =
+                        displayNames.of(country) || country;
+                } catch (error) {
+                    countryName = country;
+                }
 
-    // ---------------------------------------------------
-    // Form State
-    // ---------------------------------------------------
+                let callingCode = "";
 
-    const [residentName, setResidentName] = useState("");
-    const [mobileNumber, setMobileNumber] = useState("");
-    const [emailAddress, setEmailAddress] = useState("");
-    const [community, setCommunity] = useState("");
-    const [fullAddress, setFullAddress] = useState("");
+                try {
+                    callingCode =
+                        `+${getCountryCallingCode(country)}`;
+                } catch (error) {
+                    console.error(
+                        `Unable to get calling code for ${country}`,
+                        error
+                    );
 
-    const [monthlySessionAllocation, setMonthlySessionAllocation] =
+                    return null;
+                }
+
+                return {
+                    value: callingCode,
+                    label: `${countryName} (${callingCode})`,
+                    countryName,
+                    country,
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) =>
+                a.countryName.localeCompare(
+                    b.countryName
+                )
+            );
+    }, []);
+
+    // =========================================================
+    // FORM STATE
+    // =========================================================
+
+    const [countryCode, setCountryCode] =
+        useState("+91");
+
+    const [residentName, setResidentName] =
         useState("");
 
-    const [allocatedTimeInMinute, setAllocatedTimeInMinute] =
+    const [mobileNumber, setMobileNumber] =
         useState("");
 
-    const [kwhAllocationPerMonth, setKwhAllocationPerMonth] =
+    const [residentEmail, setResidentEmail] =
         useState("");
 
-    const [perKwhCharge, setPerKwhCharge] = useState("");
+    const [communityIds, setCommunityIds] =
+        useState([]);
 
-    const [extraChargePerMin, setExtraChargePerMin] = useState("");
+    const [address, setAddress] =
+        useState("");
 
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
+    const [
+        monthlySessionAllocation,
+        setMonthlySessionAllocation,
+    ] = useState("");
 
-    // ---------------------------------------------------
-    // Load Existing Resident Data
-    // ---------------------------------------------------
+    const [
+        allotedTime,
+        setAllotedTime,
+    ] = useState("");
+
+    const [
+        kwhAllocated,
+        setKwhAllocated,
+    ] = useState("");
+
+    const [
+        perKwhCharge,
+        setPerKwhCharge,
+    ] = useState("");
+
+    const [
+        extraCharge,
+        setExtraCharge,
+    ] = useState("");
+
+    // =========================================================
+    // COMMUNITY STATE
+    // =========================================================
+
+    const [communityOptions, setCommunityOptions] =
+        useState([]);
+
+    const [communityLoading, setCommunityLoading] =
+        useState(false);
+
+    // =========================================================
+    // API / FORM STATE
+    // =========================================================
+
+    const [errors, setErrors] =
+        useState({});
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [fetchingDetails, setFetchingDetails] =
+        useState(false);
+
+    // =========================================================
+    // SELECTED COUNTRY CODE
+    // =========================================================
+
+    const selectedCountryCode =
+        countryCodeOptions.find(
+            (option) =>
+                option.value === countryCode
+        ) || null;
+
+    // =========================================================
+    // GET USER DETAILS
+    // =========================================================
 
     useEffect(() => {
-        if (!residentData) {
-            toast.error("Resident data not found.");
+        try {
+            const storedUserDetails =
+                sessionStorage.getItem("userDetails");
+
+            if (!storedUserDetails) {
+                navigate("/login");
+                return;
+            }
+
+            const parsedUserDetails =
+                JSON.parse(storedUserDetails);
+
+            if (!parsedUserDetails?.access_token) {
+                navigate("/login");
+                return;
+            }
+
+            setUserDetails(parsedUserDetails);
+        } catch (error) {
+            console.error(
+                "Error parsing userDetails:",
+                error
+            );
+
+            navigate("/login");
+        }
+    }, [navigate]);
+
+    // =========================================================
+    // GET COMMUNITY LIST
+    // =========================================================
+
+    useEffect(() => {
+        if (!userDetails?.user_id) {
             return;
         }
 
-        console.log("Existing Resident Data:", residentData);
+        getAllCommunityList();
+    }, [userDetails]);
 
-        // ---------------------------------------------------
-        // Resident Name
-        // ---------------------------------------------------
+    // =========================================================
+    // GET RESIDENT DETAILS
+    // =========================================================
 
-        setResidentName(
-            residentData?.resident_name ??
-                residentData?.residentName ??
-                residentData?.name ??
-                ""
+    useEffect(() => {
+        if (
+            !userDetails?.user_id ||
+            !stationId
+        ) {
+            return;
+        }
+
+        fetchDetails();
+    }, [userDetails, stationId]);
+
+    // =========================================================
+    // COMMUNITY LIST API
+    // =========================================================
+
+    const getAllCommunityList = () => {
+        if (!userDetails?.user_id) {
+            return;
+        }
+
+        setCommunityLoading(true);
+
+        const obj = {
+            userId: userDetails.user_id,
+            email: userDetails.email,
+        };
+
+        console.log(
+            "========== ALL COMMUNITY LIST REQUEST =========="
         );
 
-        // ---------------------------------------------------
-        // Mobile Number
-        // ---------------------------------------------------
+        console.log(obj);
 
-        setMobileNumber(
-            residentData?.mobile_number ??
-                residentData?.mobileNumber ??
-                residentData?.resident_contact ??
-                residentData?.residentContact ??
-                residentData?.contact_no ??
-                ""
+        postRequestWithToken(
+            "all-community-list",
+            obj,
+            (response) => {
+                console.log(
+                    "all-community-list response:",
+                    response
+                );
+
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
+                    const options =
+                        Array.isArray(response?.data)
+                            ? response.data
+                            : [];
+
+                    setCommunityOptions(options);
+                } else {
+                    setCommunityOptions([]);
+
+                    toast.error(
+                        Array.isArray(response?.message)
+                            ? response.message.join(", ")
+                            : response?.message ||
+                              "Unable to fetch community list."
+                    );
+
+                    console.error(
+                        "Error in all-community-list API:",
+                        response
+                    );
+                }
+
+                setCommunityLoading(false);
+            }
+        );
+    };
+
+    // =========================================================
+    // RESIDENT DETAILS API
+    // =========================================================
+
+    const fetchDetails = () => {
+        if (!stationId) {
+            toast.error(
+                "Resident ID is missing."
+            );
+            return;
+        }
+
+        setFetchingDetails(true);
+
+        const obj = {
+            userId: userDetails?.user_id,
+            email: userDetails?.email,
+            resident_id: stationId,
+        };
+
+        console.log(
+            "========== RESIDENT DETAILS REQUEST =========="
         );
 
-        // ---------------------------------------------------
-        // Email Address
-        // ---------------------------------------------------
+        console.log(obj);
 
-        setEmailAddress(
-            residentData?.email_address ??
-                residentData?.email ??
-                residentData?.resident_email ??
-                residentData?.residentEmail ??
-                ""
+        postRequestWithToken(
+            "resident-details",
+            obj,
+            (response) => {
+                console.log(
+                    "========== RESIDENT DETAILS RESPONSE =========="
+                );
+
+                console.log(response);
+
+                if (
+                    response?.status === 1 &&
+                    response?.code === 200
+                ) {
+                    const resident =
+                        response?.data || {};
+
+                    console.log(
+                        "Resident data:",
+                        resident
+                    );
+
+                    // =================================================
+                    // RESIDENT NAME
+                    // =================================================
+
+                    setResidentName(
+                        resident?.resident_name ||
+                        ""
+                    );
+
+                    // =================================================
+                    // MOBILE
+                    // =================================================
+
+                    setMobileNumber(
+                        resident?.resident_mobile ||
+                        resident?.mobile_number ||
+                        ""
+                    );
+
+                    // =================================================
+                    // COUNTRY CODE
+                    // =================================================
+
+                    setCountryCode(
+                        resident?.country_code ||
+                        "+91"
+                    );
+
+                    // =================================================
+                    // EMAIL
+                    // =================================================
+
+                    setResidentEmail(
+                        resident?.resident_email ||
+                        ""
+                    );
+
+                    // =================================================
+                    // ADDRESS
+                    // =================================================
+
+                    setAddress(
+                        resident?.address ||
+                        ""
+                    );
+
+                    // =================================================
+                    // MONTHLY SESSION ALLOCATION
+                    // =================================================
+
+                    setMonthlySessionAllocation(
+                        resident?.monthly_session_allocation !==
+                            null &&
+                        resident?.monthly_session_allocation !==
+                            undefined
+                            ? String(
+                                  resident.monthly_session_allocation
+                              )
+                            : ""
+                    );
+
+                    // =================================================
+                    // ALLOTED TIME
+                    // =================================================
+
+                    setAllotedTime(
+                        resident?.alloted_time !==
+                            null &&
+                        resident?.alloted_time !==
+                            undefined
+                            ? String(
+                                  resident.alloted_time
+                              )
+                            : ""
+                    );
+
+                    // =================================================
+                    // KWH ALLOCATED
+                    // =================================================
+
+                    setKwhAllocated(
+                        resident?.kwh_allocated !==
+                            null &&
+                        resident?.kwh_allocated !==
+                            undefined
+                            ? String(
+                                  resident.kwh_allocated
+                              )
+                            : ""
+                    );
+
+                    // =================================================
+                    // PER KWH CHARGE
+                    // =================================================
+
+                    setPerKwhCharge(
+                        resident?.per_kwh_charge !==
+                            null &&
+                        resident?.per_kwh_charge !==
+                            undefined
+                            ? String(
+                                  resident.per_kwh_charge
+                              )
+                            : ""
+                    );
+
+                    // =================================================
+                    // EXTRA CHARGE
+                    // =================================================
+
+                    setExtraCharge(
+                        resident?.extra_charge !==
+                            null &&
+                        resident?.extra_charge !==
+                            undefined
+                            ? String(
+                                  resident.extra_charge
+                              )
+                            : ""
+                    );
+
+                    // =================================================
+                    // COMMUNITY DETAILS
+                    // =================================================
+
+                    /*
+                     * Backend detail API can return communities
+                     * in the resident data.
+                     *
+                     * Expected example:
+                     *
+                     * communities: [
+                     *   {
+                     *      community_id: "CMT0026",
+                     *      community_name: "Green Valley"
+                     *   }
+                     * ]
+                     */
+
+                    const residentCommunities =
+                        Array.isArray(
+                            resident?.communities
+                        )
+                            ? resident.communities
+                            : Array.isArray(
+                                  response?.communities
+                              )
+                            ? response.communities
+                            : [];
+
+                    console.log(
+                        "Resident communities:",
+                        residentCommunities
+                    );
+
+                    /*
+                     * Convert backend community data into
+                     * MultiSelectDropdown format.
+                     */
+
+                    if (
+                        residentCommunities.length > 0
+                    ) {
+                        const selectedCommunities =
+                            residentCommunities
+                                .map((community) => {
+                                    const communityId =
+                                        community?.community_id ||
+                                        community?.communityId ||
+                                        community?.id ||
+                                        community?.value ||
+                                        "";
+
+                                    const communityName =
+                                        community?.community_name ||
+                                        community?.communityName ||
+                                        community?.name ||
+                                        community?.label ||
+                                        communityId;
+
+                                    if (!communityId) {
+                                        return null;
+                                    }
+
+                                    return {
+                                        value: String(
+                                            communityId
+                                        ),
+                                        label: String(
+                                            communityName
+                                        ),
+                                    };
+                                })
+                                .filter(Boolean);
+
+                        setCommunityIds(
+                            selectedCommunities
+                        );
+                    } else {
+                        /*
+                         * Some APIs may return only IDs.
+                         *
+                         * Example:
+                         * community_ids: "CMT0026,CMT0027"
+                         */
+
+                        const rawCommunityIds =
+                            resident?.community_ids ||
+                            resident?.communityIds ||
+                            resident?.primary_community_id ||
+                            resident?.community_id ||
+                            "";
+
+                        let ids = [];
+
+                        if (
+                            Array.isArray(
+                                rawCommunityIds
+                            )
+                        ) {
+                            ids =
+                                rawCommunityIds;
+                        } else if (
+                            typeof rawCommunityIds ===
+                            "string"
+                        ) {
+                            ids =
+                                rawCommunityIds
+                                    .split(",")
+                                    .map(
+                                        (id) =>
+                                            id.trim()
+                                    )
+                                    .filter(Boolean);
+                        } else if (
+                            rawCommunityIds
+                        ) {
+                            ids = [
+                                String(
+                                    rawCommunityIds
+                                ),
+                            ];
+                        }
+
+                        const selectedCommunities =
+                            ids
+                                .map((id) => {
+                                    const matchingOption =
+                                        communityOptions.find(
+                                            (option) =>
+                                                String(
+                                                    option?.value
+                                                ) ===
+                                                String(
+                                                    id
+                                                )
+                                        );
+
+                                    return (
+                                        matchingOption || {
+                                            value: String(
+                                                id
+                                            ),
+                                            label: String(
+                                                id
+                                            ),
+                                        }
+                                    );
+                                });
+
+                        setCommunityIds(
+                            selectedCommunities
+                        );
+                    }
+
+                    setErrors({});
+                } else {
+                    console.error(
+                        "Error in resident-details API:",
+                        response
+                    );
+
+                    toast.error(
+                        Array.isArray(response?.message)
+                            ? response.message.join(", ")
+                            : response?.message ||
+                              "Failed to fetch resident details."
+                    );
+                }
+
+                setFetchingDetails(false);
+            }
         );
+    };
 
-        // ---------------------------------------------------
-        // Community
-        // ---------------------------------------------------
+    // =========================================================
+    // WHEN COMMUNITY LIST + RESIDENT DETAILS BOTH LOAD
+    // =========================================================
 
-        setCommunity(
-            residentData?.community ??
-                residentData?.community_name ??
-                residentData?.communityName ??
-                residentData?.community_id ??
-                residentData?.communityId ??
-                ""
+    /*
+     * If resident-details returns only community IDs,
+     * this effect converts those IDs into the proper
+     * MultiSelectDropdown option objects once the community
+     * list becomes available.
+     */
+
+    useEffect(() => {
+        if (
+            !Array.isArray(communityOptions) ||
+            communityOptions.length === 0
+        ) {
+            return;
+        }
+
+        if (
+            !Array.isArray(communityIds) ||
+            communityIds.length === 0
+        ) {
+            return;
+        }
+
+        const updatedSelectedCommunities =
+            communityIds.map((selected) => {
+                const matchingOption =
+                    communityOptions.find(
+                        (option) =>
+                            String(option?.value) ===
+                            String(selected?.value)
+                    );
+
+                return (
+                    matchingOption || selected
+                );
+            });
+
+        setCommunityIds(
+            updatedSelectedCommunities
         );
+    }, [communityOptions]);
 
-        // ---------------------------------------------------
-        // Full Address
-        // ---------------------------------------------------
+    // =========================================================
+    // COUNTRY CODE CHANGE
+    // =========================================================
 
-        setFullAddress(
-            residentData?.full_address ??
-                residentData?.fullAddress ??
-                residentData?.address ??
-                ""
-        );
+    const handleCountryCodeChange = (
+        selectedOption
+    ) => {
+        let selectedValue = "";
 
-        // ---------------------------------------------------
-        // Monthly Session Allocation
-        // ---------------------------------------------------
+        if (
+            selectedOption &&
+            typeof selectedOption === "object"
+        ) {
+            selectedValue =
+                selectedOption?.value || "";
+        } else {
+            selectedValue =
+                selectedOption || "";
+        }
 
-        setMonthlySessionAllocation(
-            residentData?.monthly_session_allocation ??
-                residentData?.monthlySessionAllocation ??
-                ""
-        );
+        setCountryCode(selectedValue);
 
-        // ---------------------------------------------------
-        // Allocated Time In Minute
-        // ---------------------------------------------------
+        if (selectedValue) {
+            setErrors((prev) => ({
+                ...prev,
+                countryCode: "",
+            }));
+        }
+    };
 
-        setAllocatedTimeInMinute(
-            residentData?.allocated_time_in_minute ??
-                residentData?.allocatedTimeInMinute ??
-                residentData?.allocated_time ??
-                residentData?.allocatedTime ??
-                ""
-        );
+    // =========================================================
+    // COMMUNITY CHANGE
+    // =========================================================
 
-        // ---------------------------------------------------
-        // kWh Allocation/Month
-        // ---------------------------------------------------
+    const handleCommunityChange = (
+        selectedOptions
+    ) => {
+        const selected =
+            Array.isArray(selectedOptions)
+                ? selectedOptions
+                : [];
 
-        setKwhAllocationPerMonth(
-            residentData?.kwh_allocation_per_month ??
-                residentData?.kwhAllocationPerMonth ??
-                residentData?.kwh_allocation ??
-                residentData?.kwhAllocation ??
-                ""
-        );
+        setCommunityIds(selected);
 
-        // ---------------------------------------------------
-        // Per kWh Charge
-        // ---------------------------------------------------
+        if (selected.length > 0) {
+            setErrors((prev) => ({
+                ...prev,
+                communityIds: "",
+            }));
+        }
+    };
 
-        setPerKwhCharge(
-            residentData?.per_kwh_charge ??
-                residentData?.perKwhCharge ??
-                residentData?.price_per_kwh ??
-                residentData?.pricePerKwh ??
-                ""
-        );
-
-        // ---------------------------------------------------
-        // Extra Charge/Min
-        // ---------------------------------------------------
-
-        setExtraChargePerMin(
-            residentData?.extra_charge_per_min ??
-                residentData?.extraChargePerMin ??
-                residentData?.extra_charge_per_minute ??
-                residentData?.extraChargePerMinute ??
-                ""
-        );
-    }, [residentData]);
-
-    // ---------------------------------------------------
-    // Cancel
-    // ---------------------------------------------------
+    // =========================================================
+    // CANCEL
+    // =========================================================
 
     const handleCancel = () => {
         navigate(-1);
     };
 
-    // ---------------------------------------------------
-    // Clear Field Error
-    // ---------------------------------------------------
-
-    const clearError = (field) => {
-        setErrors((prev) => ({
-            ...prev,
-            [field]: "",
-        }));
-    };
-
-    // ---------------------------------------------------
-    // Form Validation
-    // ---------------------------------------------------
+    // =========================================================
+    // VALIDATION
+    // =========================================================
 
     const validateForm = () => {
         const newErrors = {};
 
-        // ---------------------------------------------------
+        // -----------------------------------------------------
         // Resident Name
-        // ---------------------------------------------------
+        // -----------------------------------------------------
 
         if (!residentName.trim()) {
             newErrors.residentName =
                 "Resident Name is required.";
         }
 
-        // ---------------------------------------------------
-        // Mobile Number
-        // ---------------------------------------------------
+        // -----------------------------------------------------
+        // Country Code
+        // -----------------------------------------------------
+
+        if (!countryCode) {
+            newErrors.countryCode =
+                "Country Code is required.";
+        }
+
+        // -----------------------------------------------------
+        // Mobile
+        // -----------------------------------------------------
 
         if (!mobileNumber.trim()) {
             newErrors.mobileNumber =
                 "Mobile Number is required.";
+        } else if (
+            !/^\d{7,15}$/.test(
+                mobileNumber
+            )
+        ) {
+            newErrors.mobileNumber =
+                "Please enter a valid Mobile Number.";
         }
 
-        // ---------------------------------------------------
-        // Email Address
-        // ---------------------------------------------------
+        // -----------------------------------------------------
+        // Email
+        // -----------------------------------------------------
 
-        if (!emailAddress.trim()) {
-            newErrors.emailAddress =
+        if (!residentEmail.trim()) {
+            newErrors.residentEmail =
                 "Email Address is required.";
         } else {
             const emailRegex =
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!emailRegex.test(emailAddress.trim())) {
-                newErrors.emailAddress =
+            if (
+                !emailRegex.test(
+                    residentEmail.trim()
+                )
+            ) {
+                newErrors.residentEmail =
                     "Please enter a valid Email Address.";
             }
         }
 
-        // ---------------------------------------------------
+        // -----------------------------------------------------
         // Community
-        // ---------------------------------------------------
+        // -----------------------------------------------------
 
-        if (!community) {
-            newErrors.community =
+        if (
+            !Array.isArray(communityIds) ||
+            communityIds.length === 0
+        ) {
+            newErrors.communityIds =
                 "Community is required.";
         }
 
-        // ---------------------------------------------------
-        // Full Address
-        // ---------------------------------------------------
+        // -----------------------------------------------------
+        // Address
+        // -----------------------------------------------------
 
-        if (!fullAddress.trim()) {
-            newErrors.fullAddress =
+        if (!address.trim()) {
+            newErrors.address =
                 "Full Address is required.";
         }
 
-        // ---------------------------------------------------
+        // -----------------------------------------------------
         // Monthly Session Allocation
-        // ---------------------------------------------------
+        // -----------------------------------------------------
 
         if (!monthlySessionAllocation) {
             newErrors.monthlySessionAllocation =
                 "Monthly Session Allocation is required.";
         }
 
-        // ---------------------------------------------------
-        // Allocated Time In Minute
-        // ---------------------------------------------------
+        // -----------------------------------------------------
+        // Allocated Time
+        // -----------------------------------------------------
 
-        if (!allocatedTimeInMinute) {
-            newErrors.allocatedTimeInMinute =
+        if (!allotedTime) {
+            newErrors.allotedTime =
                 "Allocated Time is required.";
         }
 
-        // ---------------------------------------------------
-        // kWh Allocation/Month
-        // ---------------------------------------------------
+        // -----------------------------------------------------
+        // kWh Allocated
+        // -----------------------------------------------------
 
-        if (!kwhAllocationPerMonth) {
-            newErrors.kwhAllocationPerMonth =
+        if (!kwhAllocated) {
+            newErrors.kwhAllocated =
                 "kWh Allocation/Month is required.";
         }
 
-        // ---------------------------------------------------
+        // -----------------------------------------------------
         // Per kWh Charge
-        // ---------------------------------------------------
+        // -----------------------------------------------------
 
         if (!perKwhCharge) {
             newErrors.perKwhCharge =
-                "Per kWh charge is required.";
+                "Per kWh Charge is required.";
         }
 
-        // ---------------------------------------------------
-        // Extra Charge/Min
-        // ---------------------------------------------------
+        // -----------------------------------------------------
+        // Extra Charge
+        // -----------------------------------------------------
 
-        if (!extraChargePerMin) {
-            newErrors.extraChargePerMin =
+        if (!extraCharge) {
+            newErrors.extraCharge =
                 "Extra Charge/Min Over Allocated Time is required.";
         }
 
         setErrors(newErrors);
 
-        return Object.keys(newErrors).length === 0;
+        return (
+            Object.keys(newErrors).length === 0
+        );
     };
 
-    // ---------------------------------------------------
-    // Submit
-    // ---------------------------------------------------
+    // =========================================================
+    // SUBMIT / EDIT RESIDENT
+    // =========================================================
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!validateForm()) {
-            toast.error("Some fields are missing");
+        // =====================================================
+        // RESIDENT ID CHECK
+        // =====================================================
+
+        if (!stationId) {
+            toast.error(
+                "Resident ID is missing."
+            );
             return;
         }
 
-        if (!residentId) {
-            toast.error("Resident ID is missing.");
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (!validateForm()) {
+            toast.error(
+                "Some fields are missing."
+            );
+            return;
+        }
+
+        // =====================================================
+        // USER CHECK
+        // =====================================================
+
+        if (!userDetails) {
+            toast.error(
+                "User session expired."
+            );
+
+            navigate("/login");
+            return;
+        }
+
+        // =====================================================
+        // PREVENT DOUBLE SUBMIT
+        // =====================================================
+
+        if (loading) {
             return;
         }
 
         setLoading(true);
 
+        // =====================================================
+        // FORM DATA
+        // =====================================================
+
         const formData = new FormData();
 
-        // ---------------------------------------------------
-        // Existing User Details
-        // ---------------------------------------------------
+        // =====================================================
+        // AUTH DETAILS
+        // =====================================================
 
         formData.append(
             "userId",
@@ -365,18 +937,19 @@ const EditResident = () => {
             userDetails?.email || ""
         );
 
-        // ---------------------------------------------------
-        // Resident ID
-        // ---------------------------------------------------
+        // =====================================================
+        // IMPORTANT:
+        // BACKEND editResidentMulti REQUIRES resident_id
+        // =====================================================
 
         formData.append(
             "resident_id",
-            residentId
+            stationId
         );
 
-        // ---------------------------------------------------
-        // Resident Details
-        // ---------------------------------------------------
+        // =====================================================
+        // RESIDENT DETAILS
+        // =====================================================
 
         formData.append(
             "resident_name",
@@ -389,19 +962,64 @@ const EditResident = () => {
         );
 
         formData.append(
-            "email_address",
-            emailAddress.trim()
+            "country_code",
+            countryCode || "+91"
         );
 
         formData.append(
-            "community",
-            community
+            "resident_email",
+            residentEmail.trim()
         );
 
+        // =====================================================
+        // COMMUNITY IDS
+        // =====================================================
+
+        /*
+         * MultiSelectDropdown gives:
+         *
+         * [
+         *   {
+         *      value: "CMT0026",
+         *      label: "Green Valley"
+         *   },
+         *   {
+         *      value: "CMT0027",
+         *      label: "Palm Residency"
+         *   }
+         * ]
+         *
+         * Backend parseCommunityIds() receives:
+         *
+         * CMT0026,CMT0027
+         */
+
+        const selectedCommunityIds =
+            communityIds
+                .map(
+                    (community) =>
+                        community?.value
+                )
+                .filter(Boolean)
+                .join(",");
+
         formData.append(
-            "full_address",
-            fullAddress.trim()
+            "community_ids",
+            selectedCommunityIds
         );
+
+        // =====================================================
+        // ADDRESS
+        // =====================================================
+
+        formData.append(
+            "address",
+            address.trim()
+        );
+
+        // =====================================================
+        // ALLOCATION DETAILS
+        // =====================================================
 
         formData.append(
             "monthly_session_allocation",
@@ -409,13 +1027,13 @@ const EditResident = () => {
         );
 
         formData.append(
-            "allocated_time_in_minute",
-            allocatedTimeInMinute
+            "alloted_time",
+            allotedTime
         );
 
         formData.append(
-            "kwh_allocation_per_month",
-            kwhAllocationPerMonth
+            "kwh_allocated",
+            kwhAllocated
         );
 
         formData.append(
@@ -424,103 +1042,108 @@ const EditResident = () => {
         );
 
         formData.append(
-            "extra_charge_per_min",
-            extraChargePerMin
+            "extra_charge",
+            extraCharge
         );
 
-        // ---------------------------------------------------
-        // Debug
-        // ---------------------------------------------------
+        // =====================================================
+        // DEBUG
+        // =====================================================
 
         console.log(
-            "Updating Resident:",
-            residentId
+            "========== RESIDENT EDIT REQUEST =========="
         );
 
-        console.log(
-            "Resident Form Data:",
-            {
-                resident_id: residentId,
-                resident_name: residentName,
-                mobile_number: mobileNumber,
-                email_address: emailAddress,
-                community: community,
-                full_address: fullAddress,
-                monthly_session_allocation:
-                    monthlySessionAllocation,
-                allocated_time_in_minute:
-                    allocatedTimeInMinute,
-                kwh_allocation_per_month:
-                    kwhAllocationPerMonth,
-                per_kwh_charge: perKwhCharge,
-                extra_charge_per_min:
-                    extraChargePerMin,
-            }
-        );
+        for (
+            const [key, value]
+            of formData.entries()
+        ) {
+            console.log(
+                `${key}:`,
+                value
+            );
+        }
 
-        // ---------------------------------------------------
-        // API
-        // ---------------------------------------------------
+        // =====================================================
+        // EDIT API
+        // =====================================================
 
-        postRequestWithTokenAndFile(
-            "public-charger-edit-station",
+        postRequestWithToken(
+            "resident-edit",
             formData,
-            async (response) => {
-                if (response.status === 1) {
+            (response) => {
+                console.log(
+                    "========== RESIDENT EDIT RESPONSE =========="
+                );
+
+                console.log(response);
+
+                // =================================================
+                // SUCCESS
+                // =================================================
+
+                if (
+                    response?.status === 1
+                ) {
                     toast.success(
-                        response.message ||
-                            "Resident updated successfully."
+                        response?.message ||
+                        "Resident updated successfully!"
                     );
 
                     setTimeout(() => {
                         setLoading(false);
 
-                        navigate(
-                            "/electric/public-charger-station/public-charger-station-list"
-                        );
+                        navigate(-1);
                     }, 1000);
-                } else {
-                    toast.error(
-                        response.message ||
-                            "Something went wrong."
-                    );
 
-                    console.error(
-                        "Error in public-charger-edit-station API:",
-                        response
-                    );
-
-                    setLoading(false);
+                    return;
                 }
+
+                // =================================================
+                // ERROR
+                // =================================================
+
+                const errorMessage =
+                    Array.isArray(
+                        response?.message
+                    )
+                        ? response.message.join(", ")
+                        : response?.message ||
+                          "Failed to update resident.";
+
+                toast.error(
+                    errorMessage
+                );
+
+                console.error(
+                    "Error in resident-edit API:",
+                    response
+                );
+
+                setLoading(false);
             }
         );
     };
 
-    // ---------------------------------------------------
-    // Authentication Check
-    // ---------------------------------------------------
-
-    useEffect(() => {
-        if (
-            !userDetails ||
-            !userDetails.access_token
-        ) {
-            navigate("/login");
-        }
-    }, [navigate, userDetails]);
-
-    // ---------------------------------------------------
+    // =========================================================
     // UI
-    // ---------------------------------------------------
+    // =========================================================
 
     return (
-        <div className={styles.addStationContainer}>
-
-            {/* =====================================================
+        <div
+            className={
+                styles.addStationContainer
+            }
+        >
+            {/* =================================================
                 HEADING
-            ====================================================== */}
+            ================================================= */}
 
-            <div className={styles.addHeading}>
+            <div
+                className={
+                    styles.addHeading
+                }
+            >
                 Edit Resident
             </div>
 
@@ -529,717 +1152,709 @@ const EditResident = () => {
                     styles.addStationFormSection
                 }
             >
-
                 <ToastContainer />
 
-                <form
-                    className={styles.formSection}
-                    onSubmit={handleSubmit}
-                >
-
-                    {/* =====================================================
-                        RESIDENT DETAILS
-                    ====================================================== */}
-
-                    <div className="row">
-
-                        {/* -------------------------------------------------
-                            Resident Name
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="residentName"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Resident Name
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="residentName"
-                                        placeholder="Resident Name"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            residentName
-                                        }
-                                        onChange={(e) => {
-                                            setResidentName(
-                                                e.target.value.slice(
-                                                    0,
-                                                    50
-                                                )
-                                            );
-
-                                            clearError(
-                                                "residentName"
-                                            );
-                                        }}
-                                    />
-
-                                    {errors.residentName && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.residentName
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Mobile Number
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="mobileNumber"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Mobile Number
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="mobileNumber"
-                                        placeholder="+91"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            mobileNumber
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\+?\d{0,15}$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setMobileNumber(
-                                                    value
-                                                );
-
-                                                clearError(
-                                                    "mobileNumber"
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.mobileNumber && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.mobileNumber
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Email Address
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="emailAddress"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Email Address
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="email"
-                                        autoComplete="off"
-                                        id="emailAddress"
-                                        placeholder="Email ID"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            emailAddress
-                                        }
-                                        onChange={(e) => {
-                                            setEmailAddress(
-                                                e.target.value
-                                            );
-
-                                            clearError(
-                                                "emailAddress"
-                                            );
-                                        }}
-                                    />
-
-                                    {errors.emailAddress && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.emailAddress
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Community
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="community"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Community
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <select
-                                        id="community"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={community}
-                                        onChange={(e) => {
-                                            setCommunity(
-                                                e.target.value
-                                            );
-
-                                            clearError(
-                                                "community"
-                                            );
-                                        }}
-                                    >
-                                        <option value="">
-                                            Select...
-                                        </option>
-
-                                        {/* 
-                                            Add your community
-                                            options/API here.
-                                        */}
-
-                                    </select>
-
-                                    {errors.community && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.community
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Full Address
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="fullAddress"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Full Address
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="fullAddress"
-                                        placeholder="Enter full address"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            fullAddress
-                                        }
-                                        onChange={(e) => {
-                                            setFullAddress(
-                                                e.target.value.slice(
-                                                    0,
-                                                    250
-                                                )
-                                            );
-
-                                            clearError(
-                                                "fullAddress"
-                                            );
-                                        }}
-                                    />
-
-                                    {errors.fullAddress && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.fullAddress
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Monthly Session Allocation
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="monthlySessionAllocation"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Monthly Session Allocation
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="monthlySessionAllocation"
-                                        placeholder="Monthly Session Allocation"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            monthlySessionAllocation
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\d*$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setMonthlySessionAllocation(
-                                                    value
-                                                );
-
-                                                clearError(
-                                                    "monthlySessionAllocation"
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.monthlySessionAllocation && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.monthlySessionAllocation
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Allocated Time In Minute
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="allocatedTimeInMinute"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Allocated Time In Minute
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="allocatedTimeInMinute"
-                                        placeholder="Allocated Time"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            allocatedTimeInMinute
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\d*$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setAllocatedTimeInMinute(
-                                                    value
-                                                );
-
-                                                clearError(
-                                                    "allocatedTimeInMinute"
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.allocatedTimeInMinute && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.allocatedTimeInMinute
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            kWh Allocation/Month
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="kwhAllocationPerMonth"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                kWh Allocation/Month
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="kwhAllocationPerMonth"
-                                        placeholder="kWh Allocation/Month"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            kwhAllocationPerMonth
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\d*\.?\d*$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setKwhAllocationPerMonth(
-                                                    value
-                                                );
-
-                                                clearError(
-                                                    "kwhAllocationPerMonth"
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.kwhAllocationPerMonth && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.kwhAllocationPerMonth
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Per kWh Charge
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="perKwhCharge"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Per kWh charge (AED)
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="perKwhCharge"
-                                        placeholder="Per kWh charge (AED)"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            perKwhCharge
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\d*\.?\d*$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setPerKwhCharge(
-                                                    value
-                                                );
-
-                                                clearError(
-                                                    "perKwhCharge"
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.perKwhCharge && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.perKwhCharge
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* -------------------------------------------------
-                            Extra Charge/Min
-                        -------------------------------------------------- */}
-
-                        <div className="col-lg-6">
-
-                            <label
-                                htmlFor="extraChargePerMin"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Extra Charge/Min Over Allocated Time (AED)
-                            </label>
-
-                            <div className="row">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="extraChargePerMin"
-                                        placeholder="Extra Charge/Min Over Allocated Time (AED)"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            extraChargePerMin
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\d*\.?\d*$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setExtraChargePerMin(
-                                                    value
-                                                );
-
-                                                clearError(
-                                                    "extraChargePerMin"
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.extraChargePerMin && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.extraChargePerMin
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {/* =====================================================
-                        BUTTONS
-                    ====================================================== */}
-
+                {/* =================================================
+                    LOADING DETAILS
+                ================================================= */}
+
+                {fetchingDetails ? (
                     <div
+                        style={{
+                            textAlign: "center",
+                            padding: "30px",
+                        }}
+                    >
+                        Loading resident details...
+                    </div>
+                ) : (
+                    <form
                         className={
-                            styles.editButton
+                            styles.formSection
+                        }
+                        onSubmit={
+                            handleSubmit
                         }
                     >
+                        <div className="row">
 
-                        <button
-                            type="button"
+                            {/* =================================================
+                                RESIDENT NAME
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="residentName"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Resident Name
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="text"
+                                            autoComplete="off"
+                                            id="residentName"
+                                            placeholder="Resident Name"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                residentName
+                                            }
+                                            onChange={(e) =>
+                                                setResidentName(
+                                                    e.target.value.slice(
+                                                        0,
+                                                        50
+                                                    )
+                                                )
+                                            }
+                                        />
+
+                                        {errors.residentName && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.residentName
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                CONTACT DETAILS
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <div
+                                    className={
+                                        styles.managerContactField
+                                    }
+                                >
+                                    <div
+                                        className={
+                                            styles.managerContactRow
+                                        }
+                                    >
+
+                                        {/* COUNTRY CODE */}
+
+                                        <div
+                                            className={
+                                                styles.managerContactColumn
+                                            }
+                                        >
+                                            <label
+                                                htmlFor="countryCode"
+                                                className={
+                                                    styles.labelText
+                                                }
+                                            >
+                                                Country Code
+                                            </label>
+
+                                            <CustomDropdown
+                                                options={
+                                                    countryCodeOptions
+                                                }
+                                                value={
+                                                    selectedCountryCode
+                                                }
+                                                onChange={
+                                                    handleCountryCodeChange
+                                                }
+                                                placeholder="+91"
+                                            />
+
+                                            {errors.countryCode && (
+                                                <p
+                                                    className={
+                                                        styles.error
+                                                    }
+                                                >
+                                                    {
+                                                        errors.countryCode
+                                                    }
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* MOBILE NUMBER */}
+
+                                        <div
+                                            className={
+                                                styles.managerContactColumn
+                                            }
+                                        >
+                                            <label
+                                                htmlFor="mobileNumber"
+                                                className={
+                                                    styles.labelText
+                                                }
+                                            >
+                                                Mobile No
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                autoComplete="off"
+                                                id="mobileNumber"
+                                                placeholder="Mobile Number"
+                                                className={
+                                                    styles.inputField
+                                                }
+                                                value={
+                                                    mobileNumber
+                                                }
+                                                onChange={(e) => {
+                                                    const value =
+                                                        e.target.value;
+
+                                                    if (
+                                                        /^\d{0,15}$/.test(
+                                                            value
+                                                        )
+                                                    ) {
+                                                        setMobileNumber(
+                                                            value
+                                                        );
+                                                    }
+                                                }}
+                                            />
+
+                                            {errors.mobileNumber && (
+                                                <p
+                                                    className={
+                                                        styles.error
+                                                    }
+                                                >
+                                                    {
+                                                        errors.mobileNumber
+                                                    }
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                EMAIL
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="residentEmail"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Email Address
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="email"
+                                            autoComplete="off"
+                                            id="residentEmail"
+                                            placeholder="Email ID"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                residentEmail
+                                            }
+                                            onChange={(e) =>
+                                                setResidentEmail(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+                                        {errors.residentEmail && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.residentEmail
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                COMMUNITY
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="community"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Community
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+
+                                        <MultiSelectDropdown
+                                            options={
+                                                communityOptions
+                                            }
+                                            value={
+                                                communityIds
+                                            }
+                                            onChange={
+                                                handleCommunityChange
+                                            }
+                                            labelledBy="Select Community"
+                                            closeOnChangedValue={
+                                                false
+                                            }
+                                            closeOnSelect={
+                                                false
+                                            }
+                                            enableSelectAll
+                                        />
+
+                                        {!communityLoading &&
+                                            communityOptions.length ===
+                                                0 && (
+                                                <p
+                                                    className={
+                                                        styles.error
+                                                    }
+                                                >
+                                                    No communities available.
+                                                </p>
+                                            )}
+
+                                        {errors.communityIds && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.communityIds
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                FULL ADDRESS
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="address"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Full Address
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="text"
+                                            autoComplete="off"
+                                            id="address"
+                                            placeholder="Enter full address"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                address
+                                            }
+                                            onChange={(e) =>
+                                                setAddress(
+                                                    e.target.value.slice(
+                                                        0,
+                                                        250
+                                                    )
+                                                )
+                                            }
+                                        />
+
+                                        {errors.address && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.address
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                MONTHLY SESSION ALLOCATION
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="monthlySessionAllocation"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Monthly Session Allocation
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="off"
+                                            id="monthlySessionAllocation"
+                                            placeholder="Monthly Session Allocation"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                monthlySessionAllocation
+                                            }
+                                            onChange={(e) => {
+                                                const value =
+                                                    e.target.value;
+
+                                                if (
+                                                    /^\d*$/.test(
+                                                        value
+                                                    )
+                                                ) {
+                                                    setMonthlySessionAllocation(
+                                                        value
+                                                    );
+                                                }
+                                            }}
+                                        />
+
+                                        {errors.monthlySessionAllocation && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.monthlySessionAllocation
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                ALLOCATED TIME
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="allotedTime"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Allocated Time In Minute
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="off"
+                                            id="allotedTime"
+                                            placeholder="Allocated Time"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                allotedTime
+                                            }
+                                            onChange={(e) => {
+                                                const value =
+                                                    e.target.value;
+
+                                                if (
+                                                    /^\d*$/.test(
+                                                        value
+                                                    )
+                                                ) {
+                                                    setAllotedTime(
+                                                        value
+                                                    );
+                                                }
+                                            }}
+                                        />
+
+                                        {errors.allotedTime && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.allotedTime
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                KWH
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="kwhAllocated"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    kWh Allocation/Month
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            autoComplete="off"
+                                            id="kwhAllocated"
+                                            placeholder="kWh Allocation/Month"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                kwhAllocated
+                                            }
+                                            onChange={(e) => {
+                                                const value =
+                                                    e.target.value;
+
+                                                if (
+                                                    /^\d*\.?\d*$/.test(
+                                                        value
+                                                    )
+                                                ) {
+                                                    setKwhAllocated(
+                                                        value
+                                                    );
+                                                }
+                                            }}
+                                        />
+
+                                        {errors.kwhAllocated && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.kwhAllocated
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                PER KWH CHARGE
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="perKwhCharge"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Per kWh Charge (AED)
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            autoComplete="off"
+                                            id="perKwhCharge"
+                                            placeholder="Per kWh Charge (AED)"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                perKwhCharge
+                                            }
+                                            onChange={(e) => {
+                                                const value =
+                                                    e.target.value;
+
+                                                if (
+                                                    /^\d*\.?\d*$/.test(
+                                                        value
+                                                    )
+                                                ) {
+                                                    setPerKwhCharge(
+                                                        value
+                                                    );
+                                                }
+                                            }}
+                                        />
+
+                                        {errors.perKwhCharge && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.perKwhCharge
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                EXTRA CHARGE
+                            ================================================= */}
+
+                            <div className="col-lg-6">
+                                <label
+                                    htmlFor="extraCharge"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Extra Charge/Min Over Allocated Time (AED)
+                                </label>
+
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            autoComplete="off"
+                                            id="extraCharge"
+                                            placeholder="Extra Charge/Min Over Allocated Time (AED)"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                extraCharge
+                                            }
+                                            onChange={(e) => {
+                                                const value =
+                                                    e.target.value;
+
+                                                if (
+                                                    /^\d*\.?\d*$/.test(
+                                                        value
+                                                    )
+                                                ) {
+                                                    setExtraCharge(
+                                                        value
+                                                    );
+                                                }
+                                            }}
+                                        />
+
+                                        {errors.extraCharge && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.extraCharge
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* =====================================================
+                            BUTTONS
+                        ====================================================== */}
+
+                        <div
                             className={
-                                styles.editCancelBtn
-                            }
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            disabled={loading}
-                            type="submit"
-                            className={
-                                styles.editSubmitBtn
+                                styles.editButton
                             }
                         >
-                            {loading ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm me-2"></span>
-                                    Update...
-                                </>
-                            ) : (
-                                "Update"
-                            )}
-                        </button>
+                            <button
+                                type="button"
+                                className={
+                                    styles.editCancelBtn
+                                }
+                                onClick={
+                                    handleCancel
+                                }
+                                disabled={
+                                    loading
+                                }
+                            >
+                                Cancel
+                            </button>
 
-                    </div>
-
-                </form>
+                            <button
+                                disabled={
+                                    loading ||
+                                    fetchingDetails
+                                }
+                                type="submit"
+                                className={
+                                    styles.editSubmitBtn
+                                }
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2"></span>
+                                        Updating...
+                                    </>
+                                ) : (
+                                    "Update Resident"
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );

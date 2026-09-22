@@ -291,10 +291,10 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     {pageHeading === 'Total Resident List' && (
                                         <>
                                             {access.includes('edit') && (
-                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/community/edit-resident', data.offer_id)} />
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/community/edit-resident', data.resident_id)} />
                                             )}
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/resident-details', data.offer_id)} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/resident-details', data.resident_id)} />
                                             )}
                                         </>
                                     )}

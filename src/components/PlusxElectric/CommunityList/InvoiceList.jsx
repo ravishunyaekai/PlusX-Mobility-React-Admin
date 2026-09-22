@@ -20,6 +20,7 @@ const PublicInvoiceList = () => {
     const navigate = useNavigate();
 
     const [invoiceList, setInvoiceList] = useState([]);
+    const [scheduleFilters, setScheduleFilters] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(null);
@@ -176,6 +177,10 @@ const PublicInvoiceList = () => {
             }
         );
     };
+    const scheduleFilteredData = (newFilters = {}) => {
+        setScheduleFilters(newFilters);
+        setCurrentPage(1);
+    };
 
     return (
         <div className='main-container'>
@@ -190,6 +195,8 @@ const PublicInvoiceList = () => {
                 filterValues={filters}
                 searchTerm={searchTerm}
                 count={totalCount}
+                scheduleDateChange={scheduleFilteredData}
+                scheduleFilters={scheduleFilters}
             />
 
             {loading ? (

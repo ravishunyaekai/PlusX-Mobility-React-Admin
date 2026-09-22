@@ -1,445 +1,839 @@
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
-    postRequestWithTokenAndFile,
+    postRequestWithToken,
 } from "../../../api/Requests";
 
 import styles from "./AddCommunity.module.css";
 
+import {
+    getCountries,
+    getCountryCallingCode,
+} from "libphonenumber-js";
+
+import CustomDropdown from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
+
+
 const EditCommunity = () => {
+
     const navigate = useNavigate();
     const location = useLocation();
-
-    // ---------------------------------------------------
-    // User Details
-    // ---------------------------------------------------
+    const { stationId } = useParams();
 
     const userDetails = JSON.parse(
         sessionStorage.getItem("userDetails") || "null"
     );
 
-    // ---------------------------------------------------
-    // Existing Community Data
-    // ---------------------------------------------------
 
-    const communityData =
-        location.state?.community ||
-        location.state?.communityData ||
-        location.state?.data ||
-        null;
-
-    // ---------------------------------------------------
-    // Community ID
-    // ---------------------------------------------------
+    // =========================================================
+    // COMMUNITY ID
+    // =========================================================
 
     const communityId =
-        communityData?.community_id ||
-        communityData?.communityId ||
-        communityData?.id ||
-        location.state?.communityId ||
-        location.state?.community_id ||
+        stationId ||
         "";
 
-    // ---------------------------------------------------
-    // Form State
-    // ---------------------------------------------------
 
-    const [communityName, setCommunityName] = useState("");
-    const [areaName, setAreaName] = useState("");
-    const [totalResidents, setTotalResidents] = useState("");
+    // =========================================================
+    // COMMUNITY DETAILS
+    // =========================================================
 
-    const [managerName, setManagerName] = useState("");
-    const [managerEmail, setManagerEmail] = useState("");
-    const [managerContact, setManagerContact] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+    const [communityName, setCommunityName] =
+        useState("");
 
-    // ---------------------------------------------------
-    // Charger Details
-    // ---------------------------------------------------
+    const [areaName, setAreaName] =
+        useState("");
 
-    const [chargerDetails, setChargerDetails] = useState([
-        {
-            chargerId: "",
-            kWh: "",
-        },
-    ]);
+    const [totalResidents, setTotalResidents] =
+        useState("");
 
-    const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
 
-    // ---------------------------------------------------
-    // Load Existing Community Data
-    // ---------------------------------------------------
+    // =========================================================
+    // MANAGER DETAILS
+    // =========================================================
 
-    useEffect(() => {
-        if (!communityData) {
-            toast.error("Community data not found.");
+    const [managerName, setManagerName] =
+        useState("");
 
-            setTimeout(() => {
-                // navigate(
-                //     "/electric/public-charger-station/public-charger-station-list"
-                // );
-            }, 1000);
+    const [managerEmail, setManagerEmail] =
+        useState("");
+
+    const [countryCode, setCountryCode] =
+        useState("+91");
+
+    const [managerContact, setManagerContact] =
+        useState("");
+
+    const [password, setPassword] =
+        useState("");
+
+    const [confirmPassword, setConfirmPassword] =
+        useState("");
+
+
+    // =========================================================
+    // CHARGER DETAILS
+    // =========================================================
+
+    const [chargerDetails, setChargerDetails] =
+        useState([
+            {
+                chargerId: "",
+                kWh: "",
+            },
+        ]);
+
+
+    // =========================================================
+    // COMMON STATE
+    // =========================================================
+
+    const [errors, setErrors] =
+        useState({});
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [fetchingDetails, setFetchingDetails] =
+        useState(false);
+
+
+    // =========================================================
+    // COUNTRY CODE OPTIONS
+    // =========================================================
+
+    const countryCodeOptions = useMemo(() => {
+
+        const displayNames = new Intl.DisplayNames(
+            ["en"],
+            {
+                type: "region",
+            }
+        );
+
+        return getCountries()
+            .map((country) => {
+
+                let countryName = country;
+
+                try {
+
+                    countryName =
+                        displayNames.of(country) ||
+                        country;
+
+                } catch (error) {
+
+                    countryName = country;
+
+                }
+
+                const callingCode =
+                    `+${getCountryCallingCode(country)}`;
+
+                return {
+                    value: callingCode,
+                    label: `${countryName} (${callingCode})`,
+                    countryName,
+                };
+
+            })
+            .sort((a, b) =>
+                a.countryName.localeCompare(
+                    b.countryName
+                )
+            );
+
+    }, []);
+
+
+    // =========================================================
+    // SELECTED COUNTRY CODE
+    // =========================================================
+
+    const selectedCountryCode =
+        countryCodeOptions.find(
+            (option) =>
+                option.value === countryCode
+        ) || null;
+
+
+    // =========================================================
+    // FETCH COMMUNITY DETAILS
+    // =========================================================
+
+    const fetchDetails = () => {
+
+        if (!communityId) {
+
+            toast.error(
+                "Community ID is missing."
+            );
 
             return;
+
         }
 
-        // ---------------------------------------------------
-        // Community Details
-        // ---------------------------------------------------
+        setFetchingDetails(true);
 
-        setCommunityName(
-            communityData?.community_name ||
-                communityData?.communityName ||
-                ""
+        const obj = {
+
+            userId:
+                userDetails?.user_id || "",
+
+            email:
+                userDetails?.email || "",
+
+            community_id:
+                communityId,
+
+        };
+
+
+        console.log(
+            "community-details request:",
+            obj
         );
 
-        setAreaName(
-            communityData?.area_name ||
-                communityData?.areaName ||
-                ""
-        );
 
-        setTotalResidents(
-            communityData?.total_residents ??
-                communityData?.totalResidents ??
-                ""
-        );
+        postRequestWithToken(
+            "community-details",
+            obj,
+            (response) => {
 
-        // ---------------------------------------------------
-        // Manager Details
-        // ---------------------------------------------------
-
-        setManagerName(
-            communityData?.manager_name ||
-                communityData?.managerName ||
-                ""
-        );
-
-        setManagerEmail(
-            communityData?.manager_email ||
-                communityData?.managerEmail ||
-                ""
-        );
-
-        setManagerContact(
-            communityData?.manager_contact ||
-                communityData?.managerContact ||
-                ""
-        );
-
-        // ---------------------------------------------------
-        // Charger Details
-        // ---------------------------------------------------
-
-        let existingChargers =
-            communityData?.charger_details ||
-            communityData?.chargerDetails ||
-            communityData?.chargers ||
-            [];
-
-        // If API sends charger_details as JSON string
-        if (typeof existingChargers === "string") {
-            try {
-                existingChargers = JSON.parse(
-                    existingChargers
-                );
-            } catch (error) {
-                console.error(
-                    "Unable to parse charger details:",
-                    error
+                console.log(
+                    "community-details response:",
+                    response
                 );
 
-                existingChargers = [];
+
+                if (
+                    response?.code === 200 ||
+                    response?.status === 1
+                ) {
+
+                    // =================================================
+                    // COMMUNITY DATA
+                    // =================================================
+
+                    const community =
+                        response?.data || {};
+
+
+                    setCommunityName(
+                        community?.community_name || ""
+                    );
+
+
+                    setAreaName(
+                        community?.area_name || ""
+                    );
+
+
+                    setTotalResidents(
+                        community?.total_residence !== null &&
+                            community?.total_residence !== undefined
+                            ? String(
+                                community.total_residence
+                            )
+                            : ""
+                    );
+
+
+                    // =================================================
+                    // MANAGER DATA
+                    //
+                    // Backend can return:
+                    //
+                    // name / email / contact
+                    //
+                    // OR
+                    //
+                    // manager_name / manager_email /
+                    // manager_contact
+                    // =================================================
+
+                    const manager =
+                        response?.manager || {};
+
+
+                    setManagerName(
+                        manager?.manager_name ||
+                        manager?.name ||
+                        ""
+                    );
+
+
+                    setManagerEmail(
+                        manager?.manager_email ||
+                        manager?.email ||
+                        ""
+                    );
+
+
+                    setCountryCode(
+                        manager?.country_code ||
+                        "+91"
+                    );
+
+
+                    setManagerContact(
+                        manager?.manager_contact ||
+                        manager?.contact ||
+                        ""
+                    );
+
+
+                    // =================================================
+                    // CHARGER DATA
+                    //
+                    // Backend:
+                    //
+                    // charger_id
+                    // kw
+                    //
+                    // Form:
+                    //
+                    // chargerId
+                    // kWh
+                    // =================================================
+
+                    const chargers =
+                        Array.isArray(
+                            response?.chargers
+                        )
+                            ? response.chargers
+                            : [];
+
+
+                    if (chargers.length > 0) {
+
+                        const formattedChargers =
+                            chargers.map(
+                                (charger) => ({
+
+                                    chargerId:
+                                        charger?.charger_id ||
+                                        charger?.chargerId ||
+                                        "",
+
+                                    kWh:
+                                        charger?.kw !== null &&
+                                            charger?.kw !== undefined
+                                            ? String(
+                                                charger.kw
+                                            )
+                                            : charger?.kWh !== null &&
+                                                charger?.kWh !== undefined
+                                                ? String(
+                                                    charger.kWh
+                                                )
+                                                : "",
+
+                                })
+                            );
+
+
+                        setChargerDetails(
+                            formattedChargers
+                        );
+
+                    } else {
+
+                        // Keep at least one row
+                        setChargerDetails([
+                            {
+                                chargerId: "",
+                                kWh: "",
+                            },
+                        ]);
+
+                    }
+
+
+                    // Clear previous errors
+                    setErrors({});
+
+                } else {
+
+                    console.error(
+                        "Error in community-details API:",
+                        response
+                    );
+
+
+                    toast.error(
+                        response?.message ||
+                        "Unable to fetch community details."
+                    );
+
+                }
+
+                setFetchingDetails(false);
+
             }
-        }
+        );
 
-        if (
-            Array.isArray(existingChargers) &&
-            existingChargers.length > 0
-        ) {
-            setChargerDetails(
-                existingChargers.map((charger) => ({
-                    chargerId:
-                        charger?.chargerId ||
-                        charger?.charger_id ||
-                        "",
-                    kWh:
-                        charger?.kWh ??
-                        charger?.kwh ??
-                        charger?.kwH ??
-                        "",
-                }))
-            );
-        } else {
-            setChargerDetails([
-                {
-                    chargerId: "",
-                    kWh: "",
-                },
-            ]);
-        }
-    }, [communityData, navigate]);
-
-    // ---------------------------------------------------
-    // Cancel
-    // ---------------------------------------------------
-
-    const handleCancel = () => {
-        navigate(-1);
     };
 
-    // ---------------------------------------------------
-    // Charger Details - Change
-    // ---------------------------------------------------
+
+    // =========================================================
+    // AUTHENTICATION + FETCH DETAILS
+    // =========================================================
+
+    useEffect(() => {
+
+        if (
+            !userDetails ||
+            !userDetails.access_token
+        ) {
+
+            navigate("/login");
+
+            return;
+
+        }
+
+
+        if (!communityId) {
+
+            toast.error(
+                "Community ID is missing."
+            );
+
+            return;
+
+        }
+
+
+        fetchDetails();
+
+    }, [communityId]);
+
+
+    // =========================================================
+    // CANCEL
+    // =========================================================
+
+    const handleCancel = () => {
+
+        navigate(-1);
+
+    };
+
+
+    // =========================================================
+    // CHARGER CHANGE
+    // =========================================================
 
     const handleChargerChange = (
         index,
         field,
         value
     ) => {
+
         setChargerDetails((prev) =>
-            prev.map((charger, i) =>
-                i === index
-                    ? {
-                          ...charger,
-                          [field]: value,
-                      }
-                    : charger
+            prev.map(
+                (charger, i) =>
+                    i === index
+                        ? {
+                            ...charger,
+                            [field]: value,
+                        }
+                        : charger
             )
         );
 
-        // Clear field-specific error
+
         setErrors((prev) => {
+
             const updatedErrors = {
                 ...prev,
             };
 
+
             if (
-                updatedErrors.chargerDetails?.[index]?.[
-                    field
-                ]
+                updatedErrors
+                    .chargerDetails?.[index]?.[field]
             ) {
+
                 const chargerErrors = [
                     ...(updatedErrors.chargerDetails || []),
                 ];
+
 
                 chargerErrors[index] = {
                     ...(chargerErrors[index] || {}),
                     [field]: "",
                 };
 
+
                 updatedErrors.chargerDetails =
                     chargerErrors;
+
             }
 
+
             return updatedErrors;
+
         });
+
     };
 
-    // ---------------------------------------------------
-    // Add Charger
-    // ---------------------------------------------------
+
+    // =========================================================
+    // ADD CHARGER
+    // =========================================================
 
     const addCharger = () => {
+
         setChargerDetails((prev) => [
+
             ...prev,
+
             {
                 chargerId: "",
                 kWh: "",
             },
+
         ]);
+
     };
 
-    // ---------------------------------------------------
-    // Remove Charger
-    // ---------------------------------------------------
+
+    // =========================================================
+    // REMOVE CHARGER
+    // =========================================================
 
     const removeCharger = (index) => {
-        // At least one charger should remain
+
         if (chargerDetails.length === 1) {
+
             return;
+
         }
 
+
         setChargerDetails((prev) =>
-            prev.filter((_, i) => i !== index)
+            prev.filter(
+                (_, i) =>
+                    i !== index
+            )
         );
 
+
         setErrors((prev) => {
+
             const updatedErrors = {
                 ...prev,
             };
 
-            if (updatedErrors.chargerDetails) {
+
+            if (
+                updatedErrors.chargerDetails
+            ) {
+
                 updatedErrors.chargerDetails =
-                    updatedErrors.chargerDetails.filter(
-                        (_, i) => i !== index
-                    );
+                    updatedErrors
+                        .chargerDetails
+                        .filter(
+                            (_, i) =>
+                                i !== index
+                        );
+
             }
 
+
             return updatedErrors;
+
         });
+
     };
 
-    // ---------------------------------------------------
-    // Form Validation
-    // ---------------------------------------------------
+
+    // =========================================================
+    // FORM VALIDATION
+    // =========================================================
 
     const validateForm = () => {
+
         const newErrors = {};
 
-        // ---------------------------------------------------
-        // Community Name
-        // ---------------------------------------------------
+
+        // =====================================================
+        // COMMUNITY NAME
+        // =====================================================
 
         if (!communityName.trim()) {
+
             newErrors.communityName =
                 "Community Name is required.";
+
         }
 
-        // ---------------------------------------------------
-        // Area Name
-        // ---------------------------------------------------
+
+        // =====================================================
+        // AREA NAME
+        // =====================================================
 
         if (!areaName.trim()) {
+
             newErrors.areaName =
                 "Area Name is required.";
+
         }
 
-        // ---------------------------------------------------
-        // Total Residents
-        // ---------------------------------------------------
+
+        // =====================================================
+        // TOTAL RESIDENTS
+        // =====================================================
 
         if (!totalResidents) {
+
             newErrors.totalResidents =
                 "Total No. of Residents is required.";
+
         }
 
-        // ---------------------------------------------------
-        // Manager Name
-        // ---------------------------------------------------
+
+        // =====================================================
+        // MANAGER NAME
+        // =====================================================
 
         if (!managerName.trim()) {
+
             newErrors.managerName =
                 "Manager Name is required.";
+
         }
 
-        // ---------------------------------------------------
-        // Manager Email
-        // ---------------------------------------------------
+
+        // =====================================================
+        // MANAGER EMAIL
+        // =====================================================
 
         if (!managerEmail.trim()) {
+
             newErrors.managerEmail =
                 "Email ID is required.";
+
         } else {
+
             const emailRegex =
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!emailRegex.test(managerEmail)) {
+
+            if (
+                !emailRegex.test(
+                    managerEmail.trim()
+                )
+            ) {
+
                 newErrors.managerEmail =
                     "Please enter a valid Email ID.";
+
             }
+
         }
 
-        // ---------------------------------------------------
-        // Password
-        // ---------------------------------------------------
 
-        // Password is optional during edit.
-        // If user enters password, confirm password is required.
+        // =====================================================
+        // MANAGER CONTACT
+        // =====================================================
 
-        if (password && !confirmPassword) {
-            newErrors.confirmPassword =
-                "Confirm Password is required.";
+        if (managerContact) {
+
+            if (
+                !/^\d{6,15}$/.test(
+                    managerContact
+                )
+            ) {
+
+                newErrors.managerContact =
+                    "Please enter a valid contact number.";
+
+            }
+
         }
 
-        // ---------------------------------------------------
-        // Password Match
-        // ---------------------------------------------------
 
-        if (
-            password &&
-            confirmPassword &&
-            password !== confirmPassword
-        ) {
-            newErrors.confirmPassword =
-                "Passwords do not match.";
+        // =====================================================
+        // PASSWORD
+        //
+        // IMPORTANT:
+        // In EDIT mode password is optional.
+        //
+        // If user enters password, confirm it.
+        // =====================================================
+
+        if (password) {
+
+            if (password.length < 6) {
+
+                newErrors.password =
+                    "Password must be at least 6 characters.";
+
+            }
+
+
+            if (!confirmPassword) {
+
+                newErrors.confirmPassword =
+                    "Confirm Password is required.";
+
+            } else if (
+                password !== confirmPassword
+            ) {
+
+                newErrors.confirmPassword =
+                    "Passwords do not match.";
+
+            }
+
         }
 
-        // ---------------------------------------------------
-        // Charger Details
-        // ---------------------------------------------------
+
+        // =====================================================
+        // CHARGER DETAILS
+        // =====================================================
 
         const chargerErrors = [];
 
-        chargerDetails.forEach((charger) => {
-            const rowErrors = {};
 
-            if (!charger.chargerId.trim()) {
-                rowErrors.chargerId =
-                    "Charger ID is required.";
+        chargerDetails.forEach(
+            (charger) => {
+
+                const rowErrors = {};
+
+
+                if (
+                    !charger.chargerId.trim()
+                ) {
+
+                    rowErrors.chargerId =
+                        "Charger ID is required.";
+
+                }
+
+
+                if (
+                    charger.kWh === "" ||
+                    charger.kWh === null ||
+                    charger.kWh === undefined
+                ) {
+
+                    rowErrors.kWh =
+                        "kWh is required.";
+
+                }
+
+
+                chargerErrors.push(
+                    rowErrors
+                );
+
             }
+        );
 
-            if (
-                charger.kWh === "" ||
-                charger.kWh === null ||
-                charger.kWh === undefined
-            ) {
-                rowErrors.kWh =
-                    "kWh is required.";
-            }
-
-            chargerErrors.push(rowErrors);
-        });
 
         const hasChargerErrors =
             chargerErrors.some(
                 (error) =>
-                    Object.keys(error).length > 0
+                    Object.keys(error)
+                        .length > 0
             );
 
+
         if (hasChargerErrors) {
+
             newErrors.chargerDetails =
                 chargerErrors;
+
         }
 
-        setErrors(newErrors);
+
+        setErrors(
+            newErrors
+        );
+
 
         return (
-            Object.keys(newErrors).length === 0
+            Object.keys(newErrors)
+                .length === 0
         );
+
     };
 
-    // ---------------------------------------------------
-    // Submit
-    // ---------------------------------------------------
+
+    // =========================================================
+    // SUBMIT EDIT COMMUNITY
+    // =========================================================
 
     const handleSubmit = (e) => {
+
         e.preventDefault();
 
-        if (!validateForm()) {
-            toast.error("Some fields are missing");
-            return;
-        }
+        // ---------------------------------------------------------
+        // Community ID
+        // ---------------------------------------------------------
 
         if (!communityId) {
+
             toast.error(
                 "Community ID is missing."
             );
+
             return;
+
         }
+
+
+        // ---------------------------------------------------------
+        // Validate form
+        // ---------------------------------------------------------
+
+        const isValid =
+            validateForm();
+
+        if (!isValid) {
+
+            toast.error(
+                "Some fields are missing or invalid."
+            );
+
+            return;
+
+        }
+
+
+        // ---------------------------------------------------------
+        // Prevent multiple submissions
+        // ---------------------------------------------------------
+
+        if (loading) {
+
+            return;
+
+        }
+
 
         setLoading(true);
 
-        const formData = new FormData();
 
-        // ---------------------------------------------------
-        // Existing User Details
-        // ---------------------------------------------------
+        // ---------------------------------------------------------
+        // Create FormData
+        // ---------------------------------------------------------
+
+        const formData =
+            new FormData();
+
+
+        // =========================================================
+        // AUTHENTICATION
+        // =========================================================
 
         formData.append(
             "userId",
@@ -451,18 +845,20 @@ const EditCommunity = () => {
             userDetails?.email || ""
         );
 
-        // ---------------------------------------------------
-        // Community ID
-        // ---------------------------------------------------
+
+        // =========================================================
+        // COMMUNITY ID
+        // =========================================================
 
         formData.append(
             "community_id",
             communityId
         );
 
-        // ---------------------------------------------------
-        // Community Details
-        // ---------------------------------------------------
+
+        // =========================================================
+        // COMMUNITY DETAILS
+        // =========================================================
 
         formData.append(
             "community_name",
@@ -475,13 +871,52 @@ const EditCommunity = () => {
         );
 
         formData.append(
-            "total_residents",
+            "total_residence",
             totalResidents
         );
 
-        // ---------------------------------------------------
-        // Manager Details
-        // ---------------------------------------------------
+
+        // =========================================================
+        // CHARGER DETAILS
+        //
+        // Backend expects:
+        //
+        // chargers = JSON array
+        // kwValues = JSON array
+        //
+        // Example:
+        //
+        // chargers = ["CH001", "CH002"]
+        // kwValues = ["7", "11"]
+        // =========================================================
+
+        const chargers =
+            chargerDetails.map(
+                (charger) =>
+                    charger.chargerId.trim()
+            );
+
+        const kwValues =
+            chargerDetails.map(
+                (charger) =>
+                    charger.kWh
+            );
+
+
+        formData.append(
+            "chargers",
+            JSON.stringify(chargers)
+        );
+
+        formData.append(
+            "kwValues",
+            JSON.stringify(kwValues)
+        );
+
+
+        // =========================================================
+        // MANAGER DETAILS
+        // =========================================================
 
         formData.append(
             "manager_name",
@@ -493,337 +928,448 @@ const EditCommunity = () => {
             managerEmail.trim()
         );
 
-        if (managerContact) {
-            formData.append(
-                "manager_contact",
-                managerContact
-            );
-        }
+        formData.append(
+            "manager_contact",
+            managerContact || ""
+        );
 
-        // ---------------------------------------------------
-        // Password
-        // ---------------------------------------------------
+        formData.append(
+            "country_code",
+            countryCode || "+91"
+        );
 
-        // Only send password if user wants to change it.
+
+        // =========================================================
+        // PASSWORD
+        //
+        // Backend allows password to be optional during edit.
+        //
+        // If blank:
+        // existing password remains unchanged.
+        //
+        // If entered:
+        // backend will hash and update it.
+        // =========================================================
+
         if (password) {
+
             formData.append(
                 "password",
                 password
             );
 
-            formData.append(
-                "confirm_password",
-                confirmPassword
-            );
         }
 
-        // ---------------------------------------------------
-        // Charger Details
-        // ---------------------------------------------------
 
-        const formattedChargerDetails =
-            chargerDetails.map((charger) => ({
-                chargerId:
-                    charger.chargerId.trim(),
-                kWh: charger.kWh,
-            }));
-
-        formData.append(
-            "charger_details",
-            JSON.stringify(
-                formattedChargerDetails
-            )
-        );
-
-        // ---------------------------------------------------
-        // Debug
-        // ---------------------------------------------------
+        // =========================================================
+        // DEBUG
+        // =========================================================
 
         console.log(
-            "Updating Community:",
-            communityId
+            "========== COMMUNITY EDIT REQUEST =========="
         );
 
-        console.log(
-            "Charger Details:",
-            formattedChargerDetails
-        );
+        for (
+            const [key, value]
+            of formData.entries()
+        ) {
 
-        // ---------------------------------------------------
-        // API
-        // ---------------------------------------------------
+            console.log(
+                key,
+                ":",
+                value
+            );
 
-        /*
-         * Change this endpoint if your backend
-         * uses a different update API name.
-         *
-         * Current endpoint:
-         * public-charger-edit-station
-         */
+        }
 
-        postRequestWithTokenAndFile(
-            "public-charger-edit-station",
+
+        // =========================================================
+        // API CALL
+        // =========================================================
+
+        postRequestWithToken(
+            "community-edit",
             formData,
-            async (response) => {
-                if (response.status === 1) {
+            (response) => {
+
+                console.log(
+                    "community-edit response:",
+                    response
+                );
+
+
+                // =====================================================
+                // SUCCESS
+                // =====================================================
+
+                if (
+                    response?.status === 1
+                ) {
+
                     toast.success(
-                        response.message ||
-                            "Community updated successfully."
+                        response?.message ||
+                        "Community updated successfully."
                     );
 
+
                     setTimeout(() => {
+
                         setLoading(false);
 
                         navigate(
-                            "/electric/public-charger-station/public-charger-station-list"
+                            "/electric/community/community-list"
                         );
+
                     }, 1000);
-                } else {
-                    toast.error(
-                        response.message ||
-                            "Something went wrong."
-                    );
 
-                    console.error(
-                        "Error in public-charger-edit-station API:",
-                        response
-                    );
 
-                    setLoading(false);
+                    return;
+
                 }
+
+
+                // =====================================================
+                // ERROR
+                // =====================================================
+
+                toast.error(
+                    Array.isArray(response?.message)
+                        ? response.message.join(", ")
+                        : response?.message ||
+                        "Failed to update community."
+                );
+
+
+                console.error(
+                    "community-edit API error:",
+                    response
+                );
+
+
+                setLoading(false);
+
             }
         );
+
     };
 
-    // ---------------------------------------------------
-    // Authentication Check
-    // ---------------------------------------------------
 
-    useEffect(() => {
-        if (
-            !userDetails ||
-            !userDetails.access_token
-        ) {
-            navigate("/login");
-        }
-    }, [navigate]);
 
-    // ---------------------------------------------------
+    // =========================================================
     // UI
-    // ---------------------------------------------------
+    // =========================================================
 
     return (
-        <div className={styles.addStationContainer}>
-            {/* =====================================================
-                HEADING
-            ====================================================== */}
 
-            <div className={styles.addHeading}>
+        <div
+            className={
+                styles.addStationContainer
+            }
+        >
+
+            {/* =================================================
+                HEADING
+            ================================================== */}
+
+            <div
+                className={
+                    styles.addHeading
+                }
+            >
                 Edit Community
             </div>
+
 
             <div
                 className={
                     styles.addStationFormSection
                 }
             >
+
                 <ToastContainer />
 
-                <form
-                    className={styles.formSection}
-                    onSubmit={handleSubmit}
-                >
-                    {/* =====================================================
-                        COMMUNITY DETAILS
-                    ====================================================== */}
 
-                    <div className="row">
-                        <label
-                            className={
-                                styles.labelText
-                            }
+                {/* =================================================
+                    LOADING COMMUNITY DETAILS
+                ================================================== */}
+
+                {fetchingDetails ? (
+
+                    <div
+                        className="d-flex justify-content-center align-items-center"
+                        style={{
+                            minHeight: "300px",
+                        }}
+                    >
+
+                        <div
+                            className="spinner-border"
+                            role="status"
                         >
-                            Community Details
-                        </label>
-
-                        {/* Community Name */}
-                        <div className="col-lg-6">
-                            <label
-                                htmlFor="communityName"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Community Name
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="communityName"
-                                        placeholder="Community Name"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            communityName
-                                        }
-                                        onChange={(e) =>
-                                            setCommunityName(
-                                                e.target.value.slice(
-                                                    0,
-                                                    50
-                                                )
-                                            )
-                                        }
-                                    />
-
-                                    {errors.communityName && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.communityName
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
+                            <span className="visually-hidden">
+                                Loading...
+                            </span>
                         </div>
 
-                        {/* Area Name */}
-                        <div className="col-lg-6">
-                            <label
-                                htmlFor="areaName"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Area Name
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="areaName"
-                                        placeholder="Area Name"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={areaName}
-                                        onChange={(e) =>
-                                            setAreaName(
-                                                e.target.value.slice(
-                                                    0,
-                                                    50
-                                                )
-                                            )
-                                        }
-                                    />
-
-                                    {errors.areaName && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.areaName
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Total Residents */}
-                        <div className="col-lg-6">
-                            <label
-                                htmlFor="totalResidents"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Total No. of Residents
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="totalResidents"
-                                        placeholder="Total No. of Residents"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            totalResidents
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\d{0,6}$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setTotalResidents(
-                                                    value
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.totalResidents && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.totalResidents
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
-                    {/* =====================================================
-                        MANAGER DETAILS
-                    ====================================================== */}
+                ) : (
 
-                    <div className="row">
-                        <label
-                            className={
-                                styles.labelText
-                            }
-                        >
-                            Manager Details
-                        </label>
+                    <form
+                        className={
+                            styles.formSection
+                        }
+                        onSubmit={
+                            handleSubmit
+                        }
+                    >
 
-                        {/* Manager Name */}
-                        <div className="col-lg-6">
+                        {/* =================================================
+                            COMMUNITY DETAILS
+                        ================================================== */}
+
+                        <div className="row">
+
                             <label
-                                htmlFor="managerName"
                                 className={
                                     styles.labelText
                                 }
                             >
-                                Manager Name
+                                Community Details
                             </label>
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
+
+                            {/* Community Name */}
+
+                            <div className="col-lg-6">
+
+                                <label
+                                    htmlFor="communityName"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Community Name
+                                </label>
+
+
+                                <div className="row">
+
+                                    <div className="col-xl-10 col-lg-12">
+
+                                        <input
+                                            type="text"
+                                            autoComplete="off"
+                                            id="communityName"
+                                            placeholder="Community Name"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                communityName
+                                            }
+                                            onChange={(e) =>
+                                                setCommunityName(
+                                                    e.target.value.slice(
+                                                        0,
+                                                        50
+                                                    )
+                                                )
+                                            }
+                                        />
+
+
+                                        {errors.communityName && (
+
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.communityName
+                                                }
+                                            </p>
+
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* Area Name */}
+
+                            <div className="col-lg-6">
+
+                                <label
+                                    htmlFor="areaName"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Area Name
+                                </label>
+
+
+                                <div className="row">
+
+                                    <div className="col-xl-10 col-lg-12">
+
+                                        <input
+                                            type="text"
+                                            autoComplete="off"
+                                            id="areaName"
+                                            placeholder="Area Name"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                areaName
+                                            }
+                                            onChange={(e) =>
+                                                setAreaName(
+                                                    e.target.value.slice(
+                                                        0,
+                                                        50
+                                                    )
+                                                )
+                                            }
+                                        />
+
+
+                                        {errors.areaName && (
+
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.areaName
+                                                }
+                                            </p>
+
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* Total Residents */}
+
+                            <div className="col-lg-6">
+
+                                <label
+                                    htmlFor="totalResidents"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Total No. of Residents
+                                </label>
+
+
+                                <div className="row">
+
+                                    <div className="col-xl-10 col-lg-12">
+
+                                        <input
+                                            type="text"
+                                            autoComplete="off"
+                                            id="totalResidents"
+                                            placeholder="Total No. of Residents"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                totalResidents
+                                            }
+                                            onChange={(e) => {
+
+                                                const value =
+                                                    e.target.value;
+
+
+                                                if (
+                                                    /^\d{0,6}$/.test(
+                                                        value
+                                                    )
+                                                ) {
+
+                                                    setTotalResidents(
+                                                        value
+                                                    );
+
+                                                }
+
+                                            }}
+                                        />
+
+
+                                        {errors.totalResidents && (
+
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.totalResidents
+                                                }
+                                            </p>
+
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* =================================================
+                            MANAGER DETAILS
+                        ================================================== */}
+
+                        <div className="row">
+
+                            <label
+                                className={
+                                    styles.labelText
+                                }
+                            >
+                                Manager Details
+                            </label>
+
+
+                            {/* Manager Name */}
+
+                            <div className="col-lg-6">
+
+                                <label
+                                    htmlFor="managerName"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Manager Name
+                                </label>
+
+
+                                <div
+                                    className={
+                                        styles.managerFieldInner
+                                    }
+                                >
+
                                     <input
                                         type="text"
                                         autoComplete="off"
@@ -832,7 +1378,9 @@ const EditCommunity = () => {
                                         className={
                                             styles.inputField
                                         }
-                                        value={managerName}
+                                        value={
+                                            managerName
+                                        }
                                         onChange={(e) =>
                                             setManagerName(
                                                 e.target.value.slice(
@@ -843,7 +1391,9 @@ const EditCommunity = () => {
                                         }
                                     />
 
+
                                     {errors.managerName && (
+
                                         <p
                                             className={
                                                 styles.error
@@ -853,24 +1403,34 @@ const EditCommunity = () => {
                                                 errors.managerName
                                             }
                                         </p>
+
                                     )}
+
                                 </div>
+
                             </div>
-                        </div>
 
-                        {/* Manager Email */}
-                        <div className="col-lg-6">
-                            <label
-                                htmlFor="managerEmail"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Email ID
-                            </label>
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
+                            {/* Manager Email */}
+
+                            <div className="col-lg-6">
+
+                                <label
+                                    htmlFor="managerEmail"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Email ID
+                                </label>
+
+
+                                <div
+                                    className={
+                                        styles.managerFieldInner
+                                    }
+                                >
+
                                     <input
                                         type="email"
                                         autoComplete="off"
@@ -879,7 +1439,9 @@ const EditCommunity = () => {
                                         className={
                                             styles.inputField
                                         }
-                                        value={managerEmail}
+                                        value={
+                                            managerEmail
+                                        }
                                         onChange={(e) =>
                                             setManagerEmail(
                                                 e.target.value
@@ -887,7 +1449,9 @@ const EditCommunity = () => {
                                         }
                                     />
 
+
                                     {errors.managerEmail && (
+
                                         <p
                                             className={
                                                 styles.error
@@ -897,116 +1461,245 @@ const EditCommunity = () => {
                                                 errors.managerEmail
                                             }
                                         </p>
+
                                     )}
+
                                 </div>
+
                             </div>
-                        </div>
 
-                        {/* Manager Contact */}
-                        <div className="col-lg-6">
-                            <label
-                                htmlFor="managerContact"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Contact No (Optional)
-                            </label>
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        id="managerContact"
-                                        placeholder="+91 Contact No"
+                            {/* Contact Details */}
+
+                            <div className="col-lg-6">
+
+                                <label
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Contact Details
+                                </label>
+
+
+                                <div
+                                    className={
+                                        styles.managerContactField
+                                    }
+                                >
+
+                                    <div
                                         className={
-                                            styles.inputField
+                                            styles.managerContactRow
                                         }
-                                        value={
-                                            managerContact
-                                        }
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value;
+                                    >
 
-                                            if (
-                                                /^\+?\d{0,15}$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setManagerContact(
-                                                    value
-                                                );
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                                        {/* Country Code */}
 
-                        {/* Password */}
-                        <div className="col-lg-6">
-                            <label
-                                htmlFor="password"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                New Password (Optional)
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="password"
-                                        autoComplete="new-password"
-                                        id="password"
-                                        placeholder="New Password"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={password}
-                                        onChange={(e) =>
-                                            setPassword(
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-
-                                    {errors.password && (
-                                        <p
+                                        <div
                                             className={
-                                                styles.error
+                                                styles.managerContactColumn
                                             }
                                         >
-                                            {
-                                                errors.password
+
+                                            <label
+                                                htmlFor="countryCode"
+                                                className={
+                                                    styles.labelText
+                                                }
+                                            >
+                                                Country Code
+                                            </label>
+
+
+                                            <CustomDropdown
+                                                options={
+                                                    countryCodeOptions
+                                                }
+                                                value={
+                                                    selectedCountryCode
+                                                }
+                                                onChange={(
+                                                    selectedOption
+                                                ) => {
+
+                                                    setCountryCode(
+                                                        selectedOption?.value ||
+                                                        ""
+                                                    );
+
+                                                }}
+                                                placeholder="+91"
+                                            />
+
+                                        </div>
+
+
+                                        {/* Contact Number */}
+
+                                        <div
+                                            className={
+                                                styles.managerContactColumn
                                             }
-                                        </p>
-                                    )}
+                                        >
+
+                                            <label
+                                                htmlFor="managerContact"
+                                                className={
+                                                    styles.labelText
+                                                }
+                                            >
+                                                Contact No
+                                            </label>
+
+
+                                            <input
+                                                type="text"
+                                                autoComplete="off"
+                                                id="managerContact"
+                                                placeholder="Contact Number"
+                                                className={
+                                                    styles.inputField
+                                                }
+                                                value={
+                                                    managerContact
+                                                }
+                                                onChange={(e) => {
+
+                                                    const value =
+                                                        e.target.value;
+
+
+                                                    if (
+                                                        /^\d{0,15}$/.test(
+                                                            value
+                                                        )
+                                                    ) {
+
+                                                        setManagerContact(
+                                                            value
+                                                        );
+
+                                                    }
+
+                                                }}
+                                            />
+
+
+                                            {errors.managerContact && (
+
+                                                <p
+                                                    className={
+                                                        styles.error
+                                                    }
+                                                >
+                                                    {
+                                                        errors.managerContact
+                                                    }
+                                                </p>
+
+                                            )}
+
+                                        </div>
+
+                                    </div>
+
                                 </div>
+
                             </div>
-                        </div>
 
-                        {/* Confirm Password */}
-                        <div className="col-lg-6">
-                            <label
-                                htmlFor="confirmPassword"
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Confirm New Password
-                            </label>
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
+                            {/* Password */}
+
+                            <div className="col-lg-6">
+
+                                <div
+                                    className={
+                                        styles.managerPasswordField
+                                    }
+                                >
+
+                                    <label
+                                        htmlFor="password"
+                                        className={
+                                            styles.labelText
+                                        }
+                                    >
+                                        Password
+                                    </label>
+
+
+                                    <div
+                                        className={
+                                            styles.managerFieldInner
+                                        }
+                                    >
+
+                                        <input
+                                            type="password"
+                                            autoComplete="new-password"
+                                            id="password"
+                                            placeholder="Leave blank to keep existing password"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                password
+                                            }
+                                            onChange={(e) =>
+                                                setPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+
+
+                                        {errors.password && (
+
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.password
+                                                }
+                                            </p>
+
+                                        )}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {/* Confirm Password */}
+
+                            <div className="col-lg-6">
+
+                                <label
+                                    htmlFor="confirmPassword"
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Confirm Password
+                                </label>
+
+
+                                <div
+                                    className={
+                                        styles.managerFieldInner
+                                    }
+                                >
+
                                     <input
                                         type="password"
                                         autoComplete="new-password"
                                         id="confirmPassword"
-                                        placeholder="Confirm New Password"
+                                        placeholder="Confirm new password"
                                         className={
                                             styles.inputField
                                         }
@@ -1020,7 +1713,9 @@ const EditCommunity = () => {
                                         }
                                     />
 
+
                                     {errors.confirmPassword && (
+
                                         <p
                                             className={
                                                 styles.error
@@ -1030,289 +1725,340 @@ const EditCommunity = () => {
                                                 errors.confirmPassword
                                             }
                                         </p>
+
                                     )}
+
                                 </div>
+
                             </div>
+
                         </div>
-                    </div>
 
-                    {/* =====================================================
-                        CHARGER DETAILS
-                    ====================================================== */}
 
-                    <div
-                        className={
-                            styles.chargerSection
-                        }
-                    >
-                        {/* Charger Header */}
+                        {/* =================================================
+                            CHARGER DETAILS
+                        ================================================== */}
+
                         <div
                             className={
-                                styles.chargerHeader
+                                styles.chargerSection
                             }
                         >
-                            <label
+
+                            <div
                                 className={
-                                    styles.labelText
+                                    styles.chargerHeader
                                 }
                             >
-                                Charger Details
-                            </label>
+
+                                <label
+                                    className={
+                                        styles.labelText
+                                    }
+                                >
+                                    Charger Details
+                                </label>
+
+
+                                <button
+                                    type="button"
+                                    className={
+                                        styles.addChargerBtn
+                                    }
+                                    onClick={
+                                        addCharger
+                                    }
+                                >
+                                    + Add
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                className={
+                                    styles.chargerList
+                                }
+                            >
+
+                                {chargerDetails.map(
+                                    (
+                                        charger,
+                                        index
+                                    ) => (
+
+                                        <div
+                                            className={
+                                                styles.chargerRow
+                                            }
+                                            key={index}
+                                        >
+
+                                            {/* Charger ID */}
+
+                                            <div
+                                                className={
+                                                    styles.chargerField
+                                                }
+                                            >
+
+                                                <label
+                                                    htmlFor={`chargerId-${index}`}
+                                                    className={
+                                                        styles.labelText
+                                                    }
+                                                >
+                                                    Charger ID
+                                                </label>
+
+
+                                                <input
+                                                    type="text"
+                                                    autoComplete="off"
+                                                    id={`chargerId-${index}`}
+                                                    placeholder="Charger ID"
+                                                    className={
+                                                        styles.inputField
+                                                    }
+                                                    value={
+                                                        charger.chargerId
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleChargerChange(
+                                                            index,
+                                                            "chargerId",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+
+
+                                                {errors
+                                                    .chargerDetails?.[
+                                                    index
+                                                ]?.chargerId && (
+
+                                                        <p
+                                                            className={
+                                                                styles.error
+                                                            }
+                                                        >
+                                                            {
+                                                                errors
+                                                                    .chargerDetails[
+                                                                    index
+                                                                ]
+                                                                    .chargerId
+                                                            }
+                                                        </p>
+
+                                                    )}
+
+                                            </div>
+
+
+                                            {/* kWh */}
+
+                                            <div
+                                                className={
+                                                    styles.chargerField
+                                                }
+                                            >
+
+                                                <label
+                                                    htmlFor={`kWh-${index}`}
+                                                    className={
+                                                        styles.labelText
+                                                    }
+                                                >
+                                                    kWh
+                                                </label>
+
+
+                                                <input
+                                                    type="text"
+                                                    autoComplete="off"
+                                                    id={`kWh-${index}`}
+                                                    placeholder="kWh"
+                                                    className={
+                                                        styles.inputField
+                                                    }
+                                                    value={
+                                                        charger.kWh
+                                                    }
+                                                    onChange={(e) => {
+
+                                                        const value =
+                                                            e.target.value;
+
+
+                                                        if (
+                                                            /^\d*\.?\d*$/.test(
+                                                                value
+                                                            )
+                                                        ) {
+
+                                                            handleChargerChange(
+                                                                index,
+                                                                "kWh",
+                                                                value
+                                                            );
+
+                                                        }
+
+                                                    }}
+                                                />
+
+
+                                                {errors
+                                                    .chargerDetails?.[
+                                                    index
+                                                ]?.kWh && (
+
+                                                        <p
+                                                            className={
+                                                                styles.error
+                                                            }
+                                                        >
+                                                            {
+                                                                errors
+                                                                    .chargerDetails[
+                                                                    index
+                                                                ]
+                                                                    .kWh
+                                                            }
+                                                        </p>
+
+                                                    )}
+
+                                            </div>
+
+
+                                            {/* Remove Charger */}
+
+                                            <div
+                                                className={
+                                                    styles.chargerAction
+                                                }
+                                            >
+
+                                                <label
+                                                    className={
+                                                        styles.labelText
+                                                    }
+                                                    style={{
+                                                        visibility:
+                                                            "hidden",
+                                                    }}
+                                                >
+                                                    Action
+                                                </label>
+
+
+                                                {chargerDetails.length >
+                                                    1 ? (
+
+                                                    <button
+                                                        type="button"
+                                                        className={
+                                                            styles.removeChargerBtn
+                                                        }
+                                                        onClick={() =>
+                                                            removeCharger(
+                                                                index
+                                                            )
+                                                        }
+                                                        aria-label={`Remove charger ${index + 1}`}
+                                                    >
+                                                        X
+                                                    </button>
+
+                                                ) : (
+
+                                                    <div
+                                                        className={
+                                                            styles.removePlaceholder
+                                                        }
+                                                    />
+
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        </div>
+
+
+                        {/* =================================================
+                            BUTTONS
+                        ================================================== */}
+
+                        <div
+                            className={
+                                styles.editButton
+                            }
+                        >
 
                             <button
                                 type="button"
                                 className={
-                                    styles.addChargerBtn
+                                    styles.editCancelBtn
                                 }
-                                onClick={addCharger}
+                                onClick={
+                                    handleCancel
+                                }
+                                disabled={
+                                    loading
+                                }
                             >
-                                + Add
+                                Cancel
                             </button>
+
+
+                            <button
+                                disabled={
+                                    loading
+                                }
+                                type="submit"
+                                className={
+                                    styles.editSubmitBtn
+                                }
+                            >
+
+                                {loading ? (
+
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2"></span>
+                                        Updating...
+                                    </>
+
+                                ) : (
+
+                                    "Update"
+
+                                )}
+
+                            </button>
+
                         </div>
 
-                        {/* Charger List */}
-                        <div
-                            className={
-                                styles.chargerList
-                            }
-                        >
-                            {chargerDetails.map(
-                                (
-                                    charger,
-                                    index
-                                ) => (
-                                    <div
-                                        className={
-                                            styles.chargerRow
-                                        }
-                                        key={index}
-                                    >
-                                        {/* =================================================
-                                            CHARGER ID
-                                        ================================================== */}
+                    </form>
 
-                                        <div
-                                            className={
-                                                styles.chargerField
-                                            }
-                                        >
-                                            <label
-                                                htmlFor={`chargerId-${index}`}
-                                                className={
-                                                    styles.labelText
-                                                }
-                                            >
-                                                Charger ID
-                                            </label>
+                )}
 
-                                            <input
-                                                type="text"
-                                                autoComplete="off"
-                                                id={`chargerId-${index}`}
-                                                placeholder="Charger ID"
-                                                className={
-                                                    styles.inputField
-                                                }
-                                                value={
-                                                    charger.chargerId
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) =>
-                                                    handleChargerChange(
-                                                        index,
-                                                        "chargerId",
-                                                        e
-                                                            .target
-                                                            .value
-                                                    )
-                                                }
-                                            />
-
-                                            {errors
-                                                .chargerDetails?.[
-                                                index
-                                            ]?.chargerId && (
-                                                <p
-                                                    className={
-                                                        styles.error
-                                                    }
-                                                >
-                                                    {
-                                                        errors
-                                                            .chargerDetails[
-                                                            index
-                                                        ]
-                                                            .chargerId
-                                                    }
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* =================================================
-                                            KWH
-                                        ================================================== */}
-
-                                        <div
-                                            className={
-                                                styles.chargerField
-                                            }
-                                        >
-                                            <label
-                                                htmlFor={`kWh-${index}`}
-                                                className={
-                                                    styles.labelText
-                                                }
-                                            >
-                                                kWh
-                                            </label>
-
-                                            <input
-                                                type="text"
-                                                autoComplete="off"
-                                                id={`kWh-${index}`}
-                                                placeholder="kWh"
-                                                className={
-                                                    styles.inputField
-                                                }
-                                                value={
-                                                    charger.kWh
-                                                }
-                                                onChange={(
-                                                    e
-                                                ) => {
-                                                    const value =
-                                                        e
-                                                            .target
-                                                            .value;
-
-                                                    if (
-                                                        /^\d*\.?\d*$/.test(
-                                                            value
-                                                        )
-                                                    ) {
-                                                        handleChargerChange(
-                                                            index,
-                                                            "kWh",
-                                                            value
-                                                        );
-                                                    }
-                                                }}
-                                            />
-
-                                            {errors
-                                                .chargerDetails?.[
-                                                index
-                                            ]?.kWh && (
-                                                <p
-                                                    className={
-                                                        styles.error
-                                                    }
-                                                >
-                                                    {
-                                                        errors
-                                                            .chargerDetails[
-                                                            index
-                                                        ]
-                                                            .kWh
-                                                    }
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* =================================================
-                                            REMOVE BUTTON
-                                        ================================================== */}
-
-                                        <div
-                                            className={
-                                                styles.chargerAction
-                                            }
-                                        >
-                                            <label
-                                                className={
-                                                    styles.labelText
-                                                }
-                                                style={{
-                                                    visibility:
-                                                        "hidden",
-                                                }}
-                                            >
-                                                Action
-                                            </label>
-
-                                            {chargerDetails.length >
-                                            1 ? (
-                                                <button
-                                                    type="button"
-                                                    className={
-                                                        styles.removeChargerBtn
-                                                    }
-                                                    onClick={() =>
-                                                        removeCharger(
-                                                            index
-                                                        )
-                                                    }
-                                                    aria-label={`Remove charger ${
-                                                        index + 1
-                                                    }`}
-                                                >
-                                                    X
-                                                </button>
-                                            ) : (
-                                                <div
-                                                    className={
-                                                        styles.removePlaceholder
-                                                    }
-                                                />
-                                            )}
-                                        </div>
-                                    </div>
-                                )
-                            )}
-                        </div>
-                    </div>
-
-                    {/* =====================================================
-                        BUTTONS
-                    ====================================================== */}
-
-                    <div
-                        className={
-                            styles.editButton
-                        }
-                    >
-                        <button
-                            type="button"
-                            className={
-                                styles.editCancelBtn
-                            }
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            disabled={loading}
-                            type="submit"
-                            className={
-                                styles.editSubmitBtn
-                            }
-                        >
-                            {loading ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm me-2"></span>
-                                    Update...
-                                </>
-                            ) : (
-                                "Update"
-                            )}
-                        </button>
-                    </div>
-                </form>
             </div>
+
         </div>
+
     );
+
 };
+
 
 export default EditCommunity;
