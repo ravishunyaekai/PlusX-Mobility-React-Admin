@@ -24,10 +24,17 @@ const ResidentDetails = () => {
 
     const [bookingDetails, setBookingDetails] = useState({});
     const [loading, setLoading] = useState(false);
-    const [totalCount, setTotalCount] = useState(null);
-    const [totalCount2, setTotalCount2] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    // Session History
+    const [sessionList, setSessionList] = useState([]);
+    const [sessionCurrentPage, setSessionCurrentPage] = useState(1);
+    const [sessionTotalPages, setSessionTotalPages] = useState(1);
+    const [sessionTotalCount, setSessionTotalCount] = useState(0);
+
+    // Invoice History
+    const [invoiceList, setInvoiceList] = useState([]);
+    const [invoiceCurrentPage, setInvoiceCurrentPage] = useState(1);
+    const [invoiceTotalPages, setInvoiceTotalPages] = useState(1);
+    const [invoiceTotalCount, setInvoiceTotalCount] = useState(0);
     const [imageGallery, setImageGallery] = useState();
     const [imageGalleryId, setImageGalleryId] = useState();
     const [baseUrl, setBaseUrl] = useState();
@@ -55,6 +62,64 @@ const ResidentDetails = () => {
         });
     };
 
+    const fetchSessionList = (page = 1) => {
+        const obj = {
+            userId: userDetails?.user_id,
+            email: userDetails?.email,
+            resident_id: stationId,
+            page_no: page,
+            search_text: '',
+            start_date: '',
+            end_date: ''
+        };
+
+        postRequestWithToken('session-list', obj, (response) => {
+            if (response.code === 200) {
+                setSessionList(response?.data || []);
+                setSessionTotalPages(response?.total_page || 1);
+                setSessionTotalCount(response?.total || 0);
+                setSessionCurrentPage(page);
+            } else {
+                setSessionList([]);
+                setSessionTotalPages(1);
+                setSessionTotalCount(0);
+
+                toast(response?.message || 'Failed to fetch session history', {
+                    type: "error"
+                });
+            }
+        });
+    };
+
+    const fetchInvoiceList = (page = 1, mobile = '') => {
+        const obj = {
+            userId: userDetails?.user_id,
+            email: userDetails?.email,
+            resident_mobile: mobile,
+            page_no: page,
+            search_text: '',
+            start_date: '',
+            end_date: ''
+        };
+
+        postRequestWithToken('scan-charge-invoice-list', obj, (response) => {
+            if (response.code === 200) {
+                setInvoiceList(response?.data || []);
+                setInvoiceTotalPages(response?.total_page || 1);
+                setInvoiceTotalCount(response?.total || 0);
+                setInvoiceCurrentPage(page);
+            } else {
+                setInvoiceList([]);
+                setInvoiceTotalPages(1);
+                setInvoiceTotalCount(0);
+
+                toast(response?.message || 'Failed to fetch invoice history', {
+                    type: "error"
+                });
+            }
+        });
+    };
+
     useEffect(() => {
         if (!userDetails || !userDetails.access_token) {
             navigate('/login');
@@ -62,7 +127,36 @@ const ResidentDetails = () => {
         }
 
         fetchDetails();
+        fetchSessionList(1);
     }, []);
+
+    useEffect(() => {
+        if (!bookingDetails || Object.keys(bookingDetails).length === 0) {
+            return;
+        }
+
+        const residentMobile =
+            bookingDetails?.resident_mobile ||
+            bookingDetails?.mobile_number ||
+            bookingDetails?.contact_no ||
+            '';
+
+        fetchInvoiceList(1, residentMobile);
+    }, [bookingDetails]);
+
+    const handleSessionPageChange = (page) => {
+        fetchSessionList(page);
+    };
+
+    const handleInvoicePageChange = (page) => {
+        const residentMobile =
+            bookingDetails?.resident_mobile ||
+            bookingDetails?.mobile_number ||
+            bookingDetails?.contact_no ||
+            '';
+
+        fetchInvoiceList(page, residentMobile);
+    };
 
     const headerTitles = {
         bookingIdTitle: "Resident ID",
@@ -133,6 +227,45 @@ const ResidentDetails = () => {
                 : "Un-Active",
     };
 
+    const [filters, setFilters] = useState({
+        start_date: null,
+        end_date: null
+    });
+
+    const [filters2, setFilters2] = useState({
+        start_date: null,
+        end_date: null
+    });
+
+    const fetchSessionFilteredData = (newFilters = {}) => {
+        setFilters(newFilters);
+        setSessionCurrentPage(1);
+    };
+
+    const fetchInvoiceFilteredData = (newFilters = {}) => {
+        setFilters2(newFilters);
+        setInvoiceCurrentPage(1);
+    };
+
+    const searchTerm = [
+        {
+            label: 'search',
+            name: 'search_text',
+            type: 'text'
+        }
+    ];
+
+    const searchTerm2 = [
+        {
+            label: 'search',
+            name: 'search_text',
+            type: 'text'
+        }
+    ];
+    
+const dynamicFilters = [];
+const dynamicFilters2 = [];
+
     return (
         <div className='main-container'>
             <ToastContainer />
@@ -159,14 +292,14 @@ const ResidentDetails = () => {
                         />
                     </div>
                     <SubHeader heading="Total Session History"
-                        // addButtonProps={addButtonProps}
-                        // fetchFilteredData={fetchFilteredData}
-                        // dynamicFilters={dynamicFilters} filterValues={filters}
-                        // searchTerm={searchTerm}
-                        count={totalCount}
+                    // addButtonProps={addButtonProps}
+                    fetchFilteredData={fetchSessionFilteredData}
+                    dynamicFilters={dynamicFilters} filterValues={filters}
+                    searchTerm={searchTerm}
+                    count={sessionTotalCount}
                     />
                     {
-                        [].length === 0 ? (
+                        sessionList.length === 0 ? (
                             <EmptyList
                                 tableHeaders={["Date", "Session Id", "Resident Name", "Area", "Charger Id", "KWh Used", "Duration (In Min.)", "Status", "Action"]}
                                 message="No data available"
@@ -179,29 +312,34 @@ const ResidentDetails = () => {
                                     pageHeading="Total Session History"
                                     onDeleteSlot={{}}
                                     keyMapping={[
-                                        { key: 'station_name', label: 'Sr No' },
-                                        { key: 'charging_for', label: 'Charger Id' },
-                                        { key: 'charger_type', label: 'KW' },
+                                        { key: 'created_at', label: 'Date' },
+                                        { key: 'booking_id', label: 'Session Id' },
+                                        { key: 'resident_name', label: 'Resident Name' },
+                                        { key: 'area_name', label: 'Area' },
+                                        { key: 'charger_id', label: 'Charger Id' },
+                                        { key: 'total_consumption', label: 'KWh Used' },
+                                        { key: 'total_duration', label: 'Duration (In Min.)' },
+                                        { key: 'status', label: 'Status' },
                                     ]}
                                 />
 
                                 <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={{}}
+                                    currentPage={sessionCurrentPage}
+                                    totalPages={sessionTotalPages}
+                                    onPageChange={handleSessionPageChange}
                                 />
                             </>
                         )
                     }
                     <SubHeader heading="Total Invoice History"
                         // addButtonProps={addButtonProps}
-                        // fetchFilteredData={fetchFilteredData}
-                        // dynamicFilters={dynamicFilters} filterValues={filters}
-                        // searchTerm={searchTerm}
-                        count={totalCount2}
+                        fetchFilteredData={fetchInvoiceFilteredData}
+                        dynamicFilters={dynamicFilters2} filterValues={filters}
+                        searchTerm={searchTerm2}
+                        count={invoiceTotalCount}
                     />
                     {
-                        [].length === 0 ? (
+                        invoiceList.length === 0 ? (
                             <EmptyList
                                 tableHeaders={["Sr No", "Redident Id", "Mobile", "Email", "Session Allocated", "Session Used", "kWh Allocated", "kWh Used", "Action"]}
                                 message="No data available"
@@ -214,16 +352,33 @@ const ResidentDetails = () => {
                                     pageHeading="Charger List"
                                     onDeleteSlot={{}}
                                     keyMapping={[
-                                        { key: 'station_name', label: 'Sr No' },
-                                        { key: 'charging_for', label: 'Charger Id' },
-                                        { key: 'charger_type', label: 'KW' },
+                                        { key: 'sr_no', label: 'Sr No' },
+                                        { key: 'resident_id', label: 'Resident Id' },
+                                        { key: 'resident_mobile', label: 'Mobile' },
+                                        { key: 'resident_email', label: 'Email' },
+                                        {
+                                            key: 'monthly_session_allocation',
+                                            label: 'Session Allocated'
+                                        },
+                                        {
+                                            key: 'session_used',
+                                            label: 'Session Used'
+                                        },
+                                        {
+                                            key: 'kwh_allocated',
+                                            label: 'kWh Allocated'
+                                        },
+                                        {
+                                            key: 'total_consumption',
+                                            label: 'kWh Used'
+                                        },
                                     ]}
                                 />
 
                                 <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={{}}
+                                    currentPage={invoiceCurrentPage}
+                                    totalPages={invoiceTotalPages}
+                                    onPageChange={handleInvoicePageChange}
                                 />
                             </>
                         )
