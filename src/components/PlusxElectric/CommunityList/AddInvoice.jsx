@@ -14,7 +14,9 @@ import {
 
 import styles from "./AddCommunity.module.css";
 
-import CustomDropdown, { CustomDropdownForResidents } from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
+import CustomDropdown, {
+    CustomDropdownForResidents,
+} from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
 
 
 const AddInvoice = () => {
@@ -65,10 +67,6 @@ const AddInvoice = () => {
     const [residentSearch, setResidentSearch] =
         useState("");
 
-    /*
-     * Used to prevent unnecessary duplicate API calls
-     * when react-select fires onInputChange multiple times.
-     */
     const residentSearchRef = useRef("");
 
 
@@ -163,11 +161,8 @@ const AddInvoice = () => {
         setCommunityLoading(true);
 
         const obj = {
-            userId:
-                userDetails.user_id,
-
-            email:
-                userDetails.email,
+            userId: userDetails.user_id,
+            email: userDetails.email,
         };
 
         console.log(
@@ -185,13 +180,11 @@ const AddInvoice = () => {
                 );
 
                 if (
-                    response?.status === 1 &&
+                    response?.status === 1 ||
                     response?.code === 200
                 ) {
                     const options =
-                        Array.isArray(
-                            response?.data
-                        )
+                        Array.isArray(response?.data)
                             ? response.data
                             : [];
 
@@ -261,13 +254,11 @@ const AddInvoice = () => {
                 );
 
                 if (
-                    response?.status === 1 &&
+                    response?.status === 1 ||
                     response?.code === 200
                 ) {
                     const options =
-                        Array.isArray(
-                            response?.data
-                        )
+                        Array.isArray(response?.data)
                             ? response.data
                             : [];
 
@@ -317,19 +308,12 @@ const AddInvoice = () => {
         const search =
             searchValue?.trim() || "";
 
-        /*
-         * Don't search with empty value.
-         */
         if (!search) {
             setResidentOptions([]);
 
             return;
         }
 
-        /*
-         * Prevent duplicate request for exactly
-         * the same search text.
-         */
         if (
             residentSearchRef.current ===
             search
@@ -370,7 +354,7 @@ const AddInvoice = () => {
                 );
 
                 if (
-                    response?.status === 1 &&
+                    response?.status === 1 ||
                     response?.code === 200
                 ) {
                     const residents =
@@ -380,43 +364,28 @@ const AddInvoice = () => {
                             ? response.data
                             : [];
 
-                    /*
-                     * Convert backend residents
-                     * into react-select options.
-                     */
-                    // const options =
-                    //     residents.map(
-                    //         (item) => ({
-                    //             value:
-                    //                 item.resident_id,
+                    const options =
+                        residents.map(
+                            (item) => ({
+                                value:
+                                    item.resident_id,
 
-                    //             label:
-                    //                 `${item.resident_id} - ${item.resident_name} - ${item.resident_mobile}`,
+                                label:
+                                    item.resident_id,
 
-                    //             resident_id:
-                    //                 item.resident_id,
+                                resident_id:
+                                    item.resident_id,
 
-                    //             resident_name:
-                    //                 item.resident_name,
+                                resident_name:
+                                    item.resident_name,
 
-                    //             resident_mobile:
-                    //                 item.resident_mobile,
+                                resident_mobile:
+                                    item.resident_mobile,
 
-                    //             residentData:
-                    //                 item,
-                    //         })
-                    //     );
-                    const options = residents.map((item) => ({
-                        value: item.resident_id,
-
-                        label: item.resident_id,
-
-                        resident_id: item.resident_id,
-                        resident_name: item.resident_name,
-                        resident_mobile: item.resident_mobile,
-
-                        residentData: item,
-                    }));
+                                residentData:
+                                    item,
+                            })
+                        );
 
                     setResidentOptions(
                         options
@@ -447,31 +416,21 @@ const AddInvoice = () => {
         inputValue,
         actionMeta
     ) => {
-        /*
-         * Only perform API search when the user
-         * actually types something.
-         */
         if (
-            actionMeta?.action !== "input-change"
+            actionMeta?.action !==
+            "input-change"
         ) {
             return inputValue;
         }
 
-        const value = inputValue || "";
+        const value =
+            inputValue || "";
 
         setResidentSearch(value);
 
-        /*
-         * IMPORTANT:
-         *
-         * react-select automatically clears its internal
-         * search input after an option is selected.
-         *
-         * Do NOT clear residentOptions here if a resident
-         * has already been selected.
-         */
         if (!value.trim()) {
-            residentSearchRef.current = "";
+            residentSearchRef.current =
+                "";
 
             if (!resident) {
                 setResidentOptions([]);
@@ -498,14 +457,10 @@ const AddInvoice = () => {
             selectedOption
         );
 
-        /*
-         * Save selected resident.
-         */
-        setResident(selectedOption);
+        setResident(
+            selectedOption
+        );
 
-        /*
-         * Clear validation errors.
-         */
         setErrors((prev) => ({
             ...prev,
             resident: "",
@@ -513,13 +468,12 @@ const AddInvoice = () => {
         }));
 
         /*
-         * Immediately populate resident name.
-         *
-         * This happens before the invoice API response.
+         * Immediately populate the resident name.
          */
         setInvoiceData({
             residentName:
-                selectedOption?.resident_name || "",
+                selectedOption?.resident_name ||
+                "",
 
             kwhUsed: "",
             kwhAllocated: "",
@@ -528,47 +482,52 @@ const AddInvoice = () => {
             totalAmount: "",
         });
 
-        if (selectedOption) {
+        if (!selectedOption) {
+            clearInvoiceData();
 
-            /*
-             * Keep selected resident in options.
-             */
-            setResidentOptions((prev) => {
-                const exists = prev.some(
+            return;
+        }
+
+        /*
+         * Keep selected resident inside
+         * dropdown options.
+         */
+        setResidentOptions((prev) => {
+            const exists =
+                prev.some(
                     (item) =>
                         item.resident_id ===
                         selectedOption.resident_id
                 );
 
-                if (exists) {
-                    return prev;
-                }
-
-                return [
-                    selectedOption,
-                    ...prev,
-                ];
-            });
-
-            /*
-             * Fetch invoice data.
-             *
-             * IMPORTANT:
-             * Pass resident name directly.
-             * Don't wait for resident state to update.
-             */
-            if (
-                billingMonth &&
-                selectedOption.resident_mobile
-            ) {
-                getInvoiceData(
-                    billingMonth,
-                    selectedOption.resident_mobile,
-                    selectedOption.resident_name
-                );
+            if (exists) {
+                return prev;
             }
+
+            return [
+                selectedOption,
+                ...prev,
+            ];
+        });
+
+        /*
+         * IMPORTANT:
+         *
+         * Do not wait for setResident().
+         * Pass selected resident directly.
+         */
+        if (
+            billingMonth &&
+            selectedOption.resident_mobile
+        ) {
+            getInvoiceData(
+                billingMonth,
+                selectedOption.resident_mobile,
+                selectedOption.resident_name
+            );
         }
     };
+
 
     // =========================================================
     // GET INVOICE DATA
@@ -576,8 +535,10 @@ const AddInvoice = () => {
 
     const getInvoiceData = (
         selectedMonth = billingMonth,
-        selectedResidentMobile = resident?.resident_mobile,
-        selectedResidentName = resident?.resident_name
+        selectedResidentMobile =
+            resident?.resident_mobile,
+        selectedResidentName =
+            resident?.resident_name
     ) => {
         if (
             !selectedMonth ||
@@ -592,11 +553,11 @@ const AddInvoice = () => {
         setInvoiceLoading(true);
 
         /*
-         * HTML month:
+         * Billing month from input:
          *
          * 2026-09
          *
-         * Backend:
+         * API:
          *
          * 2026-09-01
          */
@@ -632,20 +593,16 @@ const AddInvoice = () => {
                 );
 
                 if (
-                    response?.status === 1 &&
+                    response?.status === 1 ||
                     response?.code === 200
                 ) {
                     const data =
                         response?.data || {};
 
                     /*
-                     * IMPORTANT:
-                     *
-                     * Use the resident name passed to this
-                     * function instead of resident state.
-                     *
-                     * This prevents the name from becoming
-                     * empty because setResident() is async.
+                     * Use API resident_name first.
+                     * If API does not return it,
+                     * use selected resident name.
                      */
                     const updatedResidentName =
                         data?.resident_name ||
@@ -657,23 +614,23 @@ const AddInvoice = () => {
                             updatedResidentName,
 
                         kwhUsed:
-                            data?.total_consumption ??
+                            data?.total_consumption ||
                             "",
 
                         kwhAllocated:
-                            data?.kwh_allocated ??
+                            data?.kwh_allocated ||
                             "",
 
                         energyCharge:
-                            data?.energy_price ??
+                            data?.energy_price ||
                             "",
 
                         overTime:
-                            data?.extra_charge ??
+                            data?.extra_charge ||
                             "",
 
                         totalAmount:
-                            data?.total_amount ??
+                            data?.total_amount ||
                             "0.00",
                     });
 
@@ -688,12 +645,13 @@ const AddInvoice = () => {
                     }));
                 } else {
                     /*
-                     * Don't remove the selected resident name
-                     * when invoice data isn't available.
+                     * Keep resident name even when
+                     * invoice data is unavailable.
                      */
                     setInvoiceData({
                         residentName:
-                            selectedResidentName || "",
+                            selectedResidentName ||
+                            "",
 
                         kwhUsed: "",
                         kwhAllocated: "",
@@ -740,19 +698,27 @@ const AddInvoice = () => {
             selectedOption
         );
 
-        setCommunity(selectedOption);
+        setCommunity(
+            selectedOption
+        );
 
-        // Reset area
+        /*
+         * Reset area.
+         */
         setArea(null);
         setAreaOptions([]);
 
-        // Reset resident
+        /*
+         * Reset resident.
+         */
         setResident(null);
         setResidentOptions([]);
         setResidentSearch("");
         residentSearchRef.current = "";
 
-        // Reset invoice
+        /*
+         * Reset invoice.
+         */
         clearInvoiceData();
 
         setErrors((prev) => ({
@@ -787,9 +753,22 @@ const AddInvoice = () => {
             selectedOption
         );
 
+        /*
+         * Resident should be reset when
+         * area changes.
+         */
+        setResident(null);
+        setResidentOptions([]);
+        setResidentSearch("");
+        residentSearchRef.current = "";
+
+        clearInvoiceData();
+
         setErrors((prev) => ({
             ...prev,
             area: "",
+            resident: "",
+            residentName: "",
         }));
     };
 
@@ -806,12 +785,14 @@ const AddInvoice = () => {
 
         setInvoiceData((prev) => ({
             ...prev,
+
             residentName:
                 value,
         }));
 
         setErrors((prev) => ({
             ...prev,
+
             residentName: "",
         }));
     };
@@ -821,16 +802,26 @@ const AddInvoice = () => {
     // BILLING MONTH CHANGE
     // =========================================================
 
-    const handleBillingMonthChange = (e) => {
-        const value = e.target.value;
+    const handleBillingMonthChange = (
+        e
+    ) => {
+        const value =
+            e.target.value;
 
-        setBillingMonth(value);
+        setBillingMonth(
+            value
+        );
 
         setErrors((prev) => ({
             ...prev,
+
             billingMonth: "",
         }));
 
+        /*
+         * Fetch invoice again whenever
+         * billing month changes.
+         */
         if (
             value &&
             resident?.resident_mobile
@@ -843,6 +834,7 @@ const AddInvoice = () => {
         }
     };
 
+
     // =========================================================
     // INVOICE FIELD CHANGE
     // =========================================================
@@ -853,11 +845,14 @@ const AddInvoice = () => {
     ) => {
         setInvoiceData((prev) => ({
             ...prev,
-            [field]: value,
+
+            [field]:
+                value,
         }));
 
         setErrors((prev) => ({
             ...prev,
+
             [field]: "",
         }));
     };
@@ -918,7 +913,9 @@ const AddInvoice = () => {
                 "Resident is required.";
         }
 
-        if (!invoiceData.residentName?.trim()) {
+        if (
+            !invoiceData.residentName?.trim()
+        ) {
             newErrors.residentName =
                 "Resident Name is required.";
         }
@@ -928,22 +925,38 @@ const AddInvoice = () => {
                 "Billing Month is required.";
         }
 
-        if (!invoiceData.kwhUsed) {
+        if (
+            invoiceData.kwhUsed === "" ||
+            invoiceData.kwhUsed === null ||
+            invoiceData.kwhUsed === undefined
+        ) {
             newErrors.kwhUsed =
                 "kWh Used is required.";
         }
 
-        if (!invoiceData.kwhAllocated) {
+        if (
+            invoiceData.kwhAllocated === "" ||
+            invoiceData.kwhAllocated === null ||
+            invoiceData.kwhAllocated === undefined
+        ) {
             newErrors.kwhAllocated =
                 "kWh Allocated is required.";
         }
 
-        if (!invoiceData.energyCharge) {
+        if (
+            invoiceData.energyCharge === "" ||
+            invoiceData.energyCharge === null ||
+            invoiceData.energyCharge === undefined
+        ) {
             newErrors.energyCharge =
                 "Energy Charge is required.";
         }
 
-        if (!invoiceData.overTime) {
+        if (
+            invoiceData.overTime === "" ||
+            invoiceData.overTime === null ||
+            invoiceData.overTime === undefined
+        ) {
             newErrors.overTime =
                 "Over Time is required.";
         }
@@ -968,6 +981,7 @@ const AddInvoice = () => {
         e
     ) => {
         e.preventDefault();
+        console.log("calculateTotal()",calculateTotal())
 
         if (!validateForm()) {
             toast.error(
@@ -979,6 +993,15 @@ const AddInvoice = () => {
 
         setLoading(true);
 
+        /*
+         * Convert:
+         *
+         * 2026-09
+         *
+         * into:
+         *
+         * 2026-09-01
+         */
         const invoiceDate =
             `${billingMonth}-01`;
 
@@ -999,18 +1022,10 @@ const AddInvoice = () => {
                 area?.value ||
                 "",
 
-            /*
-             * Actual resident ID.
-             */
             resident_id:
                 resident?.resident_id ||
                 "",
 
-            /*
-             * Resident mobile can also be
-             * sent if your create-invoice
-             * API needs it.
-             */
             resident_mobile:
                 resident?.resident_mobile ||
                 "",
@@ -1049,7 +1064,6 @@ const AddInvoice = () => {
         // CREATE INVOICE API
         // =====================================================
 
-        /*
         postRequestWithToken(
             "create-invoice",
             payload,
@@ -1060,7 +1074,7 @@ const AddInvoice = () => {
                 );
 
                 if (
-                    response?.status === 1 &&
+                    response?.status === 1 ||
                     response?.code === 200
                 ) {
                     toast.success(
@@ -1085,17 +1099,6 @@ const AddInvoice = () => {
                 }
             }
         );
-        */
-
-
-        // Temporary UI testing
-        setTimeout(() => {
-            setLoading(false);
-
-            toast.success(
-                "Invoice submitted successfully."
-            );
-        }, 500);
     };
 
 
@@ -1272,9 +1275,7 @@ const AddInvoice = () => {
                         }
                     >
 
-                        {/* =================================================
-                            RESIDENT DROPDOWN
-                        ================================================= */}
+                        {/* RESIDENT */}
 
                         <div
                             className={
@@ -1330,9 +1331,7 @@ const AddInvoice = () => {
                         </div>
 
 
-                        {/* =================================================
-                            RESIDENT NAME
-                        ================================================= */}
+                        {/* RESIDENT NAME */}
 
                         <div
                             className={
@@ -1378,9 +1377,7 @@ const AddInvoice = () => {
                         </div>
 
 
-                        {/* =================================================
-                            BILLING MONTH
-                        ================================================= */}
+                        {/* BILLING MONTH */}
 
                         <div
                             className={
@@ -1517,7 +1514,7 @@ const AddInvoice = () => {
                                         }
                                     />
 
-                                    <input
+                                    {/* <input
                                         type="text"
                                         autoComplete="off"
                                         value={
@@ -1532,7 +1529,7 @@ const AddInvoice = () => {
                                         className={
                                             styles.kwhInput
                                         }
-                                    />
+                                    /> */}
 
                                     <span
                                         className={
@@ -1762,6 +1759,7 @@ const AddInvoice = () => {
                             )}
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>
