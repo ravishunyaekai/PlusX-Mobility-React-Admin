@@ -1,37 +1,130 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from 'react-router-dom';
 import styles from "./AddStudent.module.css";
 import { MdOutlineCloudUpload } from "react-icons/md";
 import { toast, ToastContainer } from "react-toastify";
 import { AiOutlineClose } from 'react-icons/ai';
 import { postRequestWithTokenAndFile, postRequestWithToken } from '../../../../api/Requests';
+import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import CustomDropdown from "../../../SharedComponent/UI/CustomDropdown/CustomDropdown";
 
 const AddStudent = () => {
-    const navigate                                        = useNavigate();    
-    const userDetails                                     = JSON.parse(sessionStorage.getItem('userDetails'));
-    const [errors, setErrors]                             = useState({});
-    const [loading, setLoading]                           = useState(false);
-    const [loadingUniversities, setLoadingUniversities]   = useState(false);
- 
-    const [studentName, setStudentName]                   = useState('');
-    const [contact, setContact]                           = useState('');
-    const [emailID, setEmailID]                           = useState('');
-    const [university, setUniversity]                     = useState([]);
-    const [universityOptions, setUniversityOptions]       = useState([]);
-    const [studentID, setStudentID]                       = useState('');
-    const [file, setFile]                                 = useState(null);
+    const navigate = useNavigate();
+    const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [loadingUniversities, setLoadingUniversities] = useState(false);
+
+    const [studentName, setStudentName] = useState('');
+    const [countryCode, setCountryCode] = useState("+91");
+    const [contact, setContact] = useState('');
+    const [emailID, setEmailID] = useState('');
+    const [university, setUniversity] = useState([]);
+    const [universityOptions, setUniversityOptions] = useState([]);
+    const [studentID, setStudentID] = useState('');
+    const [file, setFile] = useState(null);
+    // =========================================================
+    // COUNTRY CODE OPTIONS
+    // =========================================================
+
+    const countryCodeOptions = useMemo(() => {
+        const displayNames = new Intl.DisplayNames(
+            ["en"],
+            {
+                type: "region",
+            }
+        );
+
+        return getCountries()
+            .map((country) => {
+                let countryName = country;
+
+                try {
+                    countryName =
+                        displayNames.of(country) || country;
+                } catch (error) {
+                    countryName = country;
+                }
+
+                let callingCode = "";
+
+                try {
+                    callingCode =
+                        `+${getCountryCallingCode(country)}`;
+                } catch (error) {
+                    console.error(
+                        `Unable to get calling code for ${country}`,
+                        error
+                    );
+
+                    return null;
+                }
+
+                return {
+                    value: callingCode,
+                    label: `${countryName} (${callingCode})`,
+                    countryName,
+                    country,
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) =>
+                a.countryName.localeCompare(
+                    b.countryName
+                )
+            );
+    }, []);
+
+    // =========================================================
+    // SELECTED COUNTRY CODE
+    // =========================================================
+
+    const selectedCountryCode =
+        countryCodeOptions.find(
+            (option) =>
+                option.value === countryCode
+        ) || null;
+
+    // =========================================================
+    // COUNTRY CODE CHANGE
+    // =========================================================
+
+    const handleCountryCodeChange = (
+        selectedOption
+    ) => {
+        let selectedValue = "";
+
+        if (
+            selectedOption &&
+            typeof selectedOption === "object"
+        ) {
+            selectedValue =
+                selectedOption?.value || "";
+        } else {
+            selectedValue =
+                selectedOption || "";
+        }
+
+        setCountryCode(selectedValue);
+
+        if (selectedValue) {
+            setErrors((prev) => ({
+                ...prev,
+                countryCode: "",
+            }));
+        }
+    };
 
     const userObj = {
         userId: userDetails?.user_id,
         email: userDetails?.email,
-        country_id:userDetails?.country_id,
+        country_id: userDetails?.country_id,
     };
- 
+
     const handleCancel = () => {
         navigate('/mobility/universities/student-list');
     }
- 
+
     function handleUniversityChange(value) {
         setUniversity(value);
     }
@@ -64,17 +157,17 @@ const AddStudent = () => {
     useEffect(() => {
         return () => { if (file) { URL.revokeObjectURL(URL.createObjectURL(file)); } };
     }, [file]);
-    
+
     const validateForm = () => {
         const fields = [
-            { name: "studentName",   value: studentName,        errorMessage: "Student Name is required." },
-            { name: "contact",       value: contact,            errorMessage: "Contact Number is required." },
-            { name: "emailID",       value: emailID,            errorMessage: "Email ID is required." },
-            { name: "university",    value: university?.value,  errorMessage: "University is required.",         isArray: true },
-            { name: "studentID",     value: studentID,          errorMessage: "Student ID is required." },
-            { name: "file",          value: file,               errorMessage: "Student ID Image is required." },
+            { name: "studentName", value: studentName, errorMessage: "Student Name is required." },
+            { name: "contact", value: contact, errorMessage: "Contact Number is required." },
+            { name: "emailID", value: emailID, errorMessage: "Email ID is required." },
+            { name: "university", value: university?.value, errorMessage: "University is required.", isArray: true },
+            { name: "studentID", value: studentID, errorMessage: "Student ID is required." },
+            { name: "file", value: file, errorMessage: "Student ID Image is required." },
         ];
-    
+
         const newErrors = fields.reduce((errors, { name, value, errorMessage, isArray }) => {
             if ((isArray && (!value || value.length === 0)) || (!isArray && !value)) {
                 errors[name] = errorMessage;
@@ -89,23 +182,24 @@ const AddStudent = () => {
         if (emailID && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailID)) {
             newErrors.emailID = "Please enter a valid email address.";
         }
- 
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
- 
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
- 
-        if (validateForm()) {        
+
+        if (validateForm()) {
             const formData = new FormData();
 
             formData.append("userId", userDetails?.user_id);
             formData.append("email", userDetails?.email);
             formData.append("country_id", userDetails?.country_id);
- 
+
             formData.append("first_name", studentName);
+            formData.append("country_code", countryCode);
             formData.append("rider_mobile", contact);
             formData.append("rider_email", emailID);
             formData.append("university_id", university.value);
@@ -113,7 +207,7 @@ const AddStudent = () => {
 
             if (file) { formData.append("id_image", file) }
             postRequestWithTokenAndFile('add-student', formData, async (response) => {
-                 if (response.status === 1) {
+                if (response.status === 1) {
                     toast.success(response.message || response.message[0])
                     setTimeout(() => {
                         setLoading(false);
@@ -125,7 +219,7 @@ const AddStudent = () => {
                     console.log('Error in add-station API:', response);
                     setLoading(false);
                 }
-            } )
+            })
         } else {
             toast.error("Some fields are missing");
             setLoading(false);
@@ -140,22 +234,22 @@ const AddStudent = () => {
                     label: item.name,
                     value: item.university_id
                 }));
-            setUniversityOptions(universityList);
+                setUniversityOptions(universityList);
             } else {
                 console.log('error in get-university API', response);
             }
             setLoadingUniversities(false);
         });
     }
-    
+
     return (
         <div className={styles.addStationContainer}>
-            
+
             <div className={styles.addHeading}>Add Student</div>
             <div className={styles.addStationFormSection}>
                 <ToastContainer />
                 <form className={styles.formSection} onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
-                    
+
                     <div className={`row`}>
                         <div className={`col-lg-6`}>
                             <div className={`row`}>
@@ -164,42 +258,83 @@ const AddStudent = () => {
                                     {errors.studentName && studentName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.studentName}</p>}
                                 </div>
                             </div>
-                            
+
                         </div>
-                        <div className={`col-lg-6`}>
+                        {/* <div className={`col-lg-6`}>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
                                     <input type="text" autoComplete="off" id="contact" placeholder="Contact Number" className={styles.inputField} value={contact} maxLength={10}
-                                        onChange={(e) => { 
+                                        onChange={(e) => {
                                             const value = e.target.value;
-                                            if (/^-?\d*\.?\d{0,8}$/.test(value)) { setContact(value)} } } 
+                                            if (/^-?\d*\.?\d{0,8}$/.test(value)) { setContact(value) }
+                                        }}
                                     />
                                     {errors.contact && <p className={styles.error} style={{ color: 'red' }}>{errors.contact}</p>}
                                 </div>
                             </div>
+                        </div> */}
+                        <div className={`col-lg-6`}>
+
+                            <div className={`row`}>
+                                <div className={`col-xl-10 col-lg-12`}>
+                                    <div className={styles.contactNumberRow}>
+
+                                        {/* Country Code - 40% */}
+                                        <div className={styles.countryCodeWrapper}>
+                                            <CustomDropdown
+                                                options={countryCodeOptions}
+                                                value={selectedCountryCode}
+                                                onChange={handleCountryCodeChange}
+                                                placeholder="+91"
+                                            />
+
+                                            {errors.countryCode && (
+                                                <p
+                                                    className={styles.error}
+                                                    style={{ color: 'red' }}
+                                                >
+                                                    {errors.countryCode}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Contact Number - 60% */}
+                                        <div className={styles.contactNumberWrapper}>
+                                            <input type="text" autoComplete="off" id="contact" placeholder="Contact Number" className={styles.inputField} value={contact} maxLength={10}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    if (/^-?\d*\.?\d{0,8}$/.test(value)) { setContact(value) }
+                                                }}
+                                            />
+                                            {errors.contact && <p className={styles.error} style={{ color: 'red' }}>{errors.contact}</p>}
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
- 
+
                     <div className={`row`}>
                         <div className={`col-lg-6`}>
-                             <div className={`row`}>
+                            <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
                                     <input type="text" autoComplete="off" id="emailID" placeholder="E-mail ID" className={styles.inputField} value={emailID} onChange={(e) => setEmailID(e.target.value)} />
                                     {errors.emailID && <p className={styles.error} style={{ color: 'red' }}>{errors.emailID}</p>}
                                 </div>
                             </div>
-                            
+
                         </div>
                         <div className={`col-lg-6`}>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <CustomDropdown options={universityOptions} value={university} onChange={handleUniversityChange} placeholder="Select University" onMenuOpen={getUniversities} isLoading={loadingUniversities}/>
+                                    <CustomDropdown options={universityOptions} value={university} onChange={handleUniversityChange} placeholder="Select University" onMenuOpen={getUniversities} isLoading={loadingUniversities} />
                                     {errors.university && university.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.university}</p>}
                                 </div>
                             </div>
                         </div>
                     </div>
- 
+
                     <div className={`row`}>
                         <div className={`col-lg-6`}>
                             <div className={`row`}>
@@ -210,12 +345,12 @@ const AddStudent = () => {
                             </div>
                         </div>
                         <div className={`col-lg-6`}>
-                             <div className={`row`}>
+                            <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
                                     <div className={styles.uploadContainer}>
                                         <span className={styles.uploadLabel}>{file ? `${file?.name}` : 'Upload Student ID'}</span>
                                         <label htmlFor="coverImage" className={styles.uploadButton}><MdOutlineCloudUpload /> Upload</label>
-                                        <input type="file" id="coverImage"  accept=".jpg,.jpeg,.png" onChange={handleFileChange} className={styles.hiddenInput} />
+                                        <input type="file" id="coverImage" accept=".jpg,.jpeg,.png" onChange={handleFileChange} className={styles.hiddenInput} />
                                     </div>
                                     {errors.file && <p className={styles.error} style={{ color: 'red' }}>{errors.file}</p>}
                                 </div>
@@ -233,29 +368,29 @@ const AddStudent = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>              
- 
+                    </div>
+
                     <div className={`row`}>
                         <div className={`col-xl-11 col-lg-12`}>
-                             <div className={`row`}>
+                            <div className={`row`}>
                                 <div className={`col-lg-12 ${styles.editButton}`}>
                                     <button className={styles.editCancelBtn} onClick={() => handleCancel()}>Cancel</button>
                                     <button disabled={loading} type="submit" className={styles.editSubmitBtn}>
-                                    {loading ? (
-                                        <> <span className="spinner-border spinner-border-sm me-2"></span> Submit... </>
-                                    ) : (
-                                        "Submit"
-                                    )}
+                                        {loading ? (
+                                            <> <span className="spinner-border spinner-border-sm me-2"></span> Submit... </>
+                                        ) : (
+                                            "Submit"
+                                        )}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
- 
+
                 </form>
             </div>
         </div>
     );
 };
- 
+
 export default AddStudent;

@@ -699,506 +699,151 @@
     font-size: 0.9rem;
   }
 }
+/* =====================================================
+   COUNTRY CODE CUSTOM DROPDOWN
+   Same UI as .inputField
+===================================================== */
 
-/* .addShopContainer {
-  background-color: #f9f9f9;
-  height: 94vh;
-  overflow: scroll;
-  padding: 20px;
-  color: #ffffff;
-}
-.addShopContainer::-webkit-scrollbar {
-  display: none;
-}
-.addShopFormSection {
-  padding: 30px;
-  border-radius: 14px;
-  border: 1px solid #00b26b;
-  background-color: #242424;
-  display: flex;
-  flex-direction: column;
-}
-.addHeading {
-  color: #00b26b;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-.addShopInputContainer {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  row-gap: 6px;
-}
-.formSection {
-  display: flex;
-  flex-direction: column;
-  row-gap: 20px;
-}
-.addShopLabel {
-  font-size: 18px;
-  color: #ffffff;
-  font-weight: 500;
-}
-.featureLabel {
-  font-size: 18px;
-  color: #ffffff;
-  font-weight: 500;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.row {
-  display: flex;
-  justify-content: space-between;
-  column-gap: 20px;
-}
-.openSection {
-  width: 100px;
-}
-.inputField {
-  outline: none;
-  background-color: #f9f9f9;
-  border: none;
-  padding: 16px 10px;
-  border-radius: 6px;
-  color: #ffffff;
-  font-size: 16px;
-  width: 100%;
-}
-.featureDivision {
-  position: relative;
-}
-
-.inputFieldFull {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.locationRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  column-gap: 20px;
-}
-.selectWrapper {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-.selectField {
-  outline: none;
-  background-color: #f9f9f9;
-  border: none;
-  padding: 16px 10px;
-  border-radius: 6px;
-  color: #ffffff;
-  font-size: 16px;
-  width: 100%;
-  appearance: none;
-  cursor: pointer;
-}
-
-.dropdownIcon {
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  pointer-events: none;
-  transform: translateY(-50%);
-  font-size: 16px;
-  color: #ffffff;
-}
-.addButton {
-  background-color: #00b26b;
-  display: flex;
-  color: #000000;
-  padding: 0px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  column-gap: 10px;
-}
-.addButton img {
-  width: 16px;
-}
-.addButton span {
-  font-size: 18px;
-  font-weight: 600;
-}
-.scheduleSection {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  row-gap: 24px;
-}
-
-.alwaysOpen {
-  display: flex;
-  align-items: center;
-  column-gap: 10px;
-}
-
-.alwaysOpen label {
-  font-size: 18px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: 12px;
-  cursor: pointer;
-}
-
-.dayRow {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.dayLabel {
-  width: 100px;
-}
-.timeField {
-  outline: none;
-  width: 80%;
-  background-color: #f9f9f9;
-  padding: 10px;
-  border: none;
-  border-radius: 4px;
-  color: #ffffff !important;
-}
-.textAreaField {
-  outline: none;
-  background-color: #f9f9f9;
-  border: none;
-  padding: 16px 10px;
-  border-radius: 6px;
-  color: #ffffff;
-  font-size: 16px;
-  width: 100%;
-}
-.addShopAddressSection {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  gap: 6px;
-}
-.addShopAddress {
-  display: flex;
-  column-gap: 20px;
-  row-gap: 6px;
-  width: 100%;
-}
-.timeSlotContainer {
-  display: flex;
-  flex-direction: column;
-  row-gap: 14px;
-}
-.classTimeslot {
-  width: 100px;
-}
-.inputLabel {
-  width: 40%;
-  display: flex;
-  gap: 30px;
-}
-
-.fileUpload {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-  cursor: pointer;
-}
-
-.fileLabel {
-  width: 100%;
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #ffffff;
-}
-
-.fileDropZone {
+.countryDropdown {
   position: relative;
   width: 100%;
-  padding: 40px;
-  border-radius: 14px;
+}
+
+/* Selected country code */
+.countryDropdownButton {
+  outline: none;
   background-color: #f9f9f9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  cursor: pointer;
+  border: 2px solid #00b26b;
+  padding: 16px 10px;
+  border-radius: 10px;
   color: #000;
-}
-
-.fileUploadLabel {
-  display: block;
+  font-size: 16px;
   width: 100%;
-  height: 100%;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  box-sizing: border-box;
+
   display: flex;
-  justify-content: center;
   align-items: center;
-  text-align: start;
-  column-gap: 22px;
+  justify-content: space-between;
+
   cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  line-height: normal;
 }
 
-.uploadIcon {
-  width: 60px;
-  height: 60px;
+.countryDropdownButton:hover {
+  border-color: #00b26b;
 }
 
-.imageContainer {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
+.countryDropdownButton:focus {
+  border-color: #00b26b;
+  outline: none;
 }
 
-.previewImage {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  transform: translate(0, 0%);
-  position: relative;
-  max-width: 100%;
-  max-height: 100%;
-  background-color: #fff;
-  transition: border-color 0.15s linear;
+/* Arrow */
+.dropdownArrow {
+  color: #000;
+  font-size: 16px;
+  margin-left: 8px;
+  line-height: 1;
 }
 
-.removeButton {
+/* =====================================================
+   DROPDOWN OPTIONS
+===================================================== */
+
+.countryDropdownMenu {
   position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+
+  width: 100%;
+  max-height: 250px;
+
+  overflow-y: auto;
+
+  background-color: #f9f9f9;
+
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+
+  z-index: 9999;
+
+  box-sizing: border-box;
+}
+
+/* Individual country */
+.countryDropdownOption {
+  width: 100%;
+
+  padding: 12px 10px;
+
+  border: none;
+  outline: none;
+
+  background-color: #f9f9f9;
+
+  color: #000;
+
+  font-size: 16px;
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.countryDropdownOption:hover {
   background-color: #00b26b;
-  color: #fff !important;
-  padding: 0px;
-  top: 5px;
-  right: 5px;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 4px;
+  color: #fff;
 }
 
-.galleryContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px 0px;
-  width: 100%;
+.countryDropdownOption:focus {
+  background-color: #00b26b;
+  color: #fff;
 }
 
-.imageContainer {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.removesButton {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: #fff;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  padding: 2px;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
-}
-
-.galleryContainer::-webkit-scrollbar {
+/* Scrollbar */
+.countryDropdownMenu::-webkit-scrollbar {
   width: 6px;
 }
 
-.galleryContainer::-webkit-scrollbar-thumb {
-  background-color: #cccccc;
-  border-radius: 3px;
-}
-
-.editButton {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: 30px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.editCancelBtn {
-  background-color: #ffffff;
-  padding: 10px 26px;
+.countryDropdownMenu::-webkit-scrollbar-track {
+  background: #f9f9f9;
   border-radius: 10px;
-  border: none;
-  font-size: 18px;
-  font-weight: 600;
-  color: #00b26b;
-  border: 2px solid #00b26b;
 }
 
-.editSubmitBtn {
-  color: #fff;
+.countryDropdownMenu::-webkit-scrollbar-thumb {
   background-color: #00b26b;
-  padding: 10px 26px;
   border-radius: 10px;
-  border: none;
-  font-size: 18px;
-  font-weight: 600;
-  border: 2px solid #00b26b;
 }
-.editCancelBtn:hover {
-  background-color: #fff;
-  color: #00b26b;
-  border: 2px solid #00b26b;
+.contactNumberRow {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
 }
 
-.editSubmitBtn:hover {
-  border: 2px solid #00b26b;
-  background-color: #fff;
-  color: #00b26b;
+.countryCodeWrapper {
+    width: 40%;
+    min-width: 0;
 }
 
-.featureButton {
-  color: #fff;
-  background-color: #00b26b;
-  padding: 10px 15px;
-  border-radius: 10px;
-  border: none;
-  font-size: 18px;
-  font-weight: 600;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  column-gap: 10px;
-  cursor: pointer;
+.contactNumberWrapper {
+    width: 60%;
+    min-width: 0;
 }
 
-.addImg {
-  filter: brightness(0) saturate(100%) invert(1);
+.countryCodeWrapper > div {
+    width: 100%;
 }
 
-.toggleContainer {
-  width: 230px;
-  display: flex;
-  gap: 20px;
-  padding: 18px 10px;
-  border-radius: 14px;
-  background-color: #f9f9f9;
-  border: 1px solid #00b26b;
+.contactNumberWrapper .inputField {
+    width: 100%;
+    box-sizing: border-box;
 }
-
-.statusLabel {
-  color: #ffffff;
-  font-size: 18px;
-}
-
-.toggleSwitch {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  gap: 10px;
-}
-
-.toggleButton {
-  position: relative;
-  border: 2px solid;
-  border-radius: 6px;
-  width: 60px;
-  height: 34px;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-.toggleButton.activeToggle {
-  border-color: #00b26b;
-}
-
-.toggleButton.inactiveToggle {
-  border-color: #ffffff;
-}
-
-.slider {
-  position: absolute;
-  top: 50%;
-  left: 0px;
-  width: 28px;
-  height: 30px;
-  background-color: #ffffff;
-  border-radius: 0px;
-  transform: translateY(-50%);
-  transition: left 0.3s ease, background-color 0.3s ease;
-}
-
-.toggleButton.activeToggle .slider {
-  left: 28px;
-  background-color: #00b26b;
-}
-
-.toggleButton.inactiveToggle .slider {
-  background-color: #ffffff;
-}
-
-.toggleText {
-  font-size: 14px;
-  transition: color 0.3s ease;
-}
-
-.toggleText.activeText {
-  color: #00b26b;
-}
-
-.toggleText.inactiveText {
-  color: #ffffff;
-  width: 70px;
-}
-
-.error {
-  margin-top: 5px;
-  font-size: 13px;
-  display: flex;
-  align-items: start;
-  justify-content: start;
-  text-align: start;
-  color: red !important;
-  width: 100% !important;
-  margin-bottom: 0px !important;
-}
-
-.checkboxInput {
-  margin-right: 10px;
-}
-.arrow {
-  font-size: 12px;
-  font-weight: 800;
-}
-.checkboxInput {
-  display: none;
-}
-
-.checkmark {
-  position: relative;
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #00b26b;
-  border-radius: 2px;
-  cursor: pointer;
-  background-color: #000000;
-  transition: background-color 0.3s, border-color 0.3s;
-}
-
-.checkboxInput:checked + .checkmark {
-  background-color: #00b26b;
-  border-color: #00b26b;
-}
-
-.checkmark::after {
-  content: "";
-  position: absolute;
-  display: none;
-}
-
-.checkboxInput:checked + .checkmark::after {
-  display: block;
-} */

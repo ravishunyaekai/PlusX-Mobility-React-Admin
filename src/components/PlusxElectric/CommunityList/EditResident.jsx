@@ -1701,7 +1701,7 @@ const EditResident = () => {
                                         styles.labelText
                                     }
                                 >
-                                    Per kWh Charge (AED)
+                                    Per kWh Charge (INR)
                                 </label>
 
                                 <div className="row">
@@ -1711,7 +1711,7 @@ const EditResident = () => {
                                             inputMode="decimal"
                                             autoComplete="off"
                                             id="perKwhCharge"
-                                            placeholder="Per kWh Charge (AED)"
+                                            placeholder="Per kWh Charge (INR)"
                                             className={
                                                 styles.inputField
                                             }
@@ -1760,7 +1760,7 @@ const EditResident = () => {
                                         styles.labelText
                                     }
                                 >
-                                    Extra Charge/Min Over Allocated Time (AED)
+                                    Extra Charge/Min Over Allocated Time (INR)
                                 </label>
 
                                 <div className="row">
@@ -1770,7 +1770,7 @@ const EditResident = () => {
                                             inputMode="decimal"
                                             autoComplete="off"
                                             id="extraCharge"
-                                            placeholder="Extra Charge/Min Over Allocated Time (AED)"
+                                            placeholder="Extra Charge/Min Over Allocated Time (INR)"
                                             className={
                                                 styles.inputField
                                             }

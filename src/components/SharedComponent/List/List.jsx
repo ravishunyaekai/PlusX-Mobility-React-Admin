@@ -261,7 +261,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                                 <img src={View} alt="view" onClick={() => handleClickEvent('/electric/charger-installation/purchase-customer-details', data.purchase_id)} />
                                             )}
                                             {access.includes('edit') && (
-                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/charger-installation/purchase-edit', data.charger_id)} />
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/charger-installation/purchase-edit', data.purchase_id)} />
                                             )}
                                         </>
                                     )}

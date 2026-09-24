@@ -649,178 +649,151 @@
   }
 }
 
+/* =====================================================
+   COUNTRY CODE CUSTOM DROPDOWN
+   Same UI as .inputField
+===================================================== */
 
-/* .ridersContainer {
-  background-color: #f9f9f9;
-  height: 94.3vh;
-  overflow: scroll;
-  padding: 20px;
-  color: #ffffff;
-}
-.ridersContainer::-webkit-scrollbar {
-  display: none;
-}
-
-.addShopContainer {
-  background-color: #f9f9f9;
-  height: 94vh;
-  overflow: scroll;
-  padding: 20px;
-  color: #ffffff;
-}
-.addShopContainer::-webkit-scrollbar {
-  display: none;
-}
-.addShopFormSection {
-  padding: 30px;
-  border-radius: 14px;
-  border: 1px solid #00b26b;
-  background-color: #242424;
-  display: flex;
-  flex-direction: column;
-}
-.addHeading {
-  color: #00b26b;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-.addShopInputContainer {
+.countryDropdown {
+  position: relative;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  row-gap: 6px;
-}
-.formSection {
-  display: flex;
-  flex-direction: column;
-  row-gap: 20px;
-}
-.addShopLabel {
-  font-size: 18px;
-  color: #ffffff;
-  font-weight: 500;
-}
-.row {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
 }
 
-.inputField {
+/* Selected country code */
+.countryDropdownButton {
   outline: none;
   background-color: #f9f9f9;
-  border: none;
+  border: 2px solid #00b26b;
   padding: 16px 10px;
-  border-radius: 6px;
-  color: #ffffff;
+  border-radius: 10px;
+  color: #000;
   font-size: 16px;
   width: 100%;
-}
-.editButton {
-  width: 100%;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  box-sizing: border-box;
+
   display: flex;
-  justify-content: center;
   align-items: center;
-  column-gap: 30px;
+  justify-content: space-between;
+
   cursor: pointer;
-  margin-top: 20px;
+  text-align: left;
+  font-family: inherit;
+  line-height: normal;
 }
 
-.editSubmitBtn {
-  color: #000000;
-  border: 1px solid #00b26b !important;
-  background-color: #00b26b;
-  padding: 10px 26px;
-  border-radius: 10px;
-  border: none;
-  font-size: 18px;
-  font-weight: 600;
-}
-.editSubmitBtn:hover {
-  color: #ffffff;
-  background-color: #000000;
+.countryDropdownButton:hover {
+  border-color: #00b26b;
 }
 
-.fileUpload {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 20px;
-  cursor: pointer;
+.countryDropdownButton:focus {
+  border-color: #00b26b;
+  outline: none;
 }
 
-.fileLabel {
-  width: 100%;
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #ffffff;
+/* Arrow */
+.dropdownArrow {
+  color: #000;
+  font-size: 16px;
+  margin-left: 8px;
+  line-height: 1;
 }
 
-.fileDropZone {
-  position: relative;
-  width: 100%;
-  padding: 40px;
-  border-radius: 14px;
-  background-color: #f9f9f9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  cursor: pointer;
-}
+/* =====================================================
+   DROPDOWN OPTIONS
+===================================================== */
 
-.fileUploadLabel {
-  display: block;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: start;
-  column-gap: 22px;
-  cursor: pointer;
-}
-
-.uploadIcon {
-  width: 60px;
-  height: 60px;
-}
-
-.imageContainer {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.previewImage {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  top: 50%;
-  transform: translate(0, 0%);
-  position: relative;
-  max-width: 100%;
-  max-height: 100%;
-  background-color: #fff;
-  transition: border-color 0.15s linear;
-}
-
-.removeButton {
+.countryDropdownMenu {
   position: absolute;
-  background-color: #00b26b;
-  color: #000000 !important;
-  padding: 0px;
-  top: 5px;
-  right: 5px;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 4px;
+  top: calc(100% + 5px);
+  left: 0;
+
+  width: 100%;
+  max-height: 250px;
+
+  overflow-y: auto;
+
+  background-color: #f9f9f9;
+
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+
+  z-index: 9999;
+
+  box-sizing: border-box;
 }
 
-@media only screen and (max-width: 991px) {
-  .row {
-    flex-direction: column;
-  }
-} */
+/* Individual country */
+.countryDropdownOption {
+  width: 100%;
+
+  padding: 12px 10px;
+
+  border: none;
+  outline: none;
+
+  background-color: #f9f9f9;
+
+  color: #000;
+
+  font-size: 16px;
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.countryDropdownOption:hover {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+.countryDropdownOption:focus {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+/* Scrollbar */
+.countryDropdownMenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.countryDropdownMenu::-webkit-scrollbar-track {
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.countryDropdownMenu::-webkit-scrollbar-thumb {
+  background-color: #00b26b;
+  border-radius: 10px;
+}
+.contactNumberRow {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.countryCodeWrapper {
+    width: 40%;
+    min-width: 0;
+}
+
+.contactNumberWrapper {
+    width: 60%;
+    min-width: 0;
+}
+
+.countryCodeWrapper > div {
+    width: 100%;
+}
+
+.contactNumberWrapper .inputField {
+    width: 100%;
+    box-sizing: border-box;
+}

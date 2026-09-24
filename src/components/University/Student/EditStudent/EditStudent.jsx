@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./EditStudent.module.css";
+import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import { MdOutlineCloudUpload } from "react-icons/md";
 import { AiOutlineClose } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
@@ -20,6 +21,7 @@ const EditStudent = () => {
   const [studentName, setStudentName] = useState("");
   const [contact, setContact] = useState("");
   const [emailID, setEmailID] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [university, setUniversity] = useState(null);
   const [universityOptions, setUniversityOptions] = useState([]);
   const [studentID, setStudentID] = useState("");
@@ -27,6 +29,101 @@ const EditStudent = () => {
   const [loading, setLoading] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [baseUrl, setBaseUrl] = useState("");
+  // =========================================================
+  // COUNTRY CODE OPTIONS
+  // =========================================================
+
+  const countryCodeOptions = useMemo(() => {
+    const displayNames = new Intl.DisplayNames(
+      ["en"],
+      {
+        type: "region",
+      }
+    );
+
+    return getCountries()
+      .map((country) => {
+        let countryName = country;
+
+        try {
+          countryName =
+            displayNames.of(country) || country;
+        } catch (error) {
+          countryName = country;
+        }
+
+        let callingCode = "";
+
+        try {
+          callingCode =
+            `+${getCountryCallingCode(country)}`;
+        } catch (error) {
+          console.error(
+            `Unable to get calling code for ${country}`,
+            error
+          );
+
+          return null;
+        }
+
+        return {
+          value: callingCode,
+          label: `${countryName} (${callingCode})`,
+          countryName,
+          country,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) =>
+        a.countryName.localeCompare(
+          b.countryName
+        )
+      );
+  }, []);
+
+  // =========================================================
+  // SELECTED COUNTRY CODE
+  // =========================================================
+
+  const selectedCountryCode = useMemo(() => {
+    if (!countryCode) return null;
+
+    return (
+      countryCodeOptions.find(
+        (option) => option.value === countryCode
+      ) || null
+    );
+  }, [countryCode, countryCodeOptions]);
+
+  // =========================================================
+  // COUNTRY CODE CHANGE
+  // =========================================================
+
+  const handleCountryCodeChange = (
+    selectedOption
+  ) => {
+    let selectedValue = "";
+
+    if (
+      selectedOption &&
+      typeof selectedOption === "object"
+    ) {
+      selectedValue =
+        selectedOption?.value || "";
+    } else {
+      selectedValue =
+        selectedOption || "";
+    }
+
+    setCountryCode(selectedValue);
+
+    if (selectedValue) {
+      setErrors((prev) => ({
+        ...prev,
+        countryCode: "",
+      }));
+    }
+  };
 
   const userObj = {
     userId: userDetails?.user_id,
@@ -197,12 +294,49 @@ const EditStudent = () => {
                     {errors.studentName && studentName === '' && <p className={styles.error} style={{ color: 'red' }}>{errors.studentName}</p>}
                   </div>
                 </div>
-                <div className="col-lg-6">
+                {/* <div className="col-lg-6">
                   <div className="col-xl-10 col-lg-12">
                     <input type="text" placeholder="Contact Number" className={styles.inputField} value={contact}
                       onChange={(e) => setContact(e.target.value)}
                     />
                     {errors.contact && <p className={styles.error} style={{ color: 'red' }}>{errors.contact}</p>}
+                  </div>
+                </div> */}
+                <div className={`col-lg-6`}>
+
+                  <div className={`row`}>
+                    <div className={`col-xl-10 col-lg-12`}>
+                      <div className={styles.contactNumberRow}>
+
+                        {/* Country Code - 40% */}
+                        <div className={styles.countryCodeWrapper}>
+                          <CustomDropdown
+                            options={countryCodeOptions}
+                            value={selectedCountryCode}
+                            onChange={handleCountryCodeChange}
+                            placeholder="+91"
+                          />
+
+                          {errors.countryCode && (
+                            <p
+                              className={styles.error}
+                              style={{ color: 'red' }}
+                            >
+                              {errors.countryCode}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Contact Number - 60% */}
+                        <div className={styles.contactNumberWrapper}>
+                          <input type="text" placeholder="Contact Number" className={styles.inputField} value={contact}
+                            onChange={(e) => setContact(e.target.value)}
+                          />
+                          {errors.contact && <p className={styles.error} style={{ color: 'red' }}>{errors.contact}</p>}
+                        </div>
+
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
