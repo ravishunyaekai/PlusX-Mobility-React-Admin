@@ -39,7 +39,7 @@ const CommunityInvoiceDetails = () => {
             userId: userDetails?.user_id,
             email: userDetails?.email,
 
-            resident_mobile: stationId,
+            invoice_id: stationId,
 
             /*
              * Send the invoice month expected by backend.
@@ -52,7 +52,7 @@ const CommunityInvoiceDetails = () => {
         };
 
 
-        postRequestWithToken('get-invoice-data', obj, (response) => {
+        postRequestWithToken('scan-charge-invoice-detail', obj, (response) => {
 
             if (response.code === 200) {
 
@@ -61,7 +61,7 @@ const CommunityInvoiceDetails = () => {
             } else {
 
                 console.log(
-                    'error in get-invoice-data API',
+                    'error in scan-charge-invoice-detail API',
                     response
                 );
 
@@ -94,74 +94,99 @@ const CommunityInvoiceDetails = () => {
 
     const headerTitles = {
 
-        bookingIdTitle: "Resident Name",
+        bookingIdTitle: "Invoice ID",
 
-        stationDetailsTitle: "Invoice Details",
+        stationDetailsTitle: "Resident Details",
 
     };
 
 
     const sectionTitles1 = {
 
-        residentName: "Resident Name",
-
+        communityName: "Community Name",
+        areaName: "Area Name",
+        fullAddress: "Full Address",
+        noOfSession: "No. of Session",
         kwhAllocated: "kWh Allocation/Month",
-
+        billingMonth: "Billing Month",
         totalConsumption: "Total Consumption",
-
         energyCharge: "Per kWh Charge (INR)",
-
-        energyPrice: "Energy Price (INR)",
-
+        energyKwhPrice: "Energy kWh Price",
         overTimeMin: "Over Time (Min)",
-
+        extraChargeMinOverAllocatedTime: "Extra Charge / Min Over Allocated Time (INR)",
         extraCharge: "Extra Charge (INR)",
-
+        subTotal: "Sub Total",
+        gst: "GST (18%)",
         totalAmount: "Total Amount (INR)",
-
+        status: "Status"
     };
 
 
     const content = {
 
         bookingId:
-            bookingDetails?.resident_name || "N/A",
+            bookingDetails?.invoice_id || "N/A",
 
-        createdAt:
-            moment().format('DD MMM YYYY'),
+        createdAt:bookingDetails?.created_at ? 
+            moment(bookingDetails?.created_at).format("DD MMM YYYY, hh:mm A")
+            : "N/A",
 
-        stationName:
+        residentName:
             bookingDetails?.resident_name || "N/A",
+        residentEmail:
+            bookingDetails?.resident_email || "N/A",
 
     };
 
 
     const sectionContent1 = {
+        communityName:
+            bookingDetails?.community_name || "N/A",
 
-        residentName:
-            bookingDetails?.resident_name || "N/A",
+        areaName:
+            bookingDetails?.area_name || "N/A",
+
+        fullAddress:
+            bookingDetails?.resident_address || "N/A",
+
+        noOfSession:
+            bookingDetails?.no_of_session ?? 0,
 
         kwhAllocated:
             bookingDetails?.kwh_allocated ?? 0,
+
+        billingMonth:
+            bookingDetails?.billing_month || "N/A",
 
         totalConsumption:
             bookingDetails?.total_consumption ?? "0.00",
 
         energyCharge:
-            bookingDetails?.energy_charge ?? 0,
+            bookingDetails?.per_kwh_charge ?? "0.00",
 
-        energyPrice:
-            bookingDetails?.energy_price ?? "0.00",
+        energyKwhPrice:
+            bookingDetails?.energy_price_total ?? "0.00",
 
         overTimeMin:
             bookingDetails?.over_time_min ?? 0,
 
+        extraChargeMinOverAllocatedTime:
+            bookingDetails?.extra_charge_per_min ?? "0.00",
+
         extraCharge:
-            bookingDetails?.extra_charge ?? "0.00",
+            bookingDetails?.extra_charge_total ?? "0.00",
+
+        subTotal:
+            Number(bookingDetails?.subtotal ?? 0).toFixed(2),
+
+        gst:
+            Number(bookingDetails?.vat ?? 0).toFixed(2),
 
         totalAmount:
-            bookingDetails?.total_amount ?? "0.00",
+            Number(bookingDetails?.total_amount ?? 0).toFixed(2),
 
+        status:
+            bookingDetails?.invoice_status || "N/A"
     };
 
 

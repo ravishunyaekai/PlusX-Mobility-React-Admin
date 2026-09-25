@@ -16,6 +16,7 @@ import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
 import List from '../../SharedComponent/List/List.jsx';
 import SubHeader from '../../SharedComponent/SubHeader/SubHeader.jsx';
 import Pagination from '../../SharedComponent/Pagination/Pagination.jsx';
+import moment from 'moment';
 
 
 const CommunityDetails = () => {
@@ -32,7 +33,7 @@ const CommunityDetails = () => {
     // COMMUNITY DETAILS
     // =========================
 
-    const [bookingDetails, setBookingDetails] = useState({});
+    const [communityDetails, setCommunityDetails] = useState({});
     const [chargers, setChargers] = useState([]);
     const [manager, setManager] = useState([]);
 
@@ -82,7 +83,7 @@ const CommunityDetails = () => {
                 if (response.code === 200) {
 
                     // Community details
-                    setBookingDetails(
+                    setCommunityDetails(
                         response?.data || {}
                     );
 
@@ -352,10 +353,13 @@ const CommunityDetails = () => {
     const content = {
 
         bookingId:
-            bookingDetails?.community_id || 'N/A',
+            communityDetails?.community_id || 'N/A',
+        createdAt:
+            communityDetails?.created_at ? moment(communityDetails?.created_at).format("DD MMM YYYY, hh:mm A")
+                : "N/A",
 
         stationName:
-            bookingDetails?.community_name || 'N/A'
+            communityDetails?.community_name || 'N/A'
     };
 
 
@@ -403,13 +407,13 @@ const CommunityDetails = () => {
     const sectionContent2 = {
 
         areaName:
-            bookingDetails?.area_name || 'N/A',
+            communityDetails?.area_name || 'N/A',
 
         totalResidents:
-            bookingDetails?.total_residence ?? 0,
+            communityDetails?.total_residence ?? 0,
 
         status:
-            bookingDetails?.status === 1
+            communityDetails?.status === 1
                 ? 'Active'
                 : 'Un-Active'
     };
@@ -522,11 +526,6 @@ const CommunityDetails = () => {
             key: 'kwh_used',
             label: 'kWh Used'
         },
-
-        {
-            key: 'action',
-            label: 'Action'
-        }
     ];
 
 

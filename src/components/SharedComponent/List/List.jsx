@@ -178,6 +178,30 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                         )
                                     )}
 
+                                    {pageHeading === 'Total Session History' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/session-details/', data.booking_id)} />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {pageHeading === 'Total Invoice History' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/invoice-details/', data.invoice_id)} />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {pageHeading === 'Resident List' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/resident-details/', data.resident_id)} />
+                                            )}
+                                        </>
+                                    )}
+
                                     {pageHeading === 'Ev Road Assistance Invoice List' && (
                                         <>
                                             {access.includes('view') && (
@@ -302,7 +326,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     {pageHeading === 'Total Invoice List' && (
                                         <>
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/invoice-details', data.offer_id)} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/invoice-details', data.invoice_id)} />
                                             )}
                                         </>
                                     )}

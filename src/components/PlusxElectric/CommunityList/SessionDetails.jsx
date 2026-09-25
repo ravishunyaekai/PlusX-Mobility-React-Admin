@@ -17,7 +17,7 @@ import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
 import List from '../../SharedComponent/List/List.jsx';
 import Pagination from '../../SharedComponent/Pagination/Pagination.jsx';
 
-const ResidentDetails = () => {
+const SessionDetails = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
     const { stationId } = useParams();
@@ -45,14 +45,14 @@ const ResidentDetails = () => {
         const obj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
-            resident_id: stationId
+            session_id: stationId
         };
 
-        postRequestWithToken('resident-details', obj, (response) => {
+        postRequestWithToken('session-detail', obj, (response) => {
             if (response.code === 200) {
                 setBookingDetails(response?.data || {});
             } else {
-                console.log('error in resident-details API', response);
+                console.log('error in session-detail API', response);
                 toast(response?.message || 'Failed to fetch resident details', {
                     type: "error"
                 });
@@ -166,29 +166,31 @@ const ResidentDetails = () => {
     };
 
     const headerTitles = {
-        bookingIdTitle: "Resident ID",
+        bookingIdTitle: "Session ID",
         stationDetailsTitle: "Resident Details",
     };
 
     const sectionTitles1 = {
-        emailAddress: "Email Address",
-        communities: "Communities",
-        fullAddress: "Full Address",
-        monthlySessionAllocated: "Monthly Session Allocated",
-        allocatedTimeInMinutes: "Allocated Time in Minutes",
-        kwhAllocationPerMonth: "kWh Allocation/Month",
-        perKwhCharge: "Per kWh Charge (INR)",
-        extraChargePerMinOverAllocatedTime:
-            "Extra Charge/Min Over Allocated Time (INR)",
+        communityName: "Community Name",
+        areaName: "Area Name",
+        chargerId: "Charger ID",
+        totalConsumption: "Total Consumption",
+        totalDuration: "Total Duration",
+        extraMinutes: "Over Time (Min)",
+        startTime: "Start Time",
+        endTime: "End Time",
+        startKwh: "Start With",
+        endKwh: "End With",
         status: "Status",
     };
 
     const content = {
-        bookingId: bookingDetails?.resident_id || "N/A",
+        bookingId: bookingDetails?.booking_id || "N/A",
         createdAt: bookingDetails?.created_at
-            ? moment(bookingDetails?.created_at).format("DD MMM YYYY, hh:mm A")
+            ? moment(bookingDetails.created_at).format('DD MMM YYYY')
             : "N/A",
         stationName: bookingDetails?.resident_name || "N/A",
+        stationMobile: bookingDetails?.resident_mobile || "N/A",
     };
 
     /*
@@ -207,31 +209,42 @@ const ResidentDetails = () => {
         : bookingDetails?.communities || "N/A";
 
     const sectionContent1 = {
-        emailAddress: bookingDetails?.resident_email || "N/A",
+        communityName:
+            bookingDetails?.community_name || "N/A",
 
-        communities: communityNames,
+        areaName:
+            bookingDetails?.area_name || "N/A",
 
-        fullAddress: bookingDetails?.address || "N/A",
+        chargerId:
+            bookingDetails?.charger_id || "N/A",
 
-        monthlySessionAllocated:
-            bookingDetails?.monthly_session_allocation ?? 0,
+        totalConsumption:
+            bookingDetails?.total_consumption ?? "0.00",
 
-        allocatedTimeInMinutes:
-            bookingDetails?.alloted_time ?? 0,
+        totalDuration:
+            bookingDetails?.total_duration ?? "0",
 
-        kwhAllocationPerMonth:
-            bookingDetails?.kwh_allocated ?? 0,
+        extraMinutes:
+            bookingDetails?.extra_minutes ?? "0",
 
-        perKwhCharge:
-            bookingDetails?.per_kwh_charge ?? 0,
+        startTime:
+            bookingDetails?.start_time
+                ? moment(bookingDetails.start_time).format("DD MMM YYYY, hh:mm A")
+                : "N/A",
 
-        extraChargePerMinOverAllocatedTime:
-            bookingDetails?.extra_charge ?? 0,
+        endTime:
+            bookingDetails?.end_time
+                ? moment(bookingDetails.end_time).format("DD MMM YYYY, hh:mm A")
+                : "N/A",
+
+        startKwh:
+            bookingDetails?.start_kwh ?? "0.000",
+
+        endKwh:
+            bookingDetails?.end_kwh ?? "0.000",
 
         status:
-            bookingDetails?.status === 1
-                ? "Active"
-                : "Un-Active",
+            bookingDetails?.session_status || "N/A",
     };
 
     const [filters, setFilters] = useState({
@@ -298,103 +311,10 @@ const ResidentDetails = () => {
                             type='residentDetails'
                         />
                     </div>
-                    <SubHeader heading="Total Session History"
-                        // addButtonProps={addButtonProps}
-                        fetchFilteredData={fetchSessionFilteredData}
-                        dynamicFilters={dynamicFilters} filterValues={filters}
-                        searchTerm={searchTerm}
-                        count={sessionTotalCount}
-                    />
-                    {
-                        sessionList.length === 0 ? (
-                            <EmptyList
-                                tableHeaders={["Date", "Session Id", "Resident Name", "Area", "Charger Id", "KWh Used", "Duration (In Min.)", "Status", "Action"]}
-                                message="No data available"
-                            />
-                        ) : (
-                            <>
-                                <List
-                                    tableHeaders={["Date", "Session Id", "Resident Name", "Area", "Charger Id", "KWh Used", "Duration (In Min.)", "Status", "Action"]}
-                                    listData={sessionList}
-                                    pageHeading="Total Session History"
-                                    onDeleteSlot={{}}
-                                    keyMapping={[
-                                        { key: 'created_at', label: 'Date', format: (date) => moment(date).format('DD MMM YYYY') },
-                                        { key: 'booking_id', label: 'Session Id' },
-                                        { key: 'resident_name', label: 'Resident Name' },
-                                        { key: 'area_name', label: 'Area' },
-                                        { key: 'charger_id', label: 'Charger Id' },
-                                        { key: 'total_consumption', label: 'KWh Used' },
-                                        { key: 'total_duration', label: 'Duration (In Min.)' },
-                                        { key: 'status', label: 'Status' },
-                                    ]}
-                                />
-
-                                <Pagination
-                                    currentPage={sessionCurrentPage}
-                                    totalPages={sessionTotalPages}
-                                    onPageChange={handleSessionPageChange}
-                                />
-                            </>
-                        )
-                    }
-                    <SubHeader heading="Total Invoice History"
-                        // addButtonProps={addButtonProps}
-                        fetchFilteredData={fetchInvoiceFilteredData}
-                        dynamicFilters={dynamicFilters2} filterValues={filters}
-                        searchTerm={searchTerm2}
-                        count={invoiceTotalCount}
-                    />
-                    {
-                        invoiceList.length === 0 ? (
-                            <EmptyList
-                                tableHeaders={["Sr No", "Invoice Id", "Resident Name", "kWh Allocated", "Per kW Charge", "Price (INR)", "Over Time (INR)", "Total (INR)", "Status", "Action"]}
-                                message="No data available"
-                            />
-                        ) : (
-                            <>
-                                <List
-                                    tableHeaders={["Sr No", "Invoice Id", "Resident Name", "kWh Allocated", "Per kW Charge", "Price (INR)", "Over Time (INR)", "Total (INR)", "Status", "Action"]}
-                                    listData={invoiceList}
-                                    pageHeading="Total Invoice History"
-                                    onDeleteSlot={{}}
-                                    keyMapping={[
-                                        { key: 'sr_no', label: 'Sr No' },
-                                        { key: 'invoice_id', label: 'Invoice Id' },
-                                        { key: 'resident_name', label: 'Resident Name' },
-                                        {
-                                            key: 'kwh_allocated',
-                                            label: 'kWh Allocated'
-                                        },
-                                        { key: 'per_kwh_charge', label: 'Per kW Charge' },
-                                        { key: 'energy_price_total', label: 'Price (INR)' },
-                                        {
-                                            key: 'extra_charge_total',
-                                            label: 'Over Time (INR)'
-                                        },
-                                        {
-                                            key: 'total_amount',
-                                            label: 'Total (INR)'
-                                        },
-                                        {
-                                            key: 'invoice_status',
-                                            label: 'Status'
-                                        },
-                                    ]}
-                                />
-
-                                <Pagination
-                                    currentPage={invoiceCurrentPage}
-                                    totalPages={invoiceTotalPages}
-                                    onPageChange={handleInvoicePageChange}
-                                />
-                            </>
-                        )
-                    }
                 </>
             )}
         </div>
     );
 };
 
-export default ResidentDetails;
+export default SessionDetails;

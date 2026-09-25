@@ -1014,11 +1014,11 @@ const AddInvoice = () => {
                 userDetails?.email ||
                 "",
 
-            community:
+            community_name:
                 community?.value ||
                 "",
 
-            area:
+            area_name:
                 area?.value ||
                 "",
 
@@ -1035,7 +1035,7 @@ const AddInvoice = () => {
                 resident?.resident_name ||
                 "",
 
-            billing_month:
+            invoice_month:
                 invoiceDate,
 
             kwh_used:
@@ -1065,11 +1065,11 @@ const AddInvoice = () => {
         // =====================================================
 
         postRequestWithToken(
-            "create-invoice",
+            "create-scan-charge-invoice",
             payload,
             (response) => {
                 console.log(
-                    "create-invoice response:",
+                    "create-scan-charge-invoice response:",
                     response
                 );
 
@@ -1086,7 +1086,7 @@ const AddInvoice = () => {
                         setLoading(false);
 
                         navigate(
-                            "/electric/community-charger/invoice"
+                            "/electric/community/invoice-list"
                         );
                     }, 1000);
                 } else {

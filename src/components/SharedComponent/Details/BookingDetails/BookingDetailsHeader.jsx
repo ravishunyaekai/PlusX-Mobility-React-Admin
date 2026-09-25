@@ -22,7 +22,7 @@ const BookingDetailsHeader = ({ content, titles, packageTitles, packageContent, 
                     </div>
                 </div>
 
-                {type === 'communityDetails' || type == 'residentDetails' && (
+                {type == 'residentDetails' && (
                     <div className="col-xl-3 col-lg-6 col-12">
                         <div className={styles.detailsHeaderSection}>
                             <div className={styles.detailsImageSection}>
@@ -38,7 +38,40 @@ const BookingDetailsHeader = ({ content, titles, packageTitles, packageContent, 
                     </div>
                 )}
 
-                {!type === 'communityDetails' || !type == 'residentDetails' && type !== 'publicChargingStation' && type !== 'evGuide' && type !== 'electricCarLeasing'
+                {type == 'communityDetails' && (
+                    <div className="col-xl-3 col-lg-6 col-12">
+                        <div className={styles.detailsHeaderSection}>
+                            <div className={styles.detailsImageSection}>
+                                {/* <img src={Email} alt="Email" /> */}
+                            </div>
+                            <div className={styles.infoBlock}>
+                                <span className={styles.infoHeading}>{titles.stationDetailsTitle}</span>
+                                <span className={styles.infoHeadText}>{content.stationName}</span>
+                                <span className={styles.infoText}>{content.residentEmail}</span>
+                                {/* <span className={styles.infoText}>Charger Type: {content.chargerType}</span>
+                            <span className={styles.infoText}>Charging For: {content.chargingFor}</span> */}
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {type == 'communityInvoiceDetails' && (
+                    <div className="col-xl-3 col-lg-6 col-12">
+                        <div className={styles.detailsHeaderSection}>
+                            <div className={styles.detailsImageSection}>
+                                {/* <img src={Email} alt="Email" /> */}
+                            </div>
+                            <div className={styles.infoBlock}>
+                                <span className={styles.infoHeading}>{titles.stationDetailsTitle}</span>
+                                <span className={styles.infoHeadText}>{content.residentName}</span>
+                                <span className={styles.infoText}>{content.residentEmail}</span>
+                                {/* <span className={styles.infoText}>Charger Type: {content.chargerType}</span>
+                            <span className={styles.infoText}>Charging For: {content.chargingFor}</span> */}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {!type == 'communityDetails' && !type == 'residentDetails' && type !== 'publicChargingStation' && type !== 'evGuide' && type !== 'electricCarLeasing'
                     && type !== 'electricBikeLeasing' && type !== 'buySell' && type !== 'discussionBoard' && type !== 'shop' && type !== 'Offer Details' && type != 'chargesharedetails' && (
                         <div className="col-xl-3 col-lg-6 col-12">
                             <div className={styles.detailsHeaderSection}>
@@ -92,7 +125,7 @@ const BookingDetailsHeader = ({ content, titles, packageTitles, packageContent, 
                                 {/* <span className={styles.infoText}>{content.packageId}</span> */}
                                 <span className={styles.infoText}>
                                     Charging Capacity: {packageContent?.chargingCapacity}
-                                </span>                               
+                                </span>
                                 <span className={styles.infoText}>Charging Fee: {packageContent.chargingFee}</span>
                                 <span className={styles.infoText}>Service Fee: {packageContent.serviceFee}</span>
                             </div>

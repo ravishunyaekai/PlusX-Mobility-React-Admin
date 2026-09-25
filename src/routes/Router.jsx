@@ -188,6 +188,7 @@ import AddInvoice from "../components/PlusxElectric/CommunityList/AddInvoice.jsx
 import CommunityDetails from "../components/PlusxElectric/CommunityList/CommunityDetails.jsx";
 import ResidentDetails from "../components/PlusxElectric/CommunityList/ResidentDetails.jsx";
 import CommunityInvoiceDetails from "../components/PlusxElectric/CommunityList/InvoiceDetails.jsx";
+import SessionDetails from "../components/PlusxElectric/CommunityList/SessionDetails.jsx";
 
 const router = createBrowserRouter([
     {
@@ -634,6 +635,10 @@ const router = createBrowserRouter([
                     {
                         path: "resident-list",
                         element: <PublicResidentList />,
+                    },
+                    {
+                        path: "session-details/:stationId",
+                        element: <SessionDetails />,
                     },
                     {
                         path: "resident-details/:stationId",
