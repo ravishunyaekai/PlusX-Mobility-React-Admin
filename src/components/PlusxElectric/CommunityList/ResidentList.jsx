@@ -51,7 +51,8 @@ const PublicResidentList = () => {
     const [filters, setFilters] = useState({
         start_date: null,
         end_date: null,
-        community: ''
+        community: '',
+        search_text: ''
     });
 
     // =========================================================
@@ -352,27 +353,14 @@ const PublicResidentList = () => {
     // FILTER CHANGE
     // =========================================================
 
-    const fetchFilteredData = (
-        newFilters = {}
-    ) => {
-
-        console.log(
-            "Selected filters:",
-            newFilters
-        );
+    const fetchFilteredData = (newFilters = {}) => {
+        console.log("Selected filters:", newFilters);
 
         setFilters({
-            start_date:
-                newFilters?.start_date ||
-                null,
-
-            end_date:
-                newFilters?.end_date ||
-                null,
-
-            community:
-                newFilters?.community ||
-                ''
+            start_date: newFilters?.start_date || null,
+            end_date: newFilters?.end_date || null,
+            community: newFilters?.community || '',
+            search_text: newFilters?.search_text || ''
         });
 
         setCurrentPage(1);
@@ -515,15 +503,7 @@ const PublicResidentList = () => {
             ================================================= */}
 
             {communityLoading && (
-                <div
-                    style={{
-                        padding: "5px 0",
-                        fontSize: "13px",
-                        color: "#777"
-                    }}
-                >
-                    Loading communities...
-                </div>
+                <Loader />
             )}
 
             {/* =================================================

@@ -35,9 +35,6 @@ const ResidentDetails = () => {
     const [invoiceCurrentPage, setInvoiceCurrentPage] = useState(1);
     const [invoiceTotalPages, setInvoiceTotalPages] = useState(1);
     const [invoiceTotalCount, setInvoiceTotalCount] = useState(0);
-    const [imageGallery, setImageGallery] = useState();
-    const [imageGalleryId, setImageGalleryId] = useState();
-    const [baseUrl, setBaseUrl] = useState();
 
     const fetchDetails = () => {
         setLoading(true);
@@ -62,15 +59,15 @@ const ResidentDetails = () => {
         });
     };
 
-    const fetchSessionList = (page = 1) => {
+    const fetchSessionList = (page = 1, appliedFilters = {}, scheduleFilters = {},) => {
         const obj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
             resident_id: stationId,
             page_no: page,
-            search_text: '',
-            start_date: '',
-            end_date: ''
+            search_text: appliedFilters?.search_text || '',
+            start_date: appliedFilters?.start_date || '',
+            end_date: appliedFilters?.end_date || ''
         };
 
         postRequestWithToken('session-list', obj, (response) => {
@@ -91,27 +88,28 @@ const ResidentDetails = () => {
         });
     };
 
-    const fetchInvoiceList = (page = 1, mobile = '') => {
+    const fetchInvoiceList = (page = 1, mobile = '', appliedFilters = {}, scheduleFilters = {},) => {
         const obj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
             resident_mobile: mobile,
             page_no: page,
-            search_text: '',
-            start_date: '',
-            end_date: ''
+            search_text: appliedFilters?.search_text || '',
+            start_date: appliedFilters?.start_date || '',
+            end_date: appliedFilters?.end_date || ''
         };
 
         postRequestWithToken('scan-charge-invoice-list', obj, (response) => {
             if (response.code === 200) {
-                const updatedInvoicelist = (response.data || [])?.map((ele, i) => ({
+                const updatedInvoiceList = (response.data || []).map((ele, i) => ({
                     ...ele,
-                    sr_no: i + 1,
+                    sr_no: ((page - 1) * 10) + i + 1,
                     total_amount: Number(ele.total_amount || 0).toFixed(2),
                     energy_price_total: Number(ele.energy_price_total || 0).toFixed(2),
                     extra_charge_total: Number(ele.extra_charge_total || 0).toFixed(2),
-                }))
-                setInvoiceList(updatedInvoicelist);
+                }));
+
+                setInvoiceList(updatedInvoiceList);
                 setInvoiceTotalPages(response?.total_page || 1);
                 setInvoiceTotalCount(response?.total || 0);
                 setInvoiceCurrentPage(page);
@@ -152,7 +150,7 @@ const ResidentDetails = () => {
     }, [bookingDetails]);
 
     const handleSessionPageChange = (page) => {
-        fetchSessionList(page);
+        fetchSessionList(page, filters);
     };
 
     const handleInvoicePageChange = (page) => {
@@ -162,7 +160,7 @@ const ResidentDetails = () => {
             bookingDetails?.contact_no ||
             '';
 
-        fetchInvoiceList(page, residentMobile);
+        fetchInvoiceList(page, residentMobile, filters2);
     };
 
     const headerTitles = {
@@ -235,23 +233,89 @@ const ResidentDetails = () => {
     };
 
     const [filters, setFilters] = useState({
+        search_text: "",
+        start_date: null,
+        end_date: null
+    });
+
+    const [scheduleFilters, setScheduleFilters] = useState({
+        search_text: "",
         start_date: null,
         end_date: null
     });
 
     const [filters2, setFilters2] = useState({
+        search_text: "",
+        start_date: null,
+        end_date: null
+    });
+
+    const [scheduleFilters2, setScheduleFilters2] = useState({
+        search_text: "",
         start_date: null,
         end_date: null
     });
 
     const fetchSessionFilteredData = (newFilters = {}) => {
-        setFilters(newFilters);
-        setSessionCurrentPage(1);
+        const updatedFilters = {
+            search_text: newFilters?.search_text || '',
+            start_date: newFilters?.start_date || null,
+            end_date: newFilters?.end_date || null
+        };
+
+        setFilters(updatedFilters);
+
+        // Reset to page 1 and fetch filtered data
+        fetchSessionList(1, updatedFilters);
+    };
+    const scheduleSessionFilteredData = (newFilters = {}) => {
+        const updatedFilters = {
+            search_text: newFilters?.search_text || '',
+            start_date: newFilters?.start_date || null,
+            end_date: newFilters?.end_date || null
+        };
+
+        setFilters(updatedFilters);
+
+        // Reset to page 1 and fetch filtered data
+        fetchSessionList(1, updatedFilters);
     };
 
     const fetchInvoiceFilteredData = (newFilters = {}) => {
-        setFilters2(newFilters);
-        setInvoiceCurrentPage(1);
+        const updatedFilters = {
+            search_text: newFilters?.search_text || '',
+            start_date: newFilters?.start_date || null,
+            end_date: newFilters?.end_date || null
+        };
+
+        setFilters2(updatedFilters);
+
+        const residentMobile =
+            bookingDetails?.resident_mobile ||
+            bookingDetails?.mobile_number ||
+            bookingDetails?.contact_no ||
+            '';
+
+        // Reset to page 1 and fetch filtered data
+        fetchInvoiceList(1, residentMobile, updatedFilters);
+    };
+    const scheduleInvoiceFilteredData = (newFilters = {}) => {
+        const updatedFilters = {
+            search_text: newFilters?.search_text || '',
+            start_date: newFilters?.start_date || null,
+            end_date: newFilters?.end_date || null
+        };
+
+        setFilters2(updatedFilters);
+
+        const residentMobile =
+            bookingDetails?.resident_mobile ||
+            bookingDetails?.mobile_number ||
+            bookingDetails?.contact_no ||
+            '';
+
+        // Reset to page 1 and fetch filtered data
+        fetchInvoiceList(1, residentMobile, updatedFilters);
     };
 
     const searchTerm = [
@@ -304,6 +368,8 @@ const ResidentDetails = () => {
                         dynamicFilters={dynamicFilters} filterValues={filters}
                         searchTerm={searchTerm}
                         count={sessionTotalCount}
+                        scheduleDateChange={scheduleSessionFilteredData}
+                        scheduleFilters={scheduleFilters}
                     />
                     {
                         sessionList.length === 0 ? (
@@ -341,9 +407,11 @@ const ResidentDetails = () => {
                     <SubHeader heading="Total Invoice History"
                         // addButtonProps={addButtonProps}
                         fetchFilteredData={fetchInvoiceFilteredData}
-                        dynamicFilters={dynamicFilters2} filterValues={filters}
+                        dynamicFilters={dynamicFilters2} filterValues={filters2}
                         searchTerm={searchTerm2}
                         count={invoiceTotalCount}
+                        scheduleDateChange={scheduleInvoiceFilteredData}
+                        scheduleFilters={scheduleFilters2}
                     />
                     {
                         invoiceList.length === 0 ? (

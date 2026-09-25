@@ -20,14 +20,19 @@ const PublicInvoiceList = () => {
     const navigate = useNavigate();
 
     const [invoiceList, setInvoiceList] = useState([]);
-    const [scheduleFilters, setScheduleFilters] = useState(null);
+    const [scheduleFilters, setScheduleFilters] = useState({
+        start_date: null,
+        end_date: null,
+        search_text: ''
+    });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(null);
 
     const [filters, setFilters] = useState({
         start_date: null,
-        end_date: null
+        end_date: null,
+        search_text: ''
     });
 
     const [loading, setLoading] = useState(false);
@@ -120,8 +125,27 @@ const PublicInvoiceList = () => {
         setCurrentPage(pageNumber);
     };
 
+
     const fetchFilteredData = (newFilters = {}) => {
-        setFilters(newFilters);
+        console.log("Selected filters:", newFilters);
+
+        setFilters({
+            start_date: newFilters?.start_date || null,
+            end_date: newFilters?.end_date || null,
+            search_text: newFilters?.search_text || ''
+        });
+
+        setCurrentPage(1);
+    };
+    const scheduleFilteredData = (newFilters = {}) => {
+        console.log("Selected filters:", newFilters);
+
+        setScheduleFilters({
+            start_date: newFilters?.start_date || null,
+            end_date: newFilters?.end_date || null,
+            search_text: newFilters?.search_text || ''
+        });
+
         setCurrentPage(1);
     };
 
@@ -176,10 +200,6 @@ const PublicInvoiceList = () => {
                 }
             }
         );
-    };
-    const scheduleFilteredData = (newFilters = {}) => {
-        setScheduleFilters(newFilters);
-        setCurrentPage(1);
     };
 
     return (
@@ -267,8 +287,8 @@ const PublicInvoiceList = () => {
                                 label: 'Per kWh Charge',
                                 format: (value) =>
                                     value !== null &&
-                                    value !== undefined &&
-                                    value !== ''
+                                        value !== undefined &&
+                                        value !== ''
                                         ? `INR ${value}`
                                         : ''
                             },
@@ -277,8 +297,8 @@ const PublicInvoiceList = () => {
                                 label: 'Price (INR)',
                                 format: (value) =>
                                     value !== null &&
-                                    value !== undefined &&
-                                    value !== ''
+                                        value !== undefined &&
+                                        value !== ''
                                         ? `INR ${value}`
                                         : ''
                             },
@@ -287,8 +307,8 @@ const PublicInvoiceList = () => {
                                 label: 'Over Time (INR)',
                                 format: (value) =>
                                     value !== null &&
-                                    value !== undefined &&
-                                    value !== ''
+                                        value !== undefined &&
+                                        value !== ''
                                         ? `INR ${value}`
                                         : ''
                             },
