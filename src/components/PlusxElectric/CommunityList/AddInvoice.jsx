@@ -1306,7 +1306,7 @@ const AddInvoice = () => {
                                 }
                                 placeholder={
                                     community
-                                        ? "Search Resident ID / Name / Mobile"
+                                        ? "Search Resident ID"
                                         : "Select Community First"
                                 }
                                 isLoading={
