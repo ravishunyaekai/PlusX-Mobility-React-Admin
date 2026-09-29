@@ -156,7 +156,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     )}
 
                                     {pageHeading === 'Refund Request List' && (
-                                        data.status?.toLowerCase() !== 'approved' ? (
+                                        (data.status?.toLowerCase() !== 'approved' && data.status?.toLowerCase() !== 'rejected') ? (
                                             <button
                                                 className={styles.approveBtn}
                                                 style={{

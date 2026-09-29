@@ -187,6 +187,8 @@ const ResidentDetails = () => {
             ? moment(bookingDetails?.created_at).format("DD MMM YYYY, hh:mm A")
             : "N/A",
         stationName: bookingDetails?.resident_name || "N/A",
+        country_code: bookingDetails?.country_code || "N/A",
+        residentMobile: bookingDetails?.resident_mobile || "N/A",
     };
 
     /*

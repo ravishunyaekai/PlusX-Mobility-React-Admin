@@ -51,14 +51,14 @@ export const menuItems = {
         { id: "rideList",       label: "Bookings",       path: "/mobility/ride/ride-booking-list" },
         { id: "failedRiding",   label: "Incomplete Bookings", path: "/mobility/ride/ride-incomplete-booking-list" },
         { id: "invoiceList",    label: "Invoices",    path: "/mobility/ride/ride-invoice-list" },
-        { id: "issueList",      label: "Support Request",      path: "/mobility/ride/support-request-list" },
-        { id: "refundList",     label: "Refund Request",       path: "/mobility/ride/refund-requests-list" },
+        { id: "issueList",      label: "Support Requests",      path: "/mobility/ride/support-request-list" },
+        { id: "refundList",     label: "SD Refund Requests",       path: "/mobility/ride/refund-requests-list" },
     ],
     universities: [
         { id: "universitiesList",  label: "List of Universities",   path: "/mobility/universities/university-list" },
         { id: "studentList",       label: "List of Students",       path: "/mobility/universities/student-list" },
     ],
      coupon: [
-        { id: "couponList",       label: "List of Coupon",           path: "/coupon/coupon-list/coupon-list" },
+        { id: "couponList",       label: "List of Coupons",           path: "/coupon/coupon-list/coupon-list" },
     ],
 };

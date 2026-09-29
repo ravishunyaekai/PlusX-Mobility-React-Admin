@@ -31,6 +31,7 @@ const BookingDetailsHeader = ({ content, titles, packageTitles, packageContent, 
                             <div className={styles.infoBlock}>
                                 <span className={styles.infoHeading}>{titles.stationDetailsTitle}</span>
                                 <span className={styles.infoHeadText}>{content.stationName}</span>
+                                <span className={styles.infoText}>{content.country_code} {content.residentMobile}</span>
                                 {/* <span className={styles.infoText}>Charger Type: {content.chargerType}</span>
                             <span className={styles.infoText}>Charging For: {content.chargingFor}</span> */}
                             </div>
