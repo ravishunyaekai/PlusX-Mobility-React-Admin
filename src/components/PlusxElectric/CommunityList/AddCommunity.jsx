@@ -703,7 +703,7 @@ const AddCommunity = () => {
                 // -------------------------------------------------
 
                 if (
-                    response?.status === 1
+                    response?.status == 0
                 ) {
 
                     toast.success(
