@@ -88,7 +88,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     {(pageHeading === "Total App Signup List") && (
                                         <>
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/mobility/app-signup/app-signup-details', data.rider_id)} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent(window?.location?.pathname?.includes('/electric/app-signup') ? '/electric/app-signup/app-signup-details' : '/mobility/app-signup/app-signup-details', data.rider_id)} />
                                             )}
                                         </>
                                     )}
@@ -99,6 +99,16 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                             )}
                                             {access.includes('edit') && (
                                                 <img src={Edit} alt='edit' onClick={() => handleClickEvent('/mobility/mobility-station/edit-mobility-station', data.station_id)} />
+                                            )}
+                                            {/* { access.includes('delete') && (
+                                                <img src={Delete} alt='delete' onClick={() => onDeleteSlot(data.station_id)} />
+                                            )} */}
+                                        </>
+                                    )}
+                                    {pageHeading === "Booking History" && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/ride/ride-booking-details', data?.booking_id )} />
                                             )}
                                             {/* { access.includes('delete') && (
                                                 <img src={Delete} alt='delete' onClick={() => onDeleteSlot(data.station_id)} />

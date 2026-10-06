@@ -38,6 +38,7 @@ const SideNavbar = () => {
         evRoadAssistance: { bookingList: false, invoiceList: false, failedBookingList: false },
         userList: { activeUserList: false, deletedUserList: false },
         signupList: { activeUser: false, deletedUser: false },
+        signupListElectric: { activeUser: true, deletedUser: true },
         mobilityStation: { staionList: false, cycleList: false },
         universities: { universitiesList: false, studentList: false },
         riderList: { rideList: false, failedRiding: false, invoiceList: false, issueList: false },
@@ -92,6 +93,8 @@ const SideNavbar = () => {
                 ? prevState.userList : { activeUserList: false, deletedUserList: false },
             signupList: location.pathname.includes("/mobility/app-signup")
                 ? prevState.signupList : { activeUser: false, deletedUser: false },
+            signupListElectric: location.pathname.includes("/electric/app-signup")
+                ? prevState.signupListElectric : { activeUser: false, deletedUser: false },
             mobilityStation: location.pathname.includes("/mobility/mobility-station")
                 ? prevState.mobilityStation : { staionList: false, cycleList: false },
             // riderList: location.pathname.includes("/mobility/ride") 
@@ -128,6 +131,7 @@ const SideNavbar = () => {
             "/electric/community",
             "/electric/ev-road-assistance",
             "/electric/charger-installation",
+            "/electric/app-signup",
             // "/electric/ev-charger",
             "/mobility/user",
             "/mobility/app-signup",
@@ -192,7 +196,14 @@ const SideNavbar = () => {
                     {selectedApp === "electric" && (
                         <>
                             <SideBarLinkItem label="Dashboard" path="/electric/dashboard" isActive={isActive("/electric/dashboard")} />
-                            <SideBarLinkItem label="Drivers" path="/electric/drivers/driver-list" isActive={isActive("/electric/drivers")} />
+                            <SidebarDropdown
+                                menuName="App Sign Up List"
+                                menuItems={menuItems.signupListElectric}
+                                openDropdown={openDropdown}
+                                handleItemClick={(id, e) => handleItemClicked("signupListElectric", id, e)}
+                                toggleDropdown={toggleDropdown}
+                                checkedItems={checkedItems.signupListElectric}
+                            /><SideBarLinkItem label="Drivers" path="/electric/drivers/driver-list" isActive={isActive("/electric/drivers")} />
                             <SidebarDropdown
                                 menuName="Mobile EV Charging"
                                 menuItems={menuItems.homeCharger}

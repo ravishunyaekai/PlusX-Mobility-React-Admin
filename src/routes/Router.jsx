@@ -189,6 +189,7 @@ import CommunityDetails from "../components/PlusxElectric/CommunityList/Communit
 import ResidentDetails from "../components/PlusxElectric/CommunityList/ResidentDetails.jsx";
 import CommunityInvoiceDetails from "../components/PlusxElectric/CommunityList/InvoiceDetails.jsx";
 import SessionDetails from "../components/PlusxElectric/CommunityList/SessionDetails.jsx";
+import AppSignupDetailsElectric from "../components/AppSignUp/AppSignupDetails/AppSignupDetailsElectric.jsx";
 
 const router = createBrowserRouter([
     {
@@ -393,6 +394,25 @@ const router = createBrowserRouter([
             {
                 path: "dashboard",
                 element: <ElectricDashboard />,
+            },
+            //App Signup
+            {
+                path: "app-signup",
+                element: <AppSignUp />,
+                children: [
+                    {
+                        path: "app-signup-list",
+                        element: <AppSignupList />,
+                    },
+                    {
+                        path: "app-signup-details/:riderId",
+                        element: <AppSignupDetailsElectric />,
+                    },
+                    {
+                        path: "deleted-account",
+                        element: <DeletedSignupList />,
+                    },
+                ],
             },
             // Driver
             {

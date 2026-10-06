@@ -39,6 +39,10 @@ export const menuItems = {
         { id: "activeUserList",  label: "Users List", path: "/mobility/user/user-list" },
         // { id: "deletedUserList", label: "Deleted User List",  path: "/mobility/user/delete-users-list" },
     ],
+    signupListElectric: [
+        { id: "activeUser",  label: "App Sign Up List", path: "/electric/app-signup/app-signup-list" },
+        { id: "deletedUser", label: "Deleted Account",  path: "/electric/app-signup/deleted-account" },
+    ],
     signupList: [
         { id: "activeUser",  label: "App Sign Up List", path: "/mobility/app-signup/app-signup-list" },
         { id: "deletedUser", label: "Deleted Account",  path: "/mobility/app-signup/deleted-account" },
