@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AddDriver.module.css';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import CustomDropdown from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
 import { AiOutlineClose, AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
@@ -13,6 +14,8 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddEmergencyTeam = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [cnfmPasswordVisible, setCnfmPasswordVisible] = useState(false);
     const [file, setFile] = useState();
     const [rsaName, setRsaName] = useState("");
     const [email, setEmail] = useState("");
@@ -23,6 +26,19 @@ const AddEmergencyTeam = () => {
     const [confirmPassword, setConfirmPassword] = useState(null);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        if (password.length > 0) {
+            setPasswordVisible(!passwordVisible);
+        }
+    };
+
+    const toggleCnfmPasswordVisibility = () => {
+        if (password.length > 0) {
+            setCnfmPasswordVisible(!cnfmPasswordVisible);
+        }
+    };
+
     // =========================================================
     // COUNTRY CODE OPTIONS
     // =========================================================
@@ -328,7 +344,17 @@ const AddEmergencyTeam = () => {
                             <label htmlFor="Cycle" className={styles.labelText}>Password</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <input type="password" autoComplete="off" id="password" placeholder="Password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} />
+                                    <div className={` ${styles.passwordContainer}`}>
+                                        <input
+                                            type={passwordVisible ? "text" : "password"} autoComplete="off" id="password" placeholder="Password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} />
+                                        <div
+                                            className={styles.eyeIcon}
+                                            onClick={togglePasswordVisibility}
+                                            style={{ color: passwordVisible ? '#00B26B' : '#00B26B' }}
+                                        >
+                                            {passwordVisible ? <FaEye /> : <FaEyeSlash />}
+                                        </div>
+                                    </div>
                                     {errors.password && password.length < 6 && <p className={styles.error} style={{ color: 'red' }}>{errors.password}</p>}
                                 </div>
                             </div>
@@ -337,7 +363,17 @@ const AddEmergencyTeam = () => {
                             <label htmlFor="Cycle" className={styles.labelText}>Confirm Password</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <input type="password" autoComplete="off" id="confirmPassword" placeholder="Confirm Password" className={styles.inputField} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                                    <div className={` ${styles.passwordContainer}`}>
+                                        <input
+                                            type={cnfmPasswordVisible ? "text" : "password"} autoComplete="off" id="confirmPassword" placeholder="Confirm Password" className={styles.inputField} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                                        <div
+                                            className={styles.eyeIcon}
+                                            onClick={toggleCnfmPasswordVisibility}
+                                            style={{ color: cnfmPasswordVisible ? '#00B26B' : '#00B26B' }}
+                                        >
+                                            {cnfmPasswordVisible ? <FaEye /> : <FaEyeSlash />}
+                                        </div>
+                                    </div>
                                     {errors.confirmPassword && confirmPassword !== password && <p className={styles.error} style={{ color: 'red' }}>{errors.confirmPassword}</p>}
                                 </div>
                             </div>

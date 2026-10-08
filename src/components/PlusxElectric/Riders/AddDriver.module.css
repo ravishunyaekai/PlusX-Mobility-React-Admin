@@ -5,6 +5,17 @@
   padding: 20px;
   color: #ffffff;
 }
+.passwordContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.eyeIcon {
+  position: absolute;
+  right: 25px;
+  font-size: 24px;
+  cursor: pointer;
+}
 .addStationContainer::-webkit-scrollbar {
   display: none;
 }

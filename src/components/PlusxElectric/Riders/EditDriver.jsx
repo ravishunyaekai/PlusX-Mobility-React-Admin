@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './AddDriver.module.css';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import CustomDropdown from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
 import { AiOutlineClose, AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
@@ -14,6 +15,8 @@ import Loader from '../../SharedComponent/Loader/Loader';
 const EditDriver = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [cnfmPasswordVisible, setCnfmPasswordVisible] = useState(false);
     const { rsaId } = useParams()
     const [file, setFile] = useState();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -29,6 +32,19 @@ const EditDriver = () => {
     const [loading, setLoading] = useState(false);
     const [showLoader, setShowLoader] = useState(false);
     const [imageBaseUrl, setImageBaseUrl] = useState("");
+
+    const togglePasswordVisibility = () => {
+        if (password.length > 0) {
+            setPasswordVisible(!passwordVisible);
+        }
+    };
+
+    const toggleCnfmPasswordVisibility = () => {
+        if (password.length > 0) {
+            setCnfmPasswordVisible(!cnfmPasswordVisible);
+        }
+    };
+
     // =========================================================
     // COUNTRY CODE OPTIONS
     // =========================================================
@@ -389,8 +405,17 @@ const EditDriver = () => {
                                 <div className={`col-lg-6`}>
                                     <label htmlFor="Cycle" className={styles.labelText}>Password</label>
                                     <div className={`row`}>
-                                        <div className={`col-xl-10 col-lg-12`}>
-                                            <input type="password" autoComplete="off" id="password" placeholder="Password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} />
+                                        <div className={`col-xl-10 col-lg-12 `}>
+                                            <div className={`${styles.passwordContainer}`}>
+                                                <input type="password" autoComplete="off" id="password" placeholder="Password" className={styles.inputField} value={password} onChange={(e) => setPassword(e.target.value)} />
+                                                <div
+                                                    className={styles.eyeIcon}
+                                                    onClick={togglePasswordVisibility}
+                                                    style={{ color: passwordVisible ? '#00B26B' : '#00B26B' }}
+                                                >
+                                                    {passwordVisible ? <FaEye /> : <FaEyeSlash />}
+                                                </div>
+                                            </div>
                                             {errors.password && password.length < 6 && <p className={styles.error} style={{ color: 'red' }}>{errors.password}</p>}
                                         </div>
                                     </div>
@@ -399,7 +424,16 @@ const EditDriver = () => {
                                     <label htmlFor="Cycle" className={styles.labelText}>Confirm Password</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <input type="password" autoComplete="off" id="confirmPassword" placeholder="Confirm Password" className={styles.inputField} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                                            <div className={` ${styles.passwordContainer}`}>
+                                                <input type="password" autoComplete="off" id="confirmPassword" placeholder="Confirm Password" className={styles.inputField} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                                                <div
+                                                    className={styles.eyeIcon}
+                                                    onClick={togglePasswordVisibility}
+                                                    style={{ color: passwordVisible ? '#00B26B' : '#00B26B' }}
+                                                >
+                                                    {passwordVisible ? <FaEye /> : <FaEyeSlash />}
+                                                </div>
+                                            </div>
                                             {errors.confirmPassword && confirmPassword !== password && <p className={styles.error} style={{ color: 'red' }}>{errors.confirmPassword}</p>}
                                         </div>
                                     </div>
