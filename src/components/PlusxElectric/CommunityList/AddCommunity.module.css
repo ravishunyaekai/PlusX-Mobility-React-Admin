@@ -1,0 +1,1623 @@
+.addStationContainer {
+  background-color: #f9f9f9;
+  height: 94vh;
+  overflow: scroll;
+  padding: 20px;
+  color: #ffffff;
+}
+
+.addStationContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* =====================================================
+   HEADING
+===================================================== */
+
+.addHeading {
+  color: #00b26b;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* =====================================================
+   FORM
+===================================================== */
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  row-gap: 40px;
+}
+
+/* =====================================================
+   LABEL
+===================================================== */
+
+.labelText {
+  font-size: 1.5rem;
+  color: #000;
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* =====================================================
+   INPUT
+===================================================== */
+
+.inputField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: 2px solid #00b26b;
+  padding: 16px 10px;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  width: 100%;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  box-sizing: border-box;
+}
+
+.inputField::placeholder {
+  color: #777;
+}
+
+.inputField:focus {
+  border-color: #00b26b;
+  outline: none;
+}
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.error {
+  margin-top: 5px;
+  margin-bottom: 0 !important;
+  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: start;
+  color: red !important;
+  width: 100% !important;
+}
+
+/* =====================================================
+   CHARGER DETAILS SECTION
+===================================================== */
+
+.chargerSection {
+  width: 100%;
+}
+
+/* Heading + Add button */
+
+.chargerHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.chargerHeader .labelText {
+  margin-bottom: 0;
+}
+
+/* =====================================================
+   ADD CHARGER BUTTON
+===================================================== */
+
+.addChargerBtn {
+  color: #fff;
+  background-color: #00b26b;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: 2px solid #00b26b;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 110px;
+}
+
+.addChargerBtn:hover {
+  background-color: #f9f9f9;
+  color: #00b26b;
+}
+
+/* =====================================================
+   CHARGER LIST
+===================================================== */
+
+.chargerList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* =====================================================
+   CHARGER ROW
+===================================================== */
+
+.chargerRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 5fr) 120px;
+  column-gap: 24px;
+  align-items: start;
+}
+
+/* Charger ID / kWh */
+
+.chargerField {
+  min-width: 0;
+  width: 100%;
+}
+
+/* =====================================================
+   REMOVE / ACTION COLUMN
+===================================================== */
+
+.chargerAction {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chargerAction .labelText {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* =====================================================
+   REMOVE BUTTON
+===================================================== */
+
+.removeChargerBtn {
+  width: 68px;
+  height: 60px;
+  background-color: #f9f9f9;
+  color: #00b26b;
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.removeChargerBtn:hover {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+/*
+  Keeps the layout consistent for the first row
+  when only one charger exists.
+*/
+.removePlaceholder {
+  width: 68px;
+  height: 60px;
+}
+
+/* =====================================================
+   BOTTOM BUTTONS
+===================================================== */
+
+.editButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 30px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.editCancelBtn {
+  background-color: #f9f9f9;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: 2px solid #00b26b;
+  font-size: 18px;
+  font-weight: 600;
+  color: #00b26b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editSubmitBtn {
+  color: #fff;
+  background-color: #00b26b;
+  padding: 10px 26px;
+  border-radius: 10px;
+  border: 2px solid #00b26b;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editCancelBtn:hover {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+.editSubmitBtn:hover {
+  background-color: #f9f9f9;
+  color: #00b26b;
+}
+
+.editSubmitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   OTHER EXISTING STYLES
+===================================================== */
+
+.addShopInputContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 6px;
+}
+
+.addShopLabel {
+  font-size: 18px;
+  color: #00b26b;
+  font-weight: 500;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  column-gap: 20px;
+}
+
+.openSection {
+  width: 100px;
+  color: #00b26b;
+}
+
+.featureDivision {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.inputFieldFull {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.uploadContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid #00b26b;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  width: 100%;
+}
+
+.uploadLabel {
+  font-size: 16px;
+  color: #242424b6;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uploadButton {
+  flex-shrink: 0;
+  background-color: #00b26b;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.uploadButton:hover {
+  background-color: #01985c;
+}
+
+.uploadIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.locationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 20px;
+}
+
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.selectField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  width: 100%;
+  appearance: none;
+  cursor: pointer;
+}
+
+.dropdownIcon {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  pointer-events: none;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.addButton {
+  background-color: #00b26b;
+  display: flex;
+  color: #000000;
+  padding: 0 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  column-gap: 10px;
+}
+
+.addButton img {
+  width: 16px;
+}
+
+.addButton span {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.scheduleSection {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+}
+
+.alwaysOpen {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.alwaysOpen label {
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 12px;
+  cursor: pointer;
+  color: #00b26b;
+}
+
+.dayRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dayLabel {
+  width: 100px;
+  color: #00b26b;
+}
+
+.timeField {
+  outline: none;
+  width: 80%;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+  color: #000 !important;
+}
+
+.textAreaField {
+  outline: none;
+  background-color: #f9f9f9;
+  border: none;
+  padding: 16px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  width: 100%;
+}
+
+.addShopAddressSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  gap: 6px;
+}
+
+.addShopAddress {
+  display: flex;
+  column-gap: 20px;
+  row-gap: 6px;
+  width: 100%;
+}
+
+.timeSlotContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 14px;
+}
+
+.classTimeslot {
+  width: 100px;
+}
+
+.inputLabel {
+  width: 40%;
+  display: flex;
+  gap: 30px;
+}
+
+/* =====================================================
+   FILE UPLOAD
+===================================================== */
+
+.fileUpload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.fileLabel {
+  width: 100%;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #00b26b;
+}
+
+.fileDropZone {
+  position: relative;
+  width: 100%;
+  padding: 40px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid #00b26b;
+}
+
+.fileUploadLabel {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  text-align: start;
+  column-gap: 22px;
+  cursor: pointer;
+  color: #00b26b;
+}
+
+.previewImage {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  transform: translate(0, 0%);
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  background-color: #fff;
+  transition: border-color 0.15s linear;
+}
+
+.removeButton {
+  position: absolute;
+  background-color: #00b26b;
+  color: #fff !important;
+  padding: 0;
+  top: 5px;
+  right: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 4px;
+}
+
+/* =====================================================
+   GALLERY
+===================================================== */
+
+.galleryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
+  width: 100%;
+}
+
+.imageContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.removesButton {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 2px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.galleryContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.galleryContainer::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 3px;
+}
+
+/* =====================================================
+   TOGGLE
+===================================================== */
+
+.toggleContainer {
+  width: 230px;
+  display: flex;
+  gap: 20px;
+  padding: 18px 10px;
+  border-radius: 14px;
+  background-color: #f9f9f9;
+  border: 2px solid #00b26b;
+}
+
+.statusLabel {
+  color: #00b26b;
+  font-size: 18px;
+}
+
+.toggleSwitch {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+}
+
+.toggleButton {
+  position: relative;
+  border: 2px solid;
+  border-radius: 6px;
+  width: 60px;
+  height: 34px;
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.toggleButton.activeToggle {
+  border-color: #00b26b;
+}
+
+.toggleButton.inactiveToggle {
+  border-color: #000;
+}
+
+.slider {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 28px;
+  height: 30px;
+  background-color: #000;
+  border-radius: 0;
+  transform: translateY(-50%);
+  transition:
+    left 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.toggleButton.activeToggle .slider {
+  left: 28px;
+  background-color: #00b26b;
+}
+
+.toggleButton.inactiveToggle .slider {
+  background-color: #000;
+}
+
+.toggleText {
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.toggleText.activeText {
+  color: #00b26b;
+}
+
+.toggleText.inactiveText {
+  color: #000;
+  width: 70px;
+}
+
+/* =====================================================
+   TIME LABEL
+===================================================== */
+
+.timeLabel {
+  color: #000;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+
+/* =====================================================
+   MAP
+===================================================== */
+
+.mapButton {
+  background-color: #f9f9f9;
+  width: 100%;
+  height: auto;
+  padding: 17px 16px;
+  border-radius: 10px;
+  border: 2px solid #00b26b;
+  font-size: 16px;
+  font-weight: 600;
+  color: #00b26b;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  outline: none;
+}
+
+.featureLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.5rem;
+  color: #000;
+}
+
+.featureButton {
+  color: #fff;
+  background-color: #00b26b;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 10px;
+  cursor: pointer;
+}
+
+.addImg {
+  filter: brightness(0) saturate(100%) invert(1);
+  height: 12px;
+}
+
+/* =====================================================
+   CHECKMARK
+===================================================== */
+
+.labelContent {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.checkboxText {
+  color: #000;
+  font-size: 16px;
+}
+
+.checkboxInput {
+  display: none;
+}
+
+.checkmark {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #00b26b;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: transparent;
+  vertical-align: middle;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.checkboxInput:checked + .checkmark::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #00b26b;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1440px) {
+  .labelText {
+    font-size: 1.2rem;
+  }
+
+  .featureLabel {
+    font-size: 1.2rem;
+  }
+
+  .featureButton {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 1360px) {
+  .previewImage {
+    width: 100px;
+    height: 100px;
+  }
+
+  .chargerRow {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr)
+      100px;
+    column-gap: 18px;
+  }
+}
+
+@media (max-width: 1280px) {
+  .labelText {
+    font-size: 1rem;
+  }
+
+  .featureLabel {
+    font-size: 1rem;
+  }
+
+  .featureButton {
+    font-size: 1rem;
+  }
+
+  .chargerRow {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr)
+      90px;
+    column-gap: 15px;
+  }
+
+  .removeChargerBtn,
+  .removePlaceholder {
+    width: 62px;
+    height: 58px;
+  }
+}
+
+@media (max-width: 992px) {
+  .checkboxText {
+    font-size: 0.9rem;
+  }
+
+  .labelText {
+    font-size: 0.9rem;
+  }
+
+  .featureLabel {
+    font-size: 0.9rem;
+  }
+
+  .featureButton {
+    font-size: 0.9rem;
+  }
+
+  /*
+    On tablets/mobile:
+    Charger ID
+    kWh
+    Action
+    become full-width rows.
+  */
+
+  .chargerRow {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+  }
+
+  .chargerAction {
+    align-items: flex-start;
+  }
+
+  .chargerAction .labelText {
+    text-align: left;
+  }
+
+  .removeChargerBtn {
+    width: 100%;
+    height: 50px;
+  }
+
+  .removePlaceholder {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .addStationContainer {
+    padding: 15px;
+  }
+
+  .chargerHeader {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .addChargerBtn {
+    padding: 8px 18px;
+    font-size: 16px;
+    min-width: auto;
+  }
+
+  .editButton {
+    column-gap: 15px;
+  }
+
+  .editCancelBtn,
+  .editSubmitBtn {
+    padding: 9px 20px;
+    font-size: 16px;
+  }
+}
+
+/* =====================================================
+   MAP RESPONSIVE
+===================================================== */
+
+@media (max-width: 1250px) {
+  .mapButton {
+    padding: 17px 5px;
+    font-size: 14px;
+  }
+}/* =========================================================
+   CREATE INVOICE PAGE
+========================================================= */
+
+.invoicePageTitle {
+    font-size: 26px;
+    font-weight: 600;
+    color: #00b26b;
+
+    margin-bottom: 24px;
+}
+
+
+/* =========================================================
+   TOP COMMUNITY / AREA
+========================================================= */
+
+.invoiceTopRow {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 20px;
+
+    margin-bottom: 22px;
+}
+
+
+/* =========================================================
+   RESIDENT ID / NAME / BILLING MONTH
+========================================================= */
+
+.invoiceResidentRow {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    gap: 20px;
+
+    margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   NORMAL FIELD
+========================================================= */
+
+.invoiceField {
+    width: 100%;
+}
+
+
+/* =========================================================
+   SELECT
+========================================================= */
+
+.invoiceField select.inputField {
+    width: 100%;
+    cursor: pointer;
+
+    appearance: auto;
+}
+
+.invoiceField select.inputField option {
+    background: #222;
+    color: #fff;
+}
+
+
+/* =========================================================
+   INVOICE DETAILS OUTER BOX
+========================================================= */
+
+.invoiceDetailsSection {
+    width: 100%;
+    outline: none;
+    background-color: #f9f9f9;
+    border: 2px solid #00b26b;
+    padding: 16px 10px;
+    border-radius: 10px;
+    color: #000;
+    font-size: 16px;
+    width: 100%;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   FULL WIDTH INVOICE ROW
+========================================================= */
+
+.invoiceDetailRow {
+    width: 100%;
+
+    min-height: 61px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom: 1px solid #555;
+
+    box-sizing: border-box;
+
+    padding: 0 18px;
+}
+
+
+/* =========================================================
+   LAST ROW
+========================================================= */
+
+.invoiceDetailRow:last-child {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   LEFT LABEL
+========================================================= */
+
+.invoiceDetailLabel {
+    flex: 1;
+
+    margin: 0;
+
+    color: black;
+
+    font-size: 16px;
+
+    font-weight: 400;
+}
+
+
+/* =========================================================
+   RIGHT SIDE
+========================================================= */
+
+.invoiceDetailValueWrapper {
+    width: 50%;
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    align-items: center;
+}
+
+
+/* =========================================================
+   RESIDENT NAME INPUT
+========================================================= */
+
+.invoiceDetailInput {
+    width: 100%;
+
+    height: 42px;
+
+    padding: 8px 0;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: black;
+
+    font-size: 16px;
+
+    text-align: right;
+
+    box-sizing: border-box;
+}
+
+
+.invoiceDetailInput::placeholder {
+    color: #777;
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   KWH
+========================================================= */
+
+.kwhWrapper {
+    display: flex;
+
+    align-items: center;
+    color: black;
+
+    justify-content: flex-end;
+
+    width: 100%;
+}
+
+
+.kwhInput {
+    width: 100px;
+
+    height: 40px;
+
+    padding: 8px;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: black;
+
+    font-size: 16px;
+
+    text-align: right;
+}
+
+
+.kwhInput::placeholder {
+    color: #777;
+
+    opacity: 1;
+}
+
+
+.kwhSlash {
+    color: black;
+
+    font-size: 16px;
+
+    margin: 0 5px;
+}
+
+
+/* =========================================================
+   UNIT
+========================================================= */
+
+.invoiceUnit {
+    color: black;
+
+    font-size: 16px;
+
+    white-space: nowrap;
+
+    margin-left: 8px;
+}
+
+
+/* =========================================================
+   AMOUNT
+========================================================= */
+
+.amountWrapper {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    width: 100%;
+}
+
+
+.amountInput {
+    width: 180px;
+
+    height: 40px;
+
+    padding: 8px;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: black;
+
+    font-size: 16px;
+
+    text-align: right;
+
+    box-sizing: border-box;
+}
+
+
+.amountInput::placeholder {
+    color: #777;
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.invoiceTotalRow {
+    min-height: 61px;
+}
+
+
+.invoiceTotalLabel {
+    flex: 1;
+
+    margin: 0;
+
+    color: #00b26b;
+
+    font-size: 16px;
+
+    font-weight: 600;
+}
+
+
+.totalAmount {
+    min-width: 100px;
+
+    color: black;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.invoiceField .error {
+    margin-top: 5px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 991px) {
+
+    .invoiceResidentRow {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .invoiceDetailValueWrapper {
+        width: 45%;
+    }
+}
+
+
+@media (max-width: 767px) {
+
+    .invoicePageTitle {
+        font-size: 22px;
+
+        margin-bottom: 18px;
+    }
+
+
+    .invoiceTopRow {
+        grid-template-columns: 1fr;
+
+        gap: 15px;
+    }
+
+
+    .invoiceResidentRow {
+        grid-template-columns: 1fr;
+
+        gap: 15px;
+    }
+
+
+    .invoiceDetailsSection {
+        padding: 0 8px;
+    }
+
+
+    .invoiceDetailRow {
+        padding: 0 8px;
+
+        min-height: 58px;
+    }
+
+
+    .invoiceDetailLabel {
+        font-size: 14px;
+    }
+
+
+    .invoiceDetailValueWrapper {
+        width: 48%;
+    }
+
+
+    .invoiceDetailInput,
+    .kwhInput,
+    .amountInput {
+        font-size: 14px;
+    }
+
+
+    .kwhInput {
+        width: 70px;
+    }
+
+
+    .amountInput {
+        width: 120px;
+    }
+
+
+    .invoiceUnit {
+        font-size: 14px;
+    }
+
+
+    .totalAmount {
+        font-size: 14px;
+    }
+}
+/* =====================================================
+   COUNTRY CODE + CONTACT NUMBER
+===================================================== */
+
+.contactDetailsRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+}
+
+/* Country Code */
+
+.countryCodeField {
+  width: 100%;
+  min-width: 0;
+}
+
+.countryCodeField .inputField {
+  width: 100%;
+  /* border-top-right-radius: 0;
+  border-bottom-right-radius: 0; */
+}
+
+/* Contact Number */
+
+.contactNumberField {
+  width: 100%;
+  min-width: 0;
+}
+
+.contactNumberField .inputField {
+  width: 100%;
+  /* border-top-left-radius: 0;
+  border-bottom-left-radius: 0; */
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 992px) {
+
+  .contactDetailsRow {
+    grid-template-columns: 40% 60%;
+  }
+
+}
+
+@media (max-width: 576px) {
+
+  .contactDetailsRow {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .countryCodeField .inputField,
+  .contactNumberField .inputField {
+    border-radius: 10px;
+  }
+
+}/* =====================================================
+   MANAGER DETAILS ALIGNMENT FIX
+===================================================== */
+
+.managerField {
+  width: 100%;
+}
+
+.managerFieldInner {
+  width: 83.333333%;
+}
+
+.managerContactField {
+  width: 83.333333%;
+}
+
+.managerContactRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 45% minmax(0, 1fr);
+  gap: 15px;
+  align-items: start;
+}
+
+.managerContactColumn {
+  width: 100%;
+  min-width: 0;
+}
+
+.managerPasswordField {
+  /* width: 100%; */
+  padding-top: 40px;
+}
+
+.managerPasswordField .managerFieldInner {
+  width: 83.333333%;
+}
+
+/* Keep same alignment on smaller screens */
+@media (max-width: 992px) {
+  .managerFieldInner,
+  .managerContactField,
+  .managerPasswordField .managerFieldInner {
+    width: 100%;
+  }
+
+  .managerContactRow {
+    grid-template-columns: 100px minmax(0, 1fr);
+    gap: 15px;
+  }
+
+  .managerPasswordField {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .managerContactRow {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+/* =====================================================
+   COUNTRY CODE CUSTOM DROPDOWN
+   Same UI as .inputField
+===================================================== */
+
+.countryDropdown {
+  position: relative;
+  width: 100%;
+}
+
+/* Selected country code */
+.countryDropdownButton {
+  outline: none;
+  background-color: #f9f9f9;
+  border: 2px solid #00b26b;
+  padding: 16px 10px;
+  border-radius: 10px;
+  color: #000;
+  font-size: 16px;
+  width: 100%;
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  line-height: normal;
+}
+
+.countryDropdownButton:hover {
+  border-color: #00b26b;
+}
+
+.countryDropdownButton:focus {
+  border-color: #00b26b;
+  outline: none;
+}
+
+/* Arrow */
+.dropdownArrow {
+  color: #000;
+  font-size: 16px;
+  margin-left: 8px;
+  line-height: 1;
+}
+
+/* =====================================================
+   DROPDOWN OPTIONS
+===================================================== */
+
+.countryDropdownMenu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+
+  width: 100%;
+  max-height: 250px;
+
+  overflow-y: auto;
+
+  background-color: #f9f9f9;
+
+  border: 2px solid #00b26b;
+  border-radius: 10px;
+
+  box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
+
+  z-index: 9999;
+
+  box-sizing: border-box;
+}
+
+/* Individual country */
+.countryDropdownOption {
+  width: 100%;
+
+  padding: 12px 10px;
+
+  border: none;
+  outline: none;
+
+  background-color: #f9f9f9;
+
+  color: #000;
+
+  font-size: 16px;
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+.countryDropdownOption:hover {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+.countryDropdownOption:focus {
+  background-color: #00b26b;
+  color: #fff;
+}
+
+/* Scrollbar */
+.countryDropdownMenu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.countryDropdownMenu::-webkit-scrollbar-track {
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.countryDropdownMenu::-webkit-scrollbar-thumb {
+  background-color: #00b26b;
+  border-radius: 10px;
+}

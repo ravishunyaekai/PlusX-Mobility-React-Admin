@@ -1,0 +1,33 @@
+.stationContainer {
+  background-color: #F9F9F9;
+  height: 94.2vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.stationContainer::-webkit-scrollbar {
+  display: none;
+}
+.appSignupSection {
+  background-color: #F9F9F9;
+  height: 94.2vh;
+  overflow: scroll;
+  padding: 20px 0px;
+}
+.appSignupSection::-webkit-scrollbar {
+  display: none;
+}
+.ChargerDetailsSection {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 40px;
+}
+
+.addHeading {
+  padding-left: 20px;
+  color: #00b26b;
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}

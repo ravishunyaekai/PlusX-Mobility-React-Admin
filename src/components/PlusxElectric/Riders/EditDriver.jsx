@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './AddDriver.module.css';
+import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import CustomDropdown from "../../SharedComponent/UI/CustomDropdown/CustomDropdown";
 import { AiOutlineClose, AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
 import UploadIcon from '../../../assets/images/uploadicon.svg';
@@ -11,29 +12,125 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Loader from '../../SharedComponent/Loader/Loader';
 
 const EditDriver = () => {
-    const userDetails                           = JSON.parse(sessionStorage.getItem('userDetails'));
-    const navigate                              = useNavigate();
-    const { rsaId }                             = useParams()
-    const [file, setFile]                       = useState();
-    const [isDropdownOpen, setIsDropdownOpen]   = useState(false);
-    const [details, setDetails]                 = useState()
-    const [rsaName, setRsaName]                 = useState("");
-    const [email, setEmail]                     = useState("");
-    const [mobileNo, setMobileNo]               = useState("");
-    const [serviceType, setServiceType]         = useState(null);
-    const [password, setPassword]               = useState("");
+    const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+    const navigate = useNavigate();
+    const { rsaId } = useParams()
+    const [file, setFile] = useState();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [details, setDetails] = useState()
+    const [rsaName, setRsaName] = useState("");
+    const [email, setEmail] = useState("");
+    const [countryCode, setCountryCode] = useState("+91");
+    const [mobileNo, setMobileNo] = useState("");
+    const [serviceType, setServiceType] = useState(null);
+    const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [errors, setErrors]                   = useState({});
-    const [loading, setLoading]                 = useState(false);
-    const [showLoader, setShowLoader]           = useState(false);
-    const [imageBaseUrl, setImageBaseUrl]       = useState("");
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [showLoader, setShowLoader] = useState(false);
+    const [imageBaseUrl, setImageBaseUrl] = useState("");
+    // =========================================================
+    // COUNTRY CODE OPTIONS
+    // =========================================================
+
+    const countryCodeOptions = useMemo(() => {
+        const displayNames = new Intl.DisplayNames(
+            ["en"],
+            {
+                type: "region",
+            }
+        );
+
+        return getCountries()
+            .map((country) => {
+                let countryName = country;
+
+                try {
+                    countryName =
+                        displayNames.of(country) || country;
+                } catch (error) {
+                    countryName = country;
+                }
+
+                let callingCode = "";
+
+                try {
+                    callingCode =
+                        `+${getCountryCallingCode(country)}`;
+                } catch (error) {
+                    console.error(
+                        `Unable to get calling code for ${country}`,
+                        error
+                    );
+
+                    return null;
+                }
+
+                return {
+                    value: callingCode,
+                    label: `${countryName} (${callingCode})`,
+                    countryName,
+                    country,
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) =>
+                a.countryName.localeCompare(
+                    b.countryName
+                )
+            );
+    }, []);
+
+    // =========================================================
+    // SELECTED COUNTRY CODE
+    // =========================================================
+
+    const selectedCountryCode = useMemo(() => {
+        if (!countryCode) return null;
+
+        return (
+            countryCodeOptions.find(
+                (option) => option.value === countryCode
+            ) || null
+        );
+    }, [countryCode, countryCodeOptions]);
+
+    // =========================================================
+    // COUNTRY CODE CHANGE
+    // =========================================================
+
+    const handleCountryCodeChange = (
+        selectedOption
+    ) => {
+        let selectedValue = "";
+
+        if (
+            selectedOption &&
+            typeof selectedOption === "object"
+        ) {
+            selectedValue =
+                selectedOption?.value || "";
+        } else {
+            selectedValue =
+                selectedOption || "";
+        }
+
+        setCountryCode(selectedValue);
+
+        if (selectedValue) {
+            setErrors((prev) => ({
+                ...prev,
+                countryCode: "",
+            }));
+        }
+    };
 
     const typeOpetions = [
         // { value: "", label: "Select Vehicle Type" },
         // { value: "Charger Installation", label: "Charger Installation" },
         // { value: "EV Pre-Sale",          label: "EV Pre-Sale" },
-        { value: "Mobile EV Charging",     label: "Mobile EV Charging" },
-        { value: "EV Roadside Assistance",  label: "EV Roadside Assistance" },
+        { value: "Mobile EV Charging", label: "Mobile EV Charging" },
+        { value: "EV Roadside Assistance", label: "EV Roadside Assistance" },
         // { value: "Valet Charging",       label: "Valet Charging" },
     ];
 
@@ -58,10 +155,10 @@ const EditDriver = () => {
 
     const validateForm = () => {
         const fields = [
-            { name: "rsaName",      value: rsaName,     errorMessage: "Driver Name is required." },
-            { name: "email",        value: email,       errorMessage: "Please enter a valid Email ID.",     isEmail: true },
-            { name: "mobileNo",     value: mobileNo,    errorMessage: "Please enter a valid Mobile No.",    isMobile: true },
-            { name: "serviceType",  value: serviceType, errorMessage: "Service Type is required." },
+            { name: "rsaName", value: rsaName, errorMessage: "Driver Name is required." },
+            { name: "email", value: email, errorMessage: "Please enter a valid Email ID.", isEmail: true },
+            { name: "mobileNo", value: mobileNo, errorMessage: "Please enter a valid Mobile No.", isMobile: true },
+            { name: "serviceType", value: serviceType, errorMessage: "Service Type is required." },
             // { name: "password", value: password, errorMessage: "Password is required." },
             // { name: "confirmPassword", value: confirmPassword, errorMessage: "Passwords do not match.", isPasswordMatch: true },
             // { name: "file", value: file, errorMessage: "Image is required." }
@@ -88,7 +185,7 @@ const EditDriver = () => {
             }
             else if (password && isPasswordMatch && value !== password) {
                 errors[name] = errorMessage;
-            } 
+            }
             return errors;
         }, {});
         if (password && confirmPassword && password !== confirmPassword) {
@@ -99,7 +196,7 @@ const EditDriver = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-    
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
@@ -112,6 +209,7 @@ const EditDriver = () => {
             formData.append("rsa_email", email);
             formData.append("rsa_name", rsaName);
             formData.append("mobile", mobileNo);
+            formData.append("country_code", countryCode);
             if (serviceType) {
                 formData.append("service_type", serviceType.value);
             }
@@ -123,13 +221,13 @@ const EditDriver = () => {
 
             postRequestWithTokenAndFile('rsa-update', formData, async (response) => {
                 if (response.code === 200) {
-                    toast(response.message || response.message[0], {type:'success'})
+                    toast(response.message || response.message[0], { type: 'success' })
                     setTimeout(() => {
                         setLoading(false);
                         navigate('/electric/drivers/driver-list')
                     }, 1000);
                 } else {
-                    toast(response.message[0] || response.message, {type:'error'})
+                    toast(response.message[0] || response.message, { type: 'error' })
                     console.log('error in rsa-update api', response);
                     setLoading(false);
                 }
@@ -157,14 +255,15 @@ const EditDriver = () => {
                 setRsaName(data?.rsa_name || "");
                 setEmail(data?.email || "");
                 setMobileNo(data?.mobile || "");
+                setCountryCode(data?.country_code || "+91");
                 // setServiceType(data?.booking_type || "");
                 // setPassword(data?.password || "");
                 // setConfirmPassword(data?.password || "");
-                if(data?.profile_img) {
+                if (data?.profile_img) {
                     setFile({
-                        name : data?.profile_img,
-                        url  : `${response?.base_url}${data?.profile_img}`,
-                        type : "image/*"
+                        name: data?.profile_img,
+                        url: `${response?.base_url}${data?.profile_img}`,
+                        type: "image/*"
                     });
                 }
                 const initialType = data.booking_type ? { label: data.booking_type, value: data.booking_type } : null;
@@ -190,14 +289,14 @@ const EditDriver = () => {
     }
 
     return (
-       <div className={styles.addStationContainer}>
-            { showLoader ? <Loader /> : 
+        <div className={styles.addStationContainer}>
+            {showLoader ? <Loader /> :
                 <>
                     <div className={styles.addHeading}>Edit Driver</div>
                     <div className={styles.addStationFormSection}>
                         <ToastContainer />
                         <form className={styles.formSection} onSubmit={handleSubmit}>
-                            
+
                             <div className={`row`}>
                                 <div className={`col-lg-6`}>
                                     <label htmlFor="Cycle" className={styles.labelText}>Driver Name</label>
@@ -218,18 +317,60 @@ const EditDriver = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className={`row`}>
-                                <div className={`col-lg-6`}>
+                                {/* <div className={`col-lg-6`}>
                                     <label htmlFor="Cycle" className={styles.labelText}>Mobile No</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <input type="text" autoComplete="off" id="mobileNo" placeholder="Mobile No" className={styles.inputField} value={mobileNo} 
-                                            onChange={(e) => {
-                                                const value = e.target.value.replace(/\D/g, '');
-                                                setMobileNo(value.slice(0, 12)); 
-                                            }} />
+                                            <input type="text" autoComplete="off" id="mobileNo" placeholder="Mobile No" className={styles.inputField} value={mobileNo}
+                                                onChange={(e) => {
+                                                    const value = e.target.value.replace(/\D/g, '');
+                                                    setMobileNo(value.slice(0, 12));
+                                                }} />
                                             {errors.mobileNo && mobileNo.length < 9 && <p className={styles.error} style={{ color: 'red' }}>{errors.mobileNo}</p>}
+                                        </div>
+                                    </div>
+                                </div> */}
+                                <div className={`col-lg-6`}>
+                                    <label className={styles.labelText}>
+                                        Mobile No
+                                    </label>
+
+                                    <div className={`row`}>
+                                        <div className={`col-xl-10 col-lg-12`}>
+                                            <div className={styles.contactNumberRow}>
+
+                                                {/* Country Code - 40% */}
+                                                <div className={styles.countryCodeWrapper}>
+                                                    <CustomDropdown
+                                                        options={countryCodeOptions}
+                                                        value={selectedCountryCode}
+                                                        onChange={handleCountryCodeChange}
+                                                        placeholder="+91"
+                                                    />
+
+                                                    {errors.countryCode && (
+                                                        <p
+                                                            className={styles.error}
+                                                            style={{ color: 'red' }}
+                                                        >
+                                                            {errors.countryCode}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                {/* Contact Number - 60% */}
+                                                <div className={styles.contactNumberWrapper}>
+                                                    <input type="text" autoComplete="off" id="mobileNo" placeholder="Mobile No" className={styles.inputField} value={mobileNo}
+                                                        onChange={(e) => {
+                                                            const value = e.target.value.replace(/\D/g, '');
+                                                            setMobileNo(value.slice(0, 12));
+                                                        }} />
+                                                    {errors.mobileNo && mobileNo.length < 9 && <p className={styles.error} style={{ color: 'red' }}>{errors.mobileNo}</p>}
+                                                </div>
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -237,13 +378,13 @@ const EditDriver = () => {
                                     <label htmlFor="Cycle" className={styles.labelText}>Service Type</label>
                                     <div className={`row`}>
                                         <div className={`col-xl-10 col-lg-12`}>
-                                            <CustomDropdown options={typeOpetions} value={serviceType} onChange={handleType} labelledBy="Select Service" closeOnChangedValue={false} closeOnSelect={false}/>
+                                            <CustomDropdown options={typeOpetions} value={serviceType} onChange={handleType} labelledBy="Select Service" closeOnChangedValue={false} closeOnSelect={false} />
                                             {errors.serviceType && serviceType == null && <p className={styles.error} style={{ color: 'red' }}>{errors.serviceType}</p>}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className={`row`}>
                                 <div className={`col-lg-6`}>
                                     <label htmlFor="Cycle" className={styles.labelText}>Password</label>
@@ -264,7 +405,7 @@ const EditDriver = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className={`row`}>
                                 <div className={`col-lg-6`}>
                                     <label htmlFor="Cycle" className={styles.labelText}>Image</label>
@@ -299,11 +440,11 @@ const EditDriver = () => {
                                         <div className={`col-lg-12 ${styles.editButton}`}>
                                             <button className={styles.editCancelBtn} onClick={() => handleCancel()}>Cancel</button>
                                             <button disabled={loading} type="submit" className={styles.editSubmitBtn}>
-                                            {loading ? (
-                                                <> <span className="spinner-border spinner-border-sm me-2"></span> Submit... </>
-                                            ) : (
-                                                "Submit"
-                                            )}
+                                                {loading ? (
+                                                    <> <span className="spinner-border spinner-border-sm me-2"></span> Submit... </>
+                                                ) : (
+                                                    "Submit"
+                                                )}
                                             </button>
                                         </div>
                                     </div>

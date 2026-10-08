@@ -132,7 +132,7 @@ const ChargerBookingDetails = () => {
     }
     const sectionContent2 = {
         // serviceType: bookingDetails?.service_type,
-        // serviceFeature :  bookingDetails?.service_feature?.replace(/AED\s*/i, '')  ?.replace(/\b30\b/, '30 INR'),
+        // serviceFeature :  bookingDetails?.service_feature?.replace(/INR\s*/i, '')  ?.replace(/\b30\b/, '30 INR'),
     }
     const sectionTitles3 = {
         // slotDate: "Slot Date",

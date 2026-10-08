@@ -100,6 +100,13 @@ import PublicChargerStationDetails from "../components/PlusxElectric/PublicCharg
 import AddChargerStation from "../components/PlusxElectric/PublicChargerStation/AddChargerStation.jsx";
 import EditPublicChargerStation from "../components/PlusxElectric/PublicChargerStation/EditPublicChargerStation.jsx";
 
+// Community List
+import CommunityList from "../components/PlusxElectric/CommunityList/index.jsx";
+// import PublicChargerStationList from "../components/PlusxElectric/PublicChargerStation/StationList.jsx";
+// import PublicChargerStationDetails from "../components/PlusxElectric/PublicChargerStation/StationDetails.jsx";
+import AddCommunity from "../components/PlusxElectric/CommunityList/AddCommunity.jsx";
+import EditCommunity from "../components/PlusxElectric/CommunityList/EditCommunity.jsx";
+
 // Charger Installation
 import ChargerInstallation from "../components/PlusxElectric/ChargerInstallation/index.jsx";
 import ChargerInstallationList from "../components/PlusxElectric/ChargerInstallation/ChargerInstallationList.jsx";
@@ -172,6 +179,16 @@ import ChargeShareDetails from "../components/PlusxElectric/ChargeShare/ChargeSh
 import RSAOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/RSAOfflineleads.js";
 import AddOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/AddOfflineleads.jsx";
 import EditOfflineleads from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/EditOfflineleads.jsx";
+import PublicCommunityList from "../components/PlusxElectric/CommunityList/CommunityList.jsx";
+import PublicResidentList from "../components/PlusxElectric/CommunityList/ResidentList.jsx";
+import EditResident from "../components/PlusxElectric/CommunityList/EditResident.jsx";
+import AddResident from "../components/PlusxElectric/CommunityList/AddResident.jsx";
+import PublicInvoiceList from "../components/PlusxElectric/CommunityList/InvoiceList.jsx";
+import AddInvoice from "../components/PlusxElectric/CommunityList/AddInvoice.jsx";
+import CommunityDetails from "../components/PlusxElectric/CommunityList/CommunityDetails.jsx";
+import ResidentDetails from "../components/PlusxElectric/CommunityList/ResidentDetails.jsx";
+import CommunityInvoiceDetails from "../components/PlusxElectric/CommunityList/InvoiceDetails.jsx";
+import SessionDetails from "../components/PlusxElectric/CommunityList/SessionDetails.jsx";
 
 const router = createBrowserRouter([
     {
@@ -589,6 +606,63 @@ const router = createBrowserRouter([
                     {
                         path: "edit-charger-station/:stationId",
                         element: <EditPublicChargerStation />,
+                    },
+                ],
+            },
+            // community charger
+            {
+                path: "community",
+                element: <CommunityList />,
+                children: [
+                    {
+                        path: "community-list",
+                        element: <PublicCommunityList />,
+                    },
+                    {
+                        path: "community-details/:stationId",
+                        element: <CommunityDetails />,
+                    },
+                    {
+                        path: "add-community",
+                        element: <AddCommunity />,
+                    },
+                    {
+                        path: "edit-community/:stationId",
+                        element: <EditCommunity />,
+                        // element: <AddCommunity />,
+
+                    },
+                    {
+                        path: "resident-list",
+                        element: <PublicResidentList />,
+                    },
+                    {
+                        path: "session-details/:stationId",
+                        element: <SessionDetails />,
+                    },
+                    {
+                        path: "resident-details/:stationId",
+                        element: <ResidentDetails />,
+                    },
+                    {
+                        path: "add-resident",
+                        element: <AddResident />,
+                    },
+                    {
+                        path: "edit-resident/:stationId",
+                        element: <EditResident />,
+                    },
+                    {
+                        path: "invoice-list",
+                        element: <PublicInvoiceList />,
+                    },
+                    {
+                        path: "invoice-details/:stationId",
+                        element: <CommunityInvoiceDetails />,
+                    },
+                    {
+                        path: "create-invoice",
+                        element: <AddInvoice />,
                     },
                 ],
             },
