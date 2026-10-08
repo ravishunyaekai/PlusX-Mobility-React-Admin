@@ -11,6 +11,7 @@ import moment from 'moment';
 
 // Images & Icons
 import email from "../../../assets/images/Email.svg";
+import date from "../../../assets/images/DateCard.svg";
 import profile from "../../../assets/images/ProfileCard.svg";
 import mobile from "../../../assets/images/MobileCard.svg";
 import View from '../../../assets/images/ViewEye.svg';
@@ -18,6 +19,8 @@ import View from '../../../assets/images/ViewEye.svg';
 import WalletModal from '../../SharedComponent/CustomModal/WalletModal.jsx';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import SubHeader from '../../SharedComponent/SubHeader/SubHeader.jsx';
+import AppSignupInfoSection from '../../SharedComponent/Details/NewBookingDetails/AppSignupInfoSection/AppSignupInfoSection.jsx';
 
 
 // --------------------------------------------------
@@ -37,6 +40,7 @@ const statusMapping = {
     WC: 'Work Completed',
 };
 
+
 const portableChargerStatusMapping = {
     ...statusMapping,
     RL: 'Mobile Charging Van Reached at Location',
@@ -44,11 +48,13 @@ const portableChargerStatusMapping = {
     PU: 'Mobile Charging Van Picked Up',
 };
 
+
 const rsaStatusMapping = {
     ...statusMapping,
     RL: 'Mobile Charging Van Reached at Location',
     RO: 'Mobile Charging Van Reached at Office',
 };
+
 
 // --------------------------------------------------
 // TABLE HEADERS
@@ -60,8 +66,10 @@ const addressHeaders = [
     'Area Name',
     'Flat No.',
     'Nick Name',
-    'Emirates'
+    'City',
+    'State'
 ];
+
 
 const vehicleHeaders = [
     'Vehicle Type',
@@ -69,8 +77,8 @@ const vehicleHeaders = [
     'Plate No.',
     'Vehicle Brand',
     'Vehicle Specification',
-    'Emirates'
 ];
+
 
 const portableChargerHeaders = [
     'Schedule Date',
@@ -81,6 +89,7 @@ const portableChargerHeaders = [
     'Action'
 ];
 
+
 const pickAndDropHeaders = [
     'Schedule Date',
     'Booking ID',
@@ -89,6 +98,7 @@ const pickAndDropHeaders = [
     'Assigned Driver',
     'Action'
 ];
+
 
 const rsaHeaders = [
     'Date',
@@ -123,30 +133,50 @@ const AppSignupDetailsElectric = () => {
 
 
     // --------------------------------------------------
-    // BOOKING HISTORY - PORTABLE CHARGER
+    // ADDRESS PAGINATION
+    // --------------------------------------------------
+
+    const [addressCurrentPage, setAddressCurrentPage] = useState(1);
+
+    const [addressItemsPerPage,setAddressItemsPerPage] = useState(2);
+
+
+    // --------------------------------------------------
+    // VEHICLE PAGINATION
+    // --------------------------------------------------
+
+    const [vehicleCurrentPage, setVehicleCurrentPage] = useState(1);
+
+    const [vehicleItemsPerPage,setVehicleItemsPerPage] = useState(3);
+
+
+    // --------------------------------------------------
+    // BOOKINGS - PORTABLE CHARGER
     // --------------------------------------------------
 
     const [portableChargerBookings, setPortableChargerBookings] = useState([]);
+
     const [portableCurrentPage, setPortableCurrentPage] = useState(1);
+
     const [portableTotalPages, setPortableTotalPages] = useState(1);
+
+    const [portableTotalCount, setPortableTotalCount] = useState(0);
+
     const [loadingPortable, setLoadingPortable] = useState(false);
 
-    // --------------------------------------------------
-    // BOOKING HISTORY - PICK AND DROP
-    // --------------------------------------------------
-
-    const [pickAndDropBookings, setPickAndDropBookings] = useState([]);
-    const [valetCurrentPage, setValetCurrentPage] = useState(1);
-    const [valetTotalPages, setValetTotalPages] = useState(1);
-    const [loadingValet, setLoadingValet] = useState(false);
 
     // --------------------------------------------------
-    // BOOKING HISTORY - RSA
+    // BOOKINGS - RSA
     // --------------------------------------------------
 
     const [rsaBookings, setRsaBookings] = useState([]);
+
     const [rsaCurrentPage, setRsaCurrentPage] = useState(1);
+
     const [rsaTotalPages, setRsaTotalPages] = useState(1);
+
+    const [rsaTotalCount, setRsaTotalCount] = useState(0);
+
     const [loadingRsa, setLoadingRsa] = useState(false);
 
 
@@ -181,7 +211,9 @@ const AppSignupDetailsElectric = () => {
 
                 if (response.code === 200) {
 
-                    setRiderDetails(response?.data || {});
+                    setRiderDetails(
+                        response?.data || {}
+                    );
 
                 } else {
 
@@ -189,6 +221,8 @@ const AppSignupDetailsElectric = () => {
                         'Error in rider-details-electric-dashboard API',
                         response
                     );
+
+                    setRiderDetails({});
 
                 }
 
@@ -229,56 +263,20 @@ const AppSignupDetailsElectric = () => {
                         1
                     );
 
+                    setPortableTotalCount(
+                        response?.total || 0
+                    );
+
                 } else {
 
                     setPortableChargerBookings([]);
 
+                    setPortableTotalPages(1);
+
+                    setPortableTotalCount(0);
                 }
 
                 setLoadingPortable(false);
-            }
-        );
-    };
-
-
-    // --------------------------------------------------
-    // FETCH PICK AND DROP BOOKINGS
-    // --------------------------------------------------
-
-    const fetchPickAndDropBookings = () => {
-
-        setLoadingValet(true);
-
-        const obj = {
-            ...getCommonObject(),
-            service_type: 'Valet',
-            page_no: valetCurrentPage
-        };
-
-        postRequestWithToken(
-            'rider-booking-list',
-            obj,
-            (response) => {
-
-                if (response.code === 200) {
-
-                    setPickAndDropBookings(
-                        response?.data || []
-                    );
-
-                    setValetTotalPages(
-                        response?.totalPage ||
-                        response?.total_page ||
-                        1
-                    );
-
-                } else {
-
-                    setPickAndDropBookings([]);
-
-                }
-
-                setLoadingValet(false);
             }
         );
     };
@@ -315,10 +313,17 @@ const AppSignupDetailsElectric = () => {
                         1
                     );
 
+                    setRsaTotalCount(
+                        response?.total || 0
+                    );
+
                 } else {
 
                     setRsaBookings([]);
 
+                    setRsaTotalPages(1);
+
+                    setRsaTotalCount(0);
                 }
 
                 setLoadingRsa(false);
@@ -369,51 +374,97 @@ const AppSignupDetailsElectric = () => {
             !userDetails.access_token
         ) return;
 
-        fetchPickAndDropBookings();
-
-    }, [valetCurrentPage]);
-
-
-    useEffect(() => {
-
-        if (
-            !userDetails ||
-            !userDetails.access_token
-        ) return;
-
         fetchRsaBookings();
 
     }, [rsaCurrentPage]);
 
 
     // --------------------------------------------------
+    // ADDRESS / VEHICLE DATA
+    // --------------------------------------------------
+
+    const addressList = riderDetails?.riderAddress || [];
+
+    const vehicleList = riderDetails?.riderVehicles || [];
+
+
+    // --------------------------------------------------
+    // ADDRESS PAGINATION DATA
+    // --------------------------------------------------
+
+    const addressTotalPages = Math.ceil(
+        addressList.length / addressItemsPerPage
+    );
+
+
+    const paginatedAddressList = addressList.slice(
+        (addressCurrentPage - 1) * addressItemsPerPage,
+        addressCurrentPage * addressItemsPerPage
+    );
+
+
+    // --------------------------------------------------
+    // VEHICLE PAGINATION DATA
+    // --------------------------------------------------
+
+    const vehicleTotalPages = Math.ceil(
+        vehicleList.length / vehicleItemsPerPage
+    );
+
+
+    const paginatedVehicleList = vehicleList.slice(
+        (vehicleCurrentPage - 1) * vehicleItemsPerPage,
+        vehicleCurrentPage * vehicleItemsPerPage
+    );
+
+
+    // --------------------------------------------------
     // HANDLERS
     // --------------------------------------------------
 
-    const handlePortablePageChange = (page) => {
-        setPortableCurrentPage(page);
+    const handleAddressPageChange = (page) => {
+
+        setAddressCurrentPage(page);
+
     };
 
-    const handleValetPageChange = (page) => {
-        setValetCurrentPage(page);
+
+    const handleVehiclePageChange = (page) => {
+
+        setVehicleCurrentPage(page);
+
     };
+
+
+    const handlePortablePageChange = (page) => {
+
+        setPortableCurrentPage(page);
+
+    };
+
 
     const handleRsaPageChange = (page) => {
+
         setRsaCurrentPage(page);
+
     };
 
 
     const handleBookingDetails = (id) => {
+
         navigate(
             `/electric/mobile-ev-charging/charging-booking-details/${id}`
         );
+
     };
+
 
     // --------------------------------------------------
     // HEADER CARDS
     // --------------------------------------------------
 
     const headerItems = [
+        { label: 'Date', icon: date, value: moment(riderDetails?.created_at).format('DD MMM YYYY') },
         {
             label: 'Customer Name',
             icon: profile,
@@ -431,22 +482,18 @@ const AppSignupDetailsElectric = () => {
         },
     ];
 
-
-    // --------------------------------------------------
-    // ADDRESS DATA
-    // --------------------------------------------------
-
-    const addressList = riderDetails?.riderAddress || [];
+    const riderInfoFields = riderDetails ? [
+        { label: 'State', value: riderDetails.state },
+        { label: 'City', value: riderDetails.city },
+    ] : [];
 
 
     // --------------------------------------------------
-    // VEHICLE DATA
+    // RETURN
     // --------------------------------------------------
-
-    const vehicleList = riderDetails?.riderVehicles || [];
-
 
     return (
+
         <div className='main-container'>
 
             <ToastContainer />
@@ -464,251 +511,35 @@ const AppSignupDetailsElectric = () => {
                         CUSTOMER HEADER
                     ========================================= */}
 
-                    <DetailsCards items={headerItems} />
+                    <DetailsCards
+                        items={headerItems}
+                    />
 
+                    <div className={styles.bookingDetailsSection}>
+                        {riderInfoFields.length > 0 ? (
+                            <AppSignupInfoSection
+                                imageUrl={riderDetails?.id_image ? `${riderDetails.base_url}${riderDetails?.id_image}` : null}
+                                riderInfoFields={riderInfoFields} fieldCount={riderInfoFields.length}
+                            />
+                        ) : (
+                            <div className={styles.noBookingData}>No user info available.</div>
+                        )}
+                    </div>
 
                     {/* =========================================
                         ADDRESS LIST
                     ========================================= */}
-
-                    <div className={styles.bookingDetailsSection}>
-
-                        <div className={styles.DetailsMainHeading}>
-                            Address List
-                        </div>
-
-                    </div>
-
-
-                    {addressList.length === 0 ? (
-
-                        <EmptyList
-                            tableHeaders={addressHeaders}
-                            message="No data available"
+                    {addressList?.length > 0 && <>
+                        <SubHeader
+                            heading="Address List"
+                            count={addressList.length}
                         />
 
-                    ) : (
 
-                        <List
-                            tableHeaders={addressHeaders}
-                            listData={addressList}
-                            pageHeading="Address List"
-                            keyMapping={[
-                                {
-                                    key: 'building_name',
-                                    label: 'Building Name',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'street_name',
-                                    label: 'Street Name',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'area',
-                                    label: 'Area Name',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'unit_no',
-                                    label: 'Flat No.',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'nick_name',
-                                    label: 'Nick Name',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'emirate',
-                                    label: 'Emirates',
-                                    format: value => value || '-'
-                                }
-                            ]}
-                        />
-
-                    )}
-
-
-                    {/* =========================================
-                        VEHICLE LIST
-                    ========================================= */}
-
-                    <div className={styles.bookingDetailsSection}>
-
-                        <div className={styles.DetailsMainHeading}>
-                            Vehicle List
-                        </div>
-
-                    </div>
-
-
-                    {vehicleList.length === 0 ? (
-
-                        <EmptyList
-                            tableHeaders={vehicleHeaders}
-                            message="No data available"
-                        />
-
-                    ) : (
-
-                        <List
-                            tableHeaders={vehicleHeaders}
-                            listData={vehicleList}
-                            pageHeading=""
-                            keyMapping={[
-                                {
-                                    key: 'vehicle_type',
-                                    label: 'Vehicle Type',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'vehicle_code',
-                                    label: 'Plate Code',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'vehicle_number',
-                                    label: 'Plate No.',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'vehicle_make',
-                                    label: 'Vehicle Brand',
-                                    format: value => value || '-'
-                                },
-                                {
-                                    key: 'vehicle_specification',
-                                    label: 'Vehicle Specification',
-                                    format: (value, key, relatedKeys, data) => {
-                                        return value || data?.vehicle_model || '-';
-                                    }
-                                },
-                                {
-                                    key: 'emirates',
-                                    label: 'Emirates',
-                                    format: value => value || '-'
-                                }
-                            ]}
-                        />
-
-                    )}
-
-
-                    {/* =========================================
-                        BOOKING HISTORY
-                    ========================================= */}
-
-                    <div className={styles.bookingHeading}>
-
-                        <div className={styles.DetailsMainHeading}>
-                            Booking History
-                        </div>
-
-                    </div>
-
-
-                    {/* =========================================
-                        MOBILE EV CHARGING
-                    ========================================= */}
-
-                    {/* <div className={styles.bookingDetailsSection}>
-
-                        <div className={styles.DetailsMainHeading}>
-                            MOBILE EV CHARGING
-                        </div>
-
-                    </div> */}
-
-
-                    {loadingPortable ? (
-
-                        <Loader />
-
-                    ) : portableChargerBookings.length === 0 ? (
-
-                        <EmptyList
-                            tableHeaders={portableChargerHeaders}
-                            message="No data available"
-                        />
-
-                    ) : (
-
-                        <>
-
-                            <List
-                                tableHeaders={portableChargerHeaders}
-                                listData={portableChargerBookings}
-                                pageHeading=""
-                                keyMapping={[
-                                    {
-                                        key: 'slot_date',
-                                        label: 'Schedule Date',
-                                        format: value =>
-                                            value
-                                                ? moment(value).format(
-                                                    'DD MMM YYYY'
-                                                )
-                                                : '-'
-                                    },
-                                    {
-                                        key: 'booking_id',
-                                        label: 'Booking ID'
-                                    },
-                                    {
-                                        key: 'service_price',
-                                        label: 'Price',
-                                        format: value =>
-                                            `AED ${value || '0'}`
-                                    },
-                                    {
-                                        key: 'status',
-                                        label: 'Status',
-                                        format: value =>
-                                            portableChargerStatusMapping[value] || '-'
-                                    },
-                                    {
-                                        key: 'rsa_name',
-                                        label: 'Assigned Driver',
-                                        format: value =>
-                                            value || '-'
-                                    },
-                                ]}
-                            />
-
-                            <Pagination
-                                currentPage={portableCurrentPage}
-                                totalPages={portableTotalPages}
-                                onPageChange={
-                                    handlePortablePageChange
-                                }
-                            />
-
-                        </>
-
-                    )}
-
-                    {/* =========================================
-                        PICK AND DROP
-                    ========================================= */}
-                    {pickAndDropBookings.length > 0 && (<>
-                        <div className={styles.bookingDetailsSection}>
-
-                            <div className={styles.DetailsMainHeading}>
-                                Pick and Drop
-                            </div>
-
-                        </div>
-
-
-                        {loadingValet ? (
-
-                            <Loader />
-
-                        ) : pickAndDropBookings.length === 0 ? (
+                        {addressList.length === 0 ? (
 
                             <EmptyList
-                                tableHeaders={pickAndDropHeaders}
+                                tableHeaders={addressHeaders}
                                 message="No data available"
                             />
 
@@ -717,12 +548,200 @@ const AppSignupDetailsElectric = () => {
                             <>
 
                                 <List
-                                    tableHeaders={pickAndDropHeaders}
-                                    listData={pickAndDropBookings}
-                                    pageHeading="Booking History"
+                                    tableHeaders={addressHeaders}
+                                    listData={paginatedAddressList}
+                                    pageHeading="Address List"
                                     keyMapping={[
                                         {
-                                            key: 'slot_date_time',
+                                            key: 'building_name',
+                                            label: 'Building Name',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'street_name',
+                                            label: 'Street Name',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'area',
+                                            label: 'Area Name',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'unit_no',
+                                            label: 'Flat No.',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'nick_name',
+                                            label: 'Nick Name',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'city',
+                                            label: 'City',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'state',
+                                            label: 'State',
+                                            format: value =>
+                                                value || '-'
+                                        }
+                                    ]}
+                                />
+
+
+                                {/* ADDRESS PAGINATION */}
+
+                                {/* {addressTotalPages > 1 && ( */}
+
+                                <Pagination
+                                    currentPage={addressCurrentPage}
+                                    totalPages={addressTotalPages}
+                                    onPageChange={
+                                        handleAddressPageChange
+                                    }
+                                />
+
+                                {/* )} */}
+
+                            </>
+
+                        )}
+                    </>}
+
+
+                    {/* =========================================
+                        VEHICLE LIST
+                    ========================================= */}
+                    {vehicleList?.length > 0 && <>
+                        <SubHeader
+                            heading="Vehicle List"
+                            count={vehicleList.length}
+                        />
+
+
+                        {vehicleList.length === 0 ? (
+
+                            <EmptyList
+                                tableHeaders={vehicleHeaders}
+                                message="No data available"
+                            />
+
+                        ) : (
+
+                            <>
+
+                                <List
+                                    tableHeaders={vehicleHeaders}
+                                    listData={paginatedVehicleList}
+                                    pageHeading="Vehicle List"
+                                    keyMapping={[
+                                        {
+                                            key: 'vehicle_type',
+                                            label: 'Vehicle Type',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'vehicle_code',
+                                            label: 'Plate Code',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'vehicle_number',
+                                            label: 'Plate No.',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'vehicle_make',
+                                            label: 'Vehicle Brand',
+                                            format: value =>
+                                                value || '-'
+                                        },
+                                        {
+                                            key: 'vehicle_specification',
+                                            label: 'Vehicle Specification',
+                                            format: (
+                                                value,
+                                                key,
+                                                relatedKeys,
+                                                data
+                                            ) => {
+
+                                                return (
+                                                    value ||
+                                                    data?.vehicle_model ||
+                                                    '-'
+                                                );
+
+                                            }
+                                        }
+                                    ]}
+                                />
+
+
+                                {/* VEHICLE PAGINATION */}
+
+                                {/* {vehicleTotalPages > 1 && ( */}
+
+                                <Pagination
+                                    currentPage={vehicleCurrentPage}
+                                    totalPages={vehicleTotalPages}
+                                    onPageChange={
+                                        handleVehiclePageChange
+                                    }
+                                />
+
+                                {/* // )} */}
+
+                            </>
+
+                        )}
+                    </>}
+
+
+                    {/* =========================================
+                        MOBILE EV CHARGING BOOKINGS
+                    ========================================= */}
+                    {portableChargerBookings?.length > 0 && <>
+                        <SubHeader
+                            heading="Mobile EV Charging Bookings"
+                            count={portableTotalCount}
+                        />
+
+
+                        {loadingPortable ? (
+
+                            <Loader />
+
+                        ) : portableChargerBookings.length === 0 ? (
+
+                            <EmptyList
+                                tableHeaders={portableChargerHeaders}
+                                message="No data available"
+                            />
+
+                        ) : (
+
+                            <>
+
+                                <List
+                                    tableHeaders={portableChargerHeaders}
+                                    listData={portableChargerBookings}
+                                    pageHeading="Mobile EV Charging Bookings"
+                                    keyMapping={[
+                                        {
+                                            key: 'slot_date',
                                             label: 'Schedule Date',
                                             format: value =>
                                                 value
@@ -732,20 +751,20 @@ const AppSignupDetailsElectric = () => {
                                                     : '-'
                                         },
                                         {
-                                            key: 'request_id',
+                                            key: 'booking_id',
                                             label: 'Booking ID'
                                         },
                                         {
-                                            key: 'price',
+                                            key: 'service_price',
                                             label: 'Price',
                                             format: value =>
-                                                `AED ${value || '0'}`
+                                                `INR ${value || '0'}`
                                         },
                                         {
-                                            key: 'order_status',
+                                            key: 'status',
                                             label: 'Status',
                                             format: value =>
-                                                statusMapping[value] || '-'
+                                                portableChargerStatusMapping[value] || '-'
                                         },
                                         {
                                             key: 'rsa_name',
@@ -756,32 +775,30 @@ const AppSignupDetailsElectric = () => {
                                     ]}
                                 />
 
+
                                 <Pagination
-                                    currentPage={valetCurrentPage}
-                                    totalPages={valetTotalPages}
+                                    currentPage={portableCurrentPage}
+                                    totalPages={portableTotalPages}
                                     onPageChange={
-                                        handleValetPageChange
+                                        handlePortablePageChange
                                     }
                                 />
 
                             </>
 
                         )}
-                    </>)}
-
+                    </>}
 
 
                     {/* =========================================
-                        RSA
+                        EV ROAD ASSISTANCE BOOKINGS
                     ========================================= */}
-                    {rsaBookings.length > 0 && (<>
-                        <div className={styles.bookingDetailsSection}>
+                    {rsaBookings?.length > 0 && <>
 
-                            <div className={styles.DetailsMainHeading}>
-                                Roadside Assistance
-                            </div>
-
-                        </div>
+                        <SubHeader
+                            heading="EV Road Assistance Bookings"
+                            count={rsaTotalCount}
+                        />
 
 
                         {loadingRsa ? (
@@ -802,7 +819,7 @@ const AppSignupDetailsElectric = () => {
                                 <List
                                     tableHeaders={rsaHeaders}
                                     listData={rsaBookings}
-                                    pageHeading="Roadside Assistance"
+                                    pageHeading="EV Road Assistance Bookings"
                                     keyMapping={[
                                         {
                                             key: 'created_at',
@@ -822,7 +839,7 @@ const AppSignupDetailsElectric = () => {
                                             key: 'price',
                                             label: 'Price',
                                             format: value =>
-                                                `AED ${value || '0'}`
+                                                `INR ${value || '0'}`
                                         },
                                         {
                                             key: 'order_status',
@@ -839,6 +856,7 @@ const AppSignupDetailsElectric = () => {
                                     ]}
                                 />
 
+
                                 <Pagination
                                     currentPage={rsaCurrentPage}
                                     totalPages={rsaTotalPages}
@@ -850,14 +868,17 @@ const AppSignupDetailsElectric = () => {
                             </>
 
                         )}
-                    </>)}
+                    </>}
 
                 </>
 
             )}
 
         </div>
+
     );
+
 };
+
 
 export default AppSignupDetailsElectric;

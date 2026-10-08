@@ -99,11 +99,28 @@ const AppSignupDetails = () => {
 
     const headerItems = [
         { label: 'Date', icon: date, value: moment(riderDetails?.rider.created_at).format('DD MMM YYYY') },
-        { label: 'Rider Name', icon: profile, value: riderDetails?.rider.rider_name },
+        {
+            label: `${bookingHistory?.length > 0 || transactionHistory?.length > 0
+                ? 'Rider' : 'Customer'} Name`, icon: profile, value: riderDetails?.rider.rider_name
+        },
         { label: 'Mobile No.', icon: mobile, value: riderDetails?.rider.rider_mobile },
         { label: 'Email ID', icon: email, value: riderDetails?.rider.rider_email },
-        { label: 'outstanding amount', icon: email, value: riderDetails?.rider.out_standing_cost },
-        { label: 'Wallet Amount', icon: email, value: riderDetails?.rider.wallet_money },
+        // Show these only if booking OR transaction history exists
+        ...(bookingHistory?.length > 0 || transactionHistory?.length > 0
+            ? [
+                {
+                    label: 'Outstanding Amount',
+                    icon: email,
+                    value: riderDetails?.rider?.out_standing_cost
+                },
+                {
+                    label: 'Wallet Amount',
+                    icon: email,
+                    value: riderDetails?.rider?.wallet_money
+                }
+            ]
+            : []
+        ),
         { label: 'Device', icon: email, value: riderDetails?.rider.added_from_data },
     ];
 
@@ -207,77 +224,80 @@ const AppSignupDetails = () => {
                             <div className={styles.noBookingData}>No user info available.</div>
                         )}
                     </div>
+                    {bookingHistory?.length > 0 && <>
+                        <div className={styles.bookingDetailsSection}>
+                            <div className={styles.DetailsMainHeading}>Ride History</div>
+                        </div>
 
-                    <div className={styles.bookingDetailsSection}>
-                        <div className={styles.DetailsMainHeading}>Ride History</div>
-                    </div>
-
-                    {loadingHistory ? <Loader /> :
-                        bookingHistory.length === 0 ?
-                            <EmptyList
-                                tableHeaders={["Date", "Booking ID", "Rider Name", "Cycle Type", "Pick Up Station", "Dropoff Station", "Status", "Action"]}
-                                message="No data available"
-                            />
-                            : <>
-                                <List
+                        {loadingHistory ? <Loader /> :
+                            bookingHistory.length === 0 ?
+                                <EmptyList
                                     tableHeaders={["Date", "Booking ID", "Rider Name", "Cycle Type", "Pick Up Station", "Dropoff Station", "Status", "Action"]}
-                                    listData={bookingHistory}
-                                    pageHeading="Ride History"
-                                    keyMapping={[
-                                        { key: 'created_at', label: 'Date', format: date => moment(date).format('DD MMM YYYY') },
-                                        { key: 'booking_id', label: 'Booking ID' },
-                                        { key: 'rider_name', label: 'Rider Name' },
-                                        { key: 'cycle_type', label: 'Cycle Type' },
-                                        { key: 'pickup_station', label: 'Pickup' },
-                                        { key: 'dropoff_station', label: 'Drop' },
-                                        { key: 'status', label: 'Status' },
-                                        {
-                                            key: 'action', label: 'Action',
-                                            relatedKeys: ['status'],
-                                            format: (data, key, relatedKeys) => {
-                                                return (
-                                                    <div className="editButtonSection">
-                                                        <img src={View} alt="view" onClick={() => handleBookingDetails(data.booking_id)} className="viewButton" />
-                                                    </div>
-                                                );
+                                    message="No data available"
+                                />
+                                : <>
+                                    <List
+                                        tableHeaders={["Date", "Booking ID", "Rider Name", "Cycle Type", "Pick Up Station", "Dropoff Station", "Status", "Action"]}
+                                        listData={bookingHistory}
+                                        pageHeading="Ride History"
+                                        keyMapping={[
+                                            { key: 'created_at', label: 'Date', format: date => moment(date).format('DD MMM YYYY') },
+                                            { key: 'booking_id', label: 'Booking ID' },
+                                            { key: 'rider_name', label: 'Rider Name' },
+                                            { key: 'cycle_type', label: 'Cycle Type' },
+                                            { key: 'pickup_station', label: 'Pickup' },
+                                            { key: 'dropoff_station', label: 'Drop' },
+                                            { key: 'status', label: 'Status' },
+                                            {
+                                                key: 'action', label: 'Action',
+                                                relatedKeys: ['status'],
+                                                format: (data, key, relatedKeys) => {
+                                                    return (
+                                                        <div className="editButtonSection">
+                                                            <img src={View} alt="view" onClick={() => handleBookingDetails(data.booking_id)} className="viewButton" />
+                                                        </div>
+                                                    );
+                                                }
                                             }
-                                        }
-                                    ]}
-                                />
-                                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-                            </>
-                    }
-                    <div className={styles.bookingHeading}>
-                        <div className={styles.DetailsMainHeading}>Transaction History</div>
+                                        ]}
+                                    />
+                                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+                                </>
+                        }
+                    </>}
+                    {transactionHistory.length > 0 && <>
+                        <div className={styles.bookingHeading}>
+                            <div className={styles.DetailsMainHeading}>Transaction History</div>
 
-                        <button className={styles.button} onClick={openModal}>Refund/ Add Amount</button>
-                    </div>
-                    {loadingTransaction ? <Loader /> :
-                        transactionHistory.length === 0 ?
-                            <EmptyList
-                                tableHeaders={["Date", "Amount", "Payment Type", "Outstanding Bal.", "Current Wallet Bal.", "Status", "Ride ID"]}
-                                message="No data available"
-                            />
-                            // "Date", "Amount", "Outstanding", "Previous Bal.", "Current Bal.", "Payment Type", "Payment Ref. ID"
-                            : <>
-                                <List
+                            <button className={styles.button} onClick={openModal}>Refund/ Add Amount</button>
+                        </div>
+                        {loadingTransaction ? <Loader /> :
+                            transactionHistory.length === 0 ?
+                                <EmptyList
                                     tableHeaders={["Date", "Amount", "Payment Type", "Outstanding Bal.", "Current Wallet Bal.", "Status", "Ride ID"]}
-                                    listData={transactionHistory}
-                                    pageHeading="Transaction History"
-                                    keyMapping={[
-                                        { key: 'created_at', format: date => moment(date).format('DD MMM YYYY') },
-                                        { key: 'amount', format: date => Number(date || 0).toFixed(2) },
-                                        { key: 'payment_type', format: data => !typeBoject[data] ? '' : typeBoject[data] },
-                                        { key: 'outstanding', format: date => Number(date || 0).toFixed(2) },
-                                        // { key: 'prev_balance',    format : date => Number(date || 0).toFixed(2)  },
-                                        { key: 'current_balance', format: date => Number(date || 0).toFixed(2) },
-                                        { key: 'payment_type', format: data => !statusBoject[data] ? '' : statusBoject[data] },
-                                        { key: 'order_id' },
-                                    ]}
+                                    message="No data available"
                                 />
-                                <Pagination currentPage={transactionCurrentPage} totalPages={transactiontotalPages} onPageChange={handleTransactionPageChange} />
-                            </>
-                    }
+                                // "Date", "Amount", "Outstanding", "Previous Bal.", "Current Bal.", "Payment Type", "Payment Ref. ID"
+                                : <>
+                                    <List
+                                        tableHeaders={["Date", "Amount", "Payment Type", "Outstanding Bal.", "Current Wallet Bal.", "Status", "Ride ID"]}
+                                        listData={transactionHistory}
+                                        pageHeading="Transaction History"
+                                        keyMapping={[
+                                            { key: 'created_at', format: date => moment(date).format('DD MMM YYYY') },
+                                            { key: 'amount', format: date => Number(date || 0).toFixed(2) },
+                                            { key: 'payment_type', format: data => !typeBoject[data] ? '' : typeBoject[data] },
+                                            { key: 'outstanding', format: date => Number(date || 0).toFixed(2) },
+                                            // { key: 'prev_balance',    format : date => Number(date || 0).toFixed(2)  },
+                                            { key: 'current_balance', format: date => Number(date || 0).toFixed(2) },
+                                            { key: 'payment_type', format: data => !statusBoject[data] ? '' : statusBoject[data] },
+                                            { key: 'order_id' },
+                                        ]}
+                                    />
+                                    <Pagination currentPage={transactionCurrentPage} totalPages={transactiontotalPages} onPageChange={handleTransactionPageChange} />
+                                </>
+                        }
+                    </>}
 
                 </>
             )}

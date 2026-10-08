@@ -105,14 +105,18 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                             )} */}
                                         </>
                                     )}
-                                    {pageHeading === "Booking History" && (
+                                    {pageHeading === "Mobile EV Charging Bookings" && (
                                         <>
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/ride/ride-booking-details', data?.booking_id )} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/mobile-ev-charging/charging-booking-details', data?.booking_id )} />
                                             )}
-                                            {/* { access.includes('delete') && (
-                                                <img src={Delete} alt='delete' onClick={() => onDeleteSlot(data.station_id)} />
-                                            )} */}
+                                        </>
+                                    )}
+                                    {pageHeading === "EV Road Assistance Bookings" && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/ev-road-assistance/booking-details', data?.request_id )} />
+                                            )}
                                         </>
                                     )}
 
