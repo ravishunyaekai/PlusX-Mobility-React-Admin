@@ -13,6 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 import Loader from '../../SharedComponent/Loader/Loader.jsx';
+import { formatIndianNumber } from '../../../utils/statusMapping.js';
 
 
 const CommunityInvoiceDetails = () => {
@@ -162,10 +163,10 @@ const CommunityInvoiceDetails = () => {
             bookingDetails?.total_consumption ?? "0.00",
 
         energyCharge:
-            bookingDetails?.per_kwh_charge ?? "0.00",
+            formatIndianNumber(bookingDetails?.per_kwh_charge ?? "0.00"),
 
         energyKwhPrice:
-            bookingDetails?.energy_price_total ?? "0.00",
+            formatIndianNumber(bookingDetails?.energy_price_total ?? "0.00"),
 
         overTimeMin:
             bookingDetails?.over_time_min ?? 0,
@@ -174,16 +175,16 @@ const CommunityInvoiceDetails = () => {
             bookingDetails?.extra_charge_per_min ?? "0.00",
 
         extraCharge:
-            bookingDetails?.extra_charge_total ?? "0.00",
+            formatIndianNumber(bookingDetails?.extra_charge_total ?? "0.00"),
 
         subTotal:
-            Number(bookingDetails?.subtotal ?? 0).toFixed(2),
+            formatIndianNumber(Number(bookingDetails?.subtotal ?? 0).toFixed(2)),
 
         gst:
-            Number(bookingDetails?.vat ?? 0).toFixed(2),
+            formatIndianNumber(Number(bookingDetails?.vat ?? 0).toFixed(2)),
 
         totalAmount:
-            Number(bookingDetails?.total_amount ?? 0).toFixed(2),
+            formatIndianNumber(Number(bookingDetails?.total_amount ?? 0).toFixed(2)),
 
         status:
             bookingDetails?.invoice_status || "N/A"

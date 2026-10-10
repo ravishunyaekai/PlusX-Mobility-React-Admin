@@ -9,6 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import Loader from "../../SharedComponent/Loader/Loader";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList';
+import { formatIndianNumber } from '../../../../utils/statusMapping';
 
 const ChargerBookingInvoiceList = () => {
     const userDetails                     = JSON.parse(sessionStorage.getItem('userDetails')); 
@@ -108,7 +109,7 @@ const ChargerBookingInvoiceList = () => {
                             { 
                                 key: 'amount', 
                                 label: 'Amount', 
-                                format: (amount) => (`${ ( amount).toFixed(2) } INR` )
+                                format: (amount) => (`${ formatIndianNumber(( amount).toFixed(2)) } INR` )
                                 // format: (amount) => (amount ? `INR ${ ( amount/100 ).toFixed(2) }` : `INR ${ amount/100 }` )
                             },
                             { key : 'payment_status', label : 'Status', format: (status) => (status === "succeeded" ? "Completed" : "Approved") }

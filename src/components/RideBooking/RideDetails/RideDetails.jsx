@@ -4,7 +4,7 @@ import styles from '../RideList/RideList.module.css';
 import { postRequestWithToken } from '../../../api/Requests';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { statusMapping } from "../../../utils/statusMapping.js";
+import { formatIndianNumber, statusMapping } from "../../../utils/statusMapping.js";
 import Loader from "../../SharedComponent/Loader/Loader.jsx";
 import DetailsCards from '../../SharedComponent/Details/NewBookingDetails/DetailsCards/DetailsCards.jsx';
 import DetailsInfoSection from '../../SharedComponent/Details/NewBookingDetails/DetailsInfoSection/DetailsInfoSection.jsx';
@@ -140,7 +140,7 @@ const RideDetails = () => {
         { label: "Drop off Station",  value: bookingDetails?.cycle_booking.dropoff_station },
         { label: "Cycle Type",        value: bookingDetails?.cycle_booking.cycle_type === "cycle"? "Cycle" : "E-cycle" },
         { label: "Cycle ID",          value: bookingDetails?.cycle_booking.cycle_id },
-        { label: "Fare",              value:  bookingDetails?.cycle_booking.price ?`${bookingDetails?.cycle_booking.price} ${bookingDetails?.currency}  `:"" },
+        { label: "Fare",              value:  bookingDetails?.cycle_booking.price ?`${formatIndianNumber(bookingDetails?.cycle_booking.price)} ${bookingDetails?.currency}  `:"" },
         { label: "Status",            value: statusMapping[`${bookingDetails?.cycle_booking.status}`] },
     ];
     const rideInfoSection = [

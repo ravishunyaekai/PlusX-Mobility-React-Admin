@@ -5,6 +5,7 @@ import styles from './invoice.module.css';
 import logo from '../../../assets/images/Logo.svg';
 import html2pdf from 'html2pdf.js';
 import Download from '../../../assets/images/Download.svg'
+import { formatIndianNumber } from '../../../utils/statusMapping';
 
 const Invoice = ({ title, service, details }) => {
     const handleDownload = () => {
@@ -36,7 +37,7 @@ const Invoice = ({ title, service, details }) => {
                                 <td colSpan="2">
                                     <table>
                                         <tr>
-                                            <td className={title == 'Mobile EV Charging Invoice Details' ? styles.logoSection2 : styles.logoSection}>
+                                            <td className={(title == 'Mobile EV Charging Invoice Details' || title == 'Road Assistance Invoice Details') ? styles.logoSection2 : styles.logoSection}>
                                                 <img src={logo} alt="company logo" className={styles.logoImage} />
                                                 <p>D55-PBU</p>
                                                 <p>DUBAI PRODUCTION CITY</p>
@@ -87,16 +88,16 @@ const Invoice = ({ title, service, details }) => {
                                             <tbody>
                                                 <tr className={styles.serviceItem}>
                                                     <td>{service}</td>
-                                                    <td className={styles.amountRightAlign}>{details?.currency?.toUpperCase() || 'INR'} {details?.servicePrice?.toFixed(2) || 39}</td>
+                                                    <td className={styles.amountRightAlign}>{details?.currency?.toUpperCase() || 'INR'} {formatIndianNumber(details?.servicePrice?.toFixed(2)) || 39}</td>
                                                 </tr>
                                                 <tr className={styles.serviceItem}>
                                                     <td>VAT 5%</td>
-                                                    <td className={styles.amountRightAlign}>{details?.t_vat_amt?.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{formatIndianNumber(details?.t_vat_amt?.toFixed(2))}</td>
                                                 </tr>
                                                 {details?.dis_price > 0 && (
                                                     <tr className={styles.serviceItem}>
                                                         <td>Coupon </td>
-                                                        <td className={styles.amountRightAlign}>{details?.dis_price?.toFixed(2)}</td>
+                                                        <td className={styles.amountRightAlign}>{formatIndianNumber(details?.dis_price?.toFixed(2))}</td>
                                                     </tr>
                                                 )}
                                             </tbody>
@@ -118,21 +119,21 @@ const Invoice = ({ title, service, details }) => {
                                                 <tr className={styles.serviceItem}>
                                                     <td>Dewa Charge</td>
                                                     <td>0.44</td>
-                                                    <td>{details?.kw?.toFixed(2)}</td>
-                                                    <td className={styles.amountRightAlign}>{details?.kw_dewa_amt?.toFixed(2)}</td>
+                                                    <td>{formatIndianNumber(details?.kw?.toFixed(2))}</td>
+                                                    <td className={styles.amountRightAlign}>{formatIndianNumber(details?.kw_dewa_amt?.toFixed(2))}</td>
                                                 </tr>
                                                 <tr className={styles.serviceItem}>
                                                     <td>CPO Charge</td>
                                                     <td>0.26</td>
-                                                    <td>{details?.kw?.toFixed(2)}</td>
-                                                    <td className={styles.amountRightAlign}>{details?.kw_cpo_amt?.toFixed(2)}</td>
+                                                    <td>{formatIndianNumber(details?.kw?.toFixed(2))}</td>
+                                                    <td className={styles.amountRightAlign}>{formatIndianNumber(details?.kw_cpo_amt?.toFixed(2))}</td>
                                                 </tr>
 
                                                 <tr className={styles.serviceItem}>
                                                     <td>Delivery Charge</td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td className={styles.amountRightAlign}>{details?.delv_charge?.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{formatIndianNumber(details?.delv_charge?.toFixed(2))}</td>
                                                 </tr>
                                                 {details?.current_percent == 0 && (
                                                     <tr className={styles.serviceItem}>
@@ -140,14 +141,14 @@ const Invoice = ({ title, service, details }) => {
                                                         {/* ({details?.discount+'%'}) */}
                                                         <td></td>
                                                         <td></td>
-                                                        <td className={styles.amountRightAlign}>{details?.additional_price?.toFixed(2)}</td>
+                                                        <td className={styles.amountRightAlign}>{formatIndianNumber(details?.additional_price?.toFixed(2))}</td>
                                                     </tr>
                                                 )}
                                                 <tr className={styles.serviceItem}>
                                                     <td>VAT 5%</td>
                                                     <td></td>
                                                     <td></td>
-                                                    <td className={styles.amountRightAlign}>{details?.t_vat_amt?.toFixed(2)}</td>
+                                                    <td className={styles.amountRightAlign}>{formatIndianNumber(details?.t_vat_amt?.toFixed(2))}</td>
                                                 </tr>
                                                 {details?.dis_price > 0 && (
                                                     <tr className={styles.serviceItem}>
@@ -155,7 +156,7 @@ const Invoice = ({ title, service, details }) => {
                                                         {/* ({details?.discount+'%'}) */}
                                                         <td></td>
                                                         <td></td>
-                                                        <td className={styles.amountRightAlign}>{details?.dis_price?.toFixed(2)}</td>
+                                                        <td className={styles.amountRightAlign}>{formatIndianNumber(details?.dis_price?.toFixed(2))}</td>
                                                     </tr>
                                                 )}
                                             </tbody>
@@ -188,7 +189,7 @@ const Invoice = ({ title, service, details }) => {
                                                     </td>
 
                                                     <td className={styles.amountRightAlign}>
-                                                        {"₹"} {Number(Number(details?.package_data?.charging_capacity) * Number(details?.package_data?.price_per_unit) || 0)?.toFixed(2)}
+                                                        {"₹"} {formatIndianNumber(Number(Number(details?.package_data?.charging_capacity) * Number(details?.package_data?.price_per_unit || 0)?.toFixed(2)))}
                                                     </td>
                                                 </tr>
 
@@ -196,7 +197,7 @@ const Invoice = ({ title, service, details }) => {
                                                     <td>Service Fee (as per package)</td>
 
                                                     <td className={styles.amountRightAlign}>
-                                                        {"₹"} {Number(details?.package_data?.service_fee || 0)?.toFixed(2)}
+                                                        {"₹"} {formatIndianNumber(Number(details?.package_data?.service_fee || 0)?.toFixed(2))}
                                                     </td>
                                                 </tr>
 
@@ -207,7 +208,7 @@ const Invoice = ({ title, service, details }) => {
 
                                                         <td className={styles.amountRightAlign}>
                                                             -{"₹"}{" "}
-                                                            {(details?.package_data?.discount || 0)?.toFixed(2)}
+                                                            {formatIndianNumber((details?.package_data?.discount || 0)?.toFixed(2))}
                                                         </td>
                                                     </tr>
                                                 )}
@@ -219,7 +220,7 @@ const Invoice = ({ title, service, details }) => {
                                                     </td>
 
                                                     <td className={styles.amountRightAlign}>
-                                                        {"₹"} {(details?.package_data?.gst_amount || 0)?.toFixed(2)}
+                                                        {"₹"} {formatIndianNumber((details?.package_data?.gst_amount || 0)?.toFixed(2))}
                                                     </td>
                                                 </tr>
 
@@ -235,7 +236,7 @@ const Invoice = ({ title, service, details }) => {
                                 <td className={styles.amountRightAlign}>
                                     <p className={styles.totalAmountValue}>
                                         {/* {details?.currency?.toUpperCase() || '₹'} {Number(details?.package_data?.amount || 0).toFixed(2)} */}
-                                        {'₹'} {Number(details?.package_data?.amount || 0)?.toFixed(2)}
+                                        {'₹'} {formatIndianNumber(Number(details?.package_data?.amount || 0)?.toFixed(2))}
                                     </p>
                                 </td>
                             </tr>

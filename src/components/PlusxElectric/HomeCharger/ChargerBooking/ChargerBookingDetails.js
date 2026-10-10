@@ -10,6 +10,7 @@ import moment from 'moment';
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import Loader from '../../../SharedComponent/Loader/Loader.jsx';
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const statusMapping = {
     'PNR' : 'Payment Not Received',
@@ -86,10 +87,10 @@ const ChargerBookingDetails = () => {
         custBookingCount: bookingDetails?.cust_booking_count || 0,
         packageName: bookingDetails?.package_data?.package_name,
         packageId: bookingDetails?.package_data?.package_id,
-        chargingFee: `₹ ${bookingDetails?.package_data?.charging_fee}`,
+        chargingFee: `₹ ${formatIndianNumber(bookingDetails?.package_data?.charging_fee)}`,
         chargingCapacity: `${bookingDetails?.package_data?.charging_capacity}`,
-        pricePerUnit: `₹ ${bookingDetails?.package_data?.price_per_unit}`,
-        serviceFee: `₹ ${bookingDetails?.package_data?.service_fee}`,
+        pricePerUnit: `₹ ${formatIndianNumber(bookingDetails?.package_data?.price_per_unit)}`,
+        serviceFee: `₹ ${formatIndianNumber(bookingDetails?.package_data?.service_fee)}`,
     };
     const sectionTitles1 = {
         bookingStatus: "Booking Status",
@@ -108,7 +109,7 @@ const ChargerBookingDetails = () => {
         bookingStatus: statusMapping[bookingDetails?.status] || bookingDetails?.status,
         // serviceName: bookingDetails?.service_name,
         // serviceType: bookingDetails?.service_type,
-        price: bookingDetails?.service_price ? `${(bookingDetails?.service_price)} INR` : '0 INR',
+        price: bookingDetails?.service_price ? `${formatIndianNumber(bookingDetails?.service_price)} INR` : '0 INR',
         slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
         slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
         vehicle: bookingDetails?.vehicle_data,
@@ -151,10 +152,10 @@ const ChargerBookingDetails = () => {
     const packageContent = {
         packageName: bookingDetails?.package_data?.package_name,
         packageId: bookingDetails?.package_data?.package_id,
-        chargingFee: `₹ ${parseFloat(bookingDetails?.package_data?.charging_fee).toFixed(2)}`,
+        chargingFee: `₹ ${formatIndianNumber(parseFloat(bookingDetails?.package_data?.charging_fee).toFixed(2))}`,
         chargingCapacity: `${bookingDetails?.package_data?.charging_capacity}kW`,
-        pricePerUnit: `₹ ${parseFloat(bookingDetails?.package_data?.price_per_unit).toFixed(2)}`,
-        serviceFee: `₹ ${parseFloat(bookingDetails?.package_data?.service_fee).toFixed(2)}`,
+        pricePerUnit: `₹ ${formatIndianNumber(parseFloat(bookingDetails?.package_data?.price_per_unit).toFixed(2))}`,
+        serviceFee: `₹ ${formatIndianNumber(parseFloat(bookingDetails?.package_data?.service_fee).toFixed(2))}`,
     };
     const packageTitles = {
         packageName: "Package Name",

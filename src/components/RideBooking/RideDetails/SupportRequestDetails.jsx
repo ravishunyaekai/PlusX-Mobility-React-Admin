@@ -21,6 +21,7 @@ import { toast, ToastContainer } from "react-toastify";
 // Comment Rrelated code 
 import AddComment from '../../SharedComponent/Details/NewBookingDetails/AddComment/AddComment.jsx';
 import LockerModal from '../../SharedComponent/CustomModal/LockerModal.jsx';
+import { formatIndianNumber } from '../../../utils/statusMapping.js';
 
 const supportStatus = {
     1: "Open",
@@ -89,7 +90,7 @@ const RideDetails = () => {
         { label: "Drop off Station",  value: bookingDetails?.cycle_booking.dropoff_station },
         { label: "Cycle Type",        value: bookingDetails?.cycle_booking.cycle_type === "cycle"? "Cycle" : "E-cycle" },
         { label: "Cycle ID",          value: bookingDetails?.cycle_booking.cycle_id },
-        { label: "Fare",              value:  bookingDetails?.cycle_booking.price ?`${bookingDetails?.cycle_booking.price} ${bookingDetails?.currency}  `:"" },
+        { label: "Fare",              value:  bookingDetails?.cycle_booking.price ?`${formatIndianNumber(bookingDetails?.cycle_booking.price)} ${bookingDetails?.currency}  `:"" },
         { label: "Status",            value: supportStatus[`${bookingDetails?.cycle_booking.status}`] },
     ];
     const rideInfoSection = [

@@ -17,6 +17,7 @@ import Loader from "../../SharedComponent/Loader/Loader.jsx";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
 import View from '../../../assets/images/ViewEye.svg'
 import AddDriver from '../../../assets/images/AddDriver.svg';
+import { formatIndianNumber } from '../../../utils/statusMapping.js';
 
 // import { utils, writeFile } from 'xlsx';
 // import axios from 'axios';
@@ -193,7 +194,8 @@ const RefundRequestList = () => {
                                 { key: 'contact_no', label: 'Mobile No.' },
 
                                 // { key: 'requested_amount', label: 'Refundable Amount' },
-                                { key: 'refund_amount', label: 'Refundable Amount' },
+                                { key: 'refund_amount', label: 'Refundable Amount',
+                                    format: (refund_amount) => (refund_amount ? `INR ${formatIndianNumber(refund_amount)}` : formatIndianNumber(refund_amount)) },
                                 {
                                     key: 'status',
                                     label: 'Status',

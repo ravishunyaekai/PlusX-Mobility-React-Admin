@@ -21,6 +21,7 @@ import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import SubHeader from '../../SharedComponent/SubHeader/SubHeader.jsx';
 import AppSignupInfoSection from '../../SharedComponent/Details/NewBookingDetails/AppSignupInfoSection/AppSignupInfoSection.jsx';
+import { formatIndianNumber } from '../../../utils/statusMapping.js';
 
 
 // --------------------------------------------------
@@ -758,7 +759,7 @@ const AppSignupDetailsElectric = () => {
                                             key: 'service_price',
                                             label: 'Price',
                                             format: value =>
-                                                `INR ${value || '0'}`
+                                                `INR ${formatIndianNumber(value) || '0'}`
                                         },
                                         {
                                             key: 'status',
@@ -839,7 +840,7 @@ const AppSignupDetailsElectric = () => {
                                             key: 'price',
                                             label: 'Price',
                                             format: value =>
-                                                `INR ${value || '0'}`
+                                                `INR ${formatIndianNumber(value) || '0'}`
                                         },
                                         {
                                             key: 'order_status',

@@ -9,6 +9,7 @@ import BookingLeftDetails from '../../../SharedComponent/BookingDetails/BookingL
 import moment from 'moment';
 import Loader from '../../../SharedComponent/Loader/Loader.jsx';
 import { toast } from 'react-toastify';
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const EvChargerDetails = () => {
     const userDetails                         = JSON.parse(sessionStorage.getItem('userDetails'));
@@ -76,7 +77,7 @@ const EvChargerDetails = () => {
         compatible    : bookingDetails?.compatible,
         outputPower   : bookingDetails?.outputPower,
         warrantyType  : bookingDetails?.warrantyType,
-        price         : 'INR '+bookingDetails?.price,
+        price         : 'INR '+formatIndianNumber(bookingDetails?.price),
         // specification : bookingDetails?.vehicle_specification,
         vehicle_brand : bookingDetails?.vehicle_brand,
         vehicle_modal : bookingDetails?.vehicle_modal,

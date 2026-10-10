@@ -8,6 +8,7 @@ import { postRequestWithToken } from '../../../../api/Requests.js';
 import moment from 'moment';
 
 import { useNavigate } from 'react-router-dom';
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const ChargerBookingDetails = () => {
     const userDetails                         = JSON.parse(sessionStorage.getItem('userDetails'));
@@ -62,7 +63,7 @@ const ChargerBookingDetails = () => {
     }
     const sectionContent1 = {
         bookingStatus : 'Payment Not Received',
-        price         : bookingDetails?.price ? `${ ( bookingDetails?.price ).toFixed(2) } INR` : '0 INR',
+        price         : bookingDetails?.price ? `${ formatIndianNumber(( bookingDetails?.price ).toFixed(2)) } INR` : '0 INR',
         vehicle        : bookingDetails?.vehicle_data,
         address: (
             <a

@@ -13,6 +13,7 @@ import CycleBrand from "../../../../assets/images/CycleBrand.svg";
 import Station from "../../../../assets/images/Station.svg";
 import Rented from "../../../../assets/images/Rented.svg";
 import CycleType from "../../../../assets/images/CycleType.svg";
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const CycleDetails = () => {
     
@@ -78,7 +79,7 @@ const CycleDetails = () => {
                                 <div className={styles.cardSections}>
                                     <div className={styles.serviceCard}>
                                         <div className={styles.title}>Base Price</div>
-                                        <div className={styles.value}>{CycleDetails?.cycle.base_price} INR</div>
+                                        <div className={styles.value}>{formatIndianNumber(CycleDetails?.cycle.base_price)} INR</div>
                                     </div>
                                 </div>
                                 

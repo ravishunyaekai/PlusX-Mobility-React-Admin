@@ -20,6 +20,7 @@ import View from '../../../assets/images/ViewEye.svg'
 import WalletModal from '../../SharedComponent/CustomModal/WalletModal.jsx';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { formatIndianNumber } from '../../../utils/statusMapping.js';
 
 const typeBoject = { crd: "Wallet Charge", debt: "Ride", refund: "Wallet Charge", sd_refund: "SD Refunded" }
 const statusBoject = { crd: "Credited", debt: "Debited", refund: "Refunded", sd_refund: "SD Refunded" }
@@ -111,12 +112,12 @@ const AppSignupDetails = () => {
                 {
                     label: 'Outstanding Amount',
                     icon: email,
-                    value: riderDetails?.rider?.out_standing_cost
+                    value: formatIndianNumber(riderDetails?.rider?.out_standing_cost)
                 },
                 {
                     label: 'Wallet Amount',
                     icon: email,
-                    value: riderDetails?.rider?.wallet_money
+                    value: formatIndianNumber(riderDetails?.rider?.wallet_money)
                 }
             ]
             : []
@@ -285,11 +286,11 @@ const AppSignupDetails = () => {
                                         pageHeading="Transaction History"
                                         keyMapping={[
                                             { key: 'created_at', format: date => moment(date).format('DD MMM YYYY') },
-                                            { key: 'amount', format: date => Number(date || 0).toFixed(2) },
+                                            { key: 'amount', format: value => formatIndianNumber(Number(value || 0).toFixed(2)) },
                                             { key: 'payment_type', format: data => !typeBoject[data] ? '' : typeBoject[data] },
-                                            { key: 'outstanding', format: date => Number(date || 0).toFixed(2) },
-                                            // { key: 'prev_balance',    format : date => Number(date || 0).toFixed(2)  },
-                                            { key: 'current_balance', format: date => Number(date || 0).toFixed(2) },
+                                            { key: 'outstanding', format: value => formatIndianNumber(Number(value || 0).toFixed(2)) },
+                                            // { key: 'prev_balance',    format : value => formatIndianNumber(Number(value || 0).toFixed(2))  },
+                                            { key: 'current_balance', format: value => formatIndianNumber(Number(value || 0).toFixed(2)) },
                                             { key: 'payment_type', format: data => !statusBoject[data] ? '' : statusBoject[data] },
                                             { key: 'order_id' },
                                         ]}

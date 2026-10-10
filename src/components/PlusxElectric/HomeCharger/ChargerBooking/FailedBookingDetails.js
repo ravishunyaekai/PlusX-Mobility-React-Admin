@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import moment from 'moment';
 
 import { useNavigate } from 'react-router-dom';
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const statusMapping = {
     'PNR' : 'Payment Not Received',
@@ -83,7 +84,7 @@ const ChargerBookingDetails = () => {
             bookingStatus: statusMapping[bookingDetails?.status] || bookingDetails?.status,
             // serviceName: bookingDetails?.service_name,
             // serviceType: bookingDetails?.service_type,
-            price: bookingDetails?.service_price ? `${(bookingDetails?.service_price)} INR` : '0 INR',
+            price: bookingDetails?.service_price ? `${formatIndianNumber((bookingDetails?.service_price))} INR` : '0 INR',
             slotDate: moment(bookingDetails?.slot_date).format('DD MMM YYYY'),
             slotTime: moment(bookingDetails?.slot_time, 'HH:mm:ss').format('h:mm A'),
             vehicle: bookingDetails?.vehicle_data,

@@ -9,6 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from "../../SharedComponent/Loader/Loader";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList';
+import { formatIndianNumber } from '../../../utils/statusMapping';
 
 const dynamicFilters = [];
 
@@ -289,7 +290,7 @@ const PublicInvoiceList = () => {
                                     value !== null &&
                                         value !== undefined &&
                                         value !== ''
-                                        ? `INR ${value}`
+                                        ? `INR ${formatIndianNumber(value)}`
                                         : ''
                             },
                             {
@@ -299,7 +300,7 @@ const PublicInvoiceList = () => {
                                     value !== null &&
                                         value !== undefined &&
                                         value !== ''
-                                        ? `INR ${value}`
+                                        ? `INR ${formatIndianNumber(value)}`
                                         : ''
                             },
                             {
@@ -309,7 +310,7 @@ const PublicInvoiceList = () => {
                                     value !== null &&
                                         value !== undefined &&
                                         value !== ''
-                                        ? `INR ${value}`
+                                        ? `INR ${formatIndianNumber(value)}`
                                         : ''
                             },
                             {

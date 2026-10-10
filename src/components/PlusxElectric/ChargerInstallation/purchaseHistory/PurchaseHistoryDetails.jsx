@@ -9,6 +9,7 @@ import BookingLeftDetails from '../../../SharedComponent/BookingDetails/BookingL
 import moment from 'moment';
 import Loader from '../../../SharedComponent/Loader/Loader.jsx';
 import { toast } from 'react-toastify';
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const EvChargerDetails = () => {
     const { purchaseId }                      = useParams()
@@ -80,7 +81,7 @@ const EvChargerDetails = () => {
     const sectionContent1 = {
         customer_email   : bookingDetails?.customer_email,
         customer_address : bookingDetails?.customer_address,
-        price            : bookingDetails?.price ? bookingDetails?.price+' INR ' : '',
+        price            : bookingDetails?.price ? formatIndianNumber(bookingDetails?.price)+' INR ' : '',
         product_name     : bookingDetails?.product_name,
         output_Power     : bookingDetails?.outputPower,
         type_of_service  : bookingDetails?.typeOfService,  

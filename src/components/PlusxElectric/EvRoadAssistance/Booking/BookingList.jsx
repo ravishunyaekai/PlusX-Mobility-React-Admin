@@ -17,6 +17,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Custommodal from '../../../SharedComponent/CustomModal/CustomModal.jsx';
 import Loader from "../../../SharedComponent/Loader/Loader";
 import EmptyList from "../../../SharedComponent/EmptyList/EmptyList";
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const statusMapping = {
     'CNF': 'Booking Confirmed',
@@ -242,7 +243,7 @@ const RoadAssistanceBookingList = () => {
                                 { key: 'created_at', label: 'Date & Time', format: (date) => moment(date).format('DD MMM YYYY hh:mm A') },
                                 { key: 'request_id', label: 'Order ID' },
                                 { key: 'name', label: 'Customer Name' },
-                                { key: 'price', label: 'Price', format: (price) => (price ? `${price.toFixed(2)} INR` : '0 INR') },
+                                { key: 'price', label: 'Price', format: (price) => (price ? `${formatIndianNumber(price.toFixed(2))} INR` : '0 INR') },
                                 { key: 'order_status', label: 'Status', format: (status) => statusMapping[status] || status },
                                 { key: 'city', label: 'City' },
                                 { key: 'rsa_name', label: 'Driver Name' },
