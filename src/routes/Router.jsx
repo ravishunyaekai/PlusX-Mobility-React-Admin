@@ -190,8 +190,9 @@ import ResidentDetails from "../components/PlusxElectric/CommunityList/ResidentD
 import CommunityInvoiceDetails from "../components/PlusxElectric/CommunityList/InvoiceDetails.jsx";
 import SessionDetails from "../components/PlusxElectric/CommunityList/SessionDetails.jsx";
 import AppSignupDetailsElectric from "../components/AppSignUp/AppSignupDetails/AppSignupDetailsElectric.jsx";
+import PanelRouteGuard from "./PanelRouteGuard.jsx";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
     {
         path: "/login",
         element: <Login />,
@@ -205,7 +206,11 @@ const router = createBrowserRouter([
     //Mobility Routes
     {
         path: "/mobility",
-        element: <Layout />,
+        element: (
+            // <PanelRouteGuard panel="mobility">
+                <Layout />
+            // {/* </PanelRouteGuard> */}
+        ),
         children: [
             {
                 path: "dashboard",
@@ -389,7 +394,11 @@ const router = createBrowserRouter([
     //PlusX Routes
     {
         path: "/electric",
-        element: <Layout />,
+        element: (
+            // <PanelRouteGuard panel="electric">
+                <Layout />
+            // </PanelRouteGuard>
+        ),
         children: [
             {
                 path: "dashboard",

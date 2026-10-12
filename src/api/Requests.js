@@ -95,6 +95,7 @@ export const postRequestWithToken = async (URL, requestData, callback) => {
             headers : {
                 "accesstoken": userDetails.access_token,
                 "userId"     :  userDetails.user_id,
+                "departmentId"     :  userDetails.departmentId,
                 "Content-Type" : "application/json"
             } 
         });

@@ -66,7 +66,7 @@ const Login = () => {
                         image        : response.userDetails.image,
                         access_token : response.Token,
                         base_url     : response.base_url,
-                        // departmentId : response.userDetails.department_id ,
+                        departmentId : response.userDetails.department_id ,
                         // country_code:response.userDetails.country_code,
                         // departmentId : response.userDetails.department_id ,
                         panel_link : response.userDetails.panel_link ,

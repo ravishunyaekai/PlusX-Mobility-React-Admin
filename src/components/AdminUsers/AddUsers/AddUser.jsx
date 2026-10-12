@@ -50,11 +50,12 @@ const AddUser = () => {
     
     const validateForm = () => {
         const newErrors = {};
+        console.log("Validating form with values:", { name, email, country, city, permission, password });
  
         if (!name.trim()) newErrors.name = "Name is required.";
         // if (!email || !email.value) newErrors.email = "Email is required.";
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { newErrors.email = "Valid email is required."; }
-        if (!country || !country.value) newErrors.country = "Country is required.";
+        if (!country || !country.label) newErrors.country = "Country is required.";
         // if (!city || city.trim() === '') newErrors.city = "City is required.";
         if (!permission || permission.length === 0) newErrors.permission = "Permission is required.";
         if (!password.trim()) newErrors.password = "Password is required.";        
@@ -75,12 +76,14 @@ const AddUser = () => {
             formData.append("name", name);
             formData.append("user_email", email);
             formData.append("password", password);
-            formData.append("country", country);
+            formData.append("country", country.label);
             formData.append("city", city);
+            // formData.append("email", "admin@shunyaekai.com)");
+            // formData.append("userId", 34);
             formData.append("permission", permission.map(p => p.value).join(','));
         
            
-            postRequestWithTokenAndFile('add-userss', formData, async (response) => {
+            postRequestWithToken('add-users', formData, async (response) => {
                 
                 if (response.status === 1) {
                     toast(response.message || response.message[0], {type:'success'})
@@ -132,7 +135,7 @@ const AddUser = () => {
     return (
         <div className={styles.addShopContainer}>
             
-            <div className={styles.addHeading}>Add Mobility Station</div>
+            <div className={styles.addHeading}>Add User Details</div>
             <div className={styles.addShopFormSection}>
                 <ToastContainer />
                 <form className={styles.formSection} onSubmit={handleSubmit}>
