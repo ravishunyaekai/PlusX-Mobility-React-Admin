@@ -6,13 +6,15 @@ import { postRequestWithToken } from '../../../api/Requests';
 import moment from 'moment';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Loader from "../../SharedComponent/Loader/Loader";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList';
 
 const DeletedSignupList = () => {
     const userDetails                     = JSON.parse(sessionStorage.getItem('userDetails')); 
     const navigate                        = useNavigate();
+    const location                        = useLocation();
+    const panel                           = location.pathname.startsWith('/mobility') ? 'mobility' : '';
     const [signupList, setSignupList]     = useState([]);
     const [currentPage, setCurrentPage]   = useState(1);
     const [totalPages, setTotalPages]     = useState(1);
@@ -32,6 +34,7 @@ const DeletedSignupList = () => {
             userId  : userDetails?.user_id,
             email   : userDetails?.email,
             page_no : page,
+            panel   : panel,
             ...appliedFilters,
         };
 
@@ -55,7 +58,7 @@ const DeletedSignupList = () => {
             return; 
         }
         fetchChargers(currentPage, filters);
-    }, [currentPage, filters, refresh]);
+    }, [currentPage, filters, refresh, panel]);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
