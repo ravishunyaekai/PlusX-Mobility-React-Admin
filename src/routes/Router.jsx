@@ -207,9 +207,9 @@ export const router = createBrowserRouter([
     {
         path: "/mobility",
         element: (
-            // <PanelRouteGuard panel="mobility">
+            <PanelRouteGuard panel="mobility">
                 <Layout />
-            // {/* </PanelRouteGuard> */}
+            </PanelRouteGuard>
         ),
         children: [
             {
@@ -395,9 +395,9 @@ export const router = createBrowserRouter([
     {
         path: "/electric",
         element: (
-            // <PanelRouteGuard panel="electric">
+            <PanelRouteGuard panel="electric">
                 <Layout />
-            // </PanelRouteGuard>
+            </PanelRouteGuard>
         ),
         children: [
             {

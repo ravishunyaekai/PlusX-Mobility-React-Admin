@@ -37,7 +37,7 @@ const SignupList = () => {
             ...appliedFilters,
         };
 
-        postRequestWithToken('mobility-rider-list', obj, (response) => {
+        postRequestWithToken(window?.location?.pathname?.includes('electric')?'electric-customer-list':'mobility-rider-list', obj, (response) => {
             if (response.code === 200) {
                 setSignupList(response?.data || []);  
                 setEmiratesList(response.emirates || []);

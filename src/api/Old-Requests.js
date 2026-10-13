@@ -48,6 +48,7 @@ export const getRequestWithToken = async (URL, requestData, callback) => {
             headers : {
                 "accesstoken"  : userDetails.access_token,
                 "userId"       :  userDetails.user_id,
+                "departmentId"     :  userDetails.departmentId,
                 "Content-Type" : "application/json"
             } 
         });
@@ -75,6 +76,7 @@ export const postRequestWithToken = async (URL, requestData, callback) => {
             headers : {
                 "accesstoken": userDetails.access_token,
                 "userId"     :  userDetails.user_id,
+                "departmentId"     :  userDetails.departmentId,
                 "Content-Type" : "application/json"
             } 
         });
@@ -102,6 +104,7 @@ export const postRequestWithTokenAndFile = async (URL, requestData, callback) =>
             headers : {
                 "accesstoken": userDetails.access_token,
                 "userId"     :  userDetails.user_id,
+                "departmentId"     :  userDetails.departmentId,
                 "Content-Type" : "multipart/form-data"
             }
         });
