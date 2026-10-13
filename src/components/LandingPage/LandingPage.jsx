@@ -33,18 +33,18 @@ const LandingPage = () => {
                             <PanelLogo />
                         </div>
                         <div className={styles.loginCardSection}>
-                            {/* {(userDetails?.departmentId === 2 || userDetails?.departmentId === 1) && ( */}
+                            {(userDetails?.departmentId === 2 || userDetails?.departmentId === 1) && (
                                 <div className={styles.serviceCard} onClick={() => navigateToApp("electric")}>
                                     <div className={styles.serviceCardTitle}>PlusX Charging</div>
                                     <img src={Plusx} alt="charging" />
                                 </div>
-                            {/* )} */}
-                            {/* {(userDetails?.departmentId === 3 || userDetails?.departmentId === 1) && ( */}
+                            )} 
+                            {(userDetails?.departmentId === 3 || userDetails?.departmentId === 1) && (
                                 <div className={styles.serviceCard} onClick={() => navigateToApp("mobility")}>
                                     <div className={styles.serviceCardTitle}>PlusX Mobility</div>
                                     <img src={mobility} alt="mobility" />
                                 </div>
-                            {/* )} */}
+                            )}
                         </div>
                     </div>
                 </div>
