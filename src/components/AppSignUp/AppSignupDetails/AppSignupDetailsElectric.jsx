@@ -74,10 +74,10 @@ const addressHeaders = [
 
 const vehicleHeaders = [
     'Vehicle Type',
-    'Plate Code',
+    // 'Plate Code',
     'Plate No.',
     'Vehicle Brand',
-    'Vehicle Specification',
+    // 'Vehicle Specification',
 ];
 
 
@@ -651,12 +651,12 @@ const AppSignupDetailsElectric = () => {
                                             format: value =>
                                                 value || '-'
                                         },
-                                        {
-                                            key: 'vehicle_code',
-                                            label: 'Plate Code',
-                                            format: value =>
-                                                value || '-'
-                                        },
+                                        // {
+                                        //     key: 'vehicle_code',
+                                        //     label: 'Plate Code',
+                                        //     format: value =>
+                                        //         value || '-'
+                                        // },
                                         {
                                             key: 'vehicle_number',
                                             label: 'Plate No.',
@@ -669,24 +669,24 @@ const AppSignupDetailsElectric = () => {
                                             format: value =>
                                                 value || '-'
                                         },
-                                        {
-                                            key: 'vehicle_specification',
-                                            label: 'Vehicle Specification',
-                                            format: (
-                                                value,
-                                                key,
-                                                relatedKeys,
-                                                data
-                                            ) => {
-
-                                                return (
-                                                    value ||
-                                                    data?.vehicle_model ||
-                                                    '-'
-                                                );
-
-                                            }
-                                        }
+                                        // {
+                                        //     key: 'vehicle_specification',
+                                        //     label: 'Vehicle Specification',
+                                        //     format: (
+                                        //         value,
+                                        //         key,
+                                        //         relatedKeys,
+                                        //         data
+                                        //     ) => {
+                                        //
+                                        //         return (
+                                        //             value ||
+                                        //             data?.vehicle_model ||
+                                        //             '-'
+                                        //         );
+                                        //
+                                        //     }
+                                        // }
                                     ]}
                                 />
 
