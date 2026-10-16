@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import {
     postRequestWithToken,
@@ -22,6 +23,20 @@ const EditCommunity = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { stationId } = useParams();
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [cnfmPasswordVisible, setCnfmPasswordVisible] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        if (password.length > 0) {
+            setPasswordVisible(!passwordVisible);
+        }
+    };
+
+    const toggleCnfmPasswordVisibility = () => {
+        if (password.length > 0) {
+            setCnfmPasswordVisible(!cnfmPasswordVisible);
+        }
+    };
 
     const userDetails = JSON.parse(
         sessionStorage.getItem("userDetails") || "null"
@@ -1635,23 +1650,34 @@ const EditCommunity = () => {
                                         }
                                     >
 
-                                        <input
-                                            type="password"
-                                            autoComplete="new-password"
-                                            id="password"
-                                            placeholder="Leave blank to keep existing password"
-                                            className={
-                                                styles.inputField
-                                            }
-                                            value={
-                                                password
-                                            }
-                                            onChange={(e) =>
-                                                setPassword(
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
+
+                                        <div className={` ${styles.passwordContainer}`}>
+                                            <input
+                                                type={passwordVisible ? "text" : "password"}
+                                                autoComplete="new-password"
+                                                id="password"
+                                                placeholder="Password"
+                                                className={
+                                                    styles.inputField
+                                                }
+                                                value={
+                                                    password
+                                                }
+                                                onChange={(e) =>
+                                                    setPassword(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                            <div
+                                                className={styles.eyeIcon}
+                                                onClick={togglePasswordVisibility}
+                                                style={{ color: passwordVisible ? '#00B26B' : '#00B26B' }}
+                                            >
+                                                {passwordVisible ? <FaEye /> : <FaEyeSlash />}
+                                            </div>
+
+                                        </div>
 
 
                                         {errors.password && (
@@ -1695,23 +1721,32 @@ const EditCommunity = () => {
                                     }
                                 >
 
-                                    <input
-                                        type="password"
-                                        autoComplete="new-password"
-                                        id="confirmPassword"
-                                        placeholder="Confirm new password"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            confirmPassword
-                                        }
-                                        onChange={(e) =>
-                                            setConfirmPassword(
-                                                e.target.value
-                                            )
-                                        }
-                                    />
+                                    <div className={` ${styles.passwordContainer}`}>
+                                        <input
+                                            type={cnfmPasswordVisible ? "text" : "password"}
+                                            autoComplete="new-password"
+                                            id="confirmPassword"
+                                            placeholder="Confirm Password"
+                                            className={
+                                                styles.inputField
+                                            }
+                                            value={
+                                                confirmPassword
+                                            }
+                                            onChange={(e) =>
+                                                setConfirmPassword(
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <div
+                                            className={styles.eyeIcon}
+                                            onClick={toggleCnfmPasswordVisibility}
+                                            style={{ color: cnfmPasswordVisible ? '#00B26B' : '#00B26B' }}
+                                        >
+                                            {cnfmPasswordVisible ? <FaEye /> : <FaEyeSlash />}
+                                        </div>
+                                    </div>
 
 
                                     {errors.confirmPassword && (
