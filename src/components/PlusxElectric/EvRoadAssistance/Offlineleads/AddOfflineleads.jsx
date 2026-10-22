@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AddOfflineleads.module.css';
 import { postRequestWithToken } from '../../../../api/Requests';
 import { toast, ToastContainer } from 'react-toastify';
+import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import { MdOutlineCloudUpload } from "react-icons/md";
 import { AiOutlineClose } from 'react-icons/ai';
 import 'react-toastify/dist/ReactToastify.css';
@@ -60,6 +61,98 @@ const AddOfflineleads = () => {
     // =========================
     const [bookingStatus, setBookingStatus] = useState(null);
     const [bookingCompletedBy, setBookingCompletedBy] = useState('');
+
+    // =========================================================
+    // COUNTRY CODE OPTIONS
+    // =========================================================
+    const [countryCode, setCountryCode] = useState("+91");
+    const countryCodeOptions = useMemo(() => {
+        const displayNames = new Intl.DisplayNames(
+            ["en"],
+            {
+                type: "region",
+            }
+        );
+
+        return getCountries()
+            .map((country) => {
+                let countryName = country;
+
+                try {
+                    countryName =
+                        displayNames.of(country) || country;
+                } catch (error) {
+                    countryName = country;
+                }
+
+                let callingCode = "";
+
+                try {
+                    callingCode =
+                        `+${getCountryCallingCode(country)}`;
+                } catch (error) {
+                    console.error(
+                        `Unable to get calling code for ${country}`,
+                        error
+                    );
+
+                    return null;
+                }
+
+                return {
+                    value: callingCode,
+                    label: `${countryName} (${callingCode})`,
+                    countryName,
+                    country,
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) =>
+                a.countryName.localeCompare(
+                    b.countryName
+                )
+            );
+    }, []);
+
+    // =========================================================
+    // SELECTED COUNTRY CODE
+    // =========================================================
+
+    const selectedCountryCode =
+        countryCodeOptions.find(
+            (option) =>
+                option.value === countryCode
+        ) || null;
+
+    // =========================================================
+    // COUNTRY CODE CHANGE
+    // =========================================================
+
+    const handleCountryCodeChange = (
+        selectedOption
+    ) => {
+        let selectedValue = "";
+
+        if (
+            selectedOption &&
+            typeof selectedOption === "object"
+        ) {
+            selectedValue =
+                selectedOption?.value || "";
+        } else {
+            selectedValue =
+                selectedOption || "";
+        }
+
+        setCountryCode(selectedValue);
+
+        if (selectedValue) {
+            setErrors((prev) => ({
+                ...prev,
+                countryCode: "",
+            }));
+        }
+    };
 
     // =========================
     // Dropdown Options
@@ -317,29 +410,56 @@ const AddOfflineleads = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Phone Number"
-                                        className={styles.inputField}
-                                        value={phoneNumber}
-                                        maxLength={10}
-                                        onChange={(e) => {
-                                            const value =
-                                                e.target.value.replace(
-                                                    /\D/g,
-                                                    ''
-                                                );
+                                    <div className={styles.contactNumberRow}>
 
-                                            setPhoneNumber(value);
-                                        }}
-                                    />
+                                        {/* Country Code - 40% */}
+                                        <div className={styles.countryCodeWrapper}>
+                                            <CustomDropdown
+                                                options={countryCodeOptions}
+                                                value={selectedCountryCode}
+                                                onChange={handleCountryCodeChange}
+                                                placeholder="+91"
+                                            />
 
-                                    {errors.phoneNumber && (
-                                        <p className={styles.error}>
-                                            {errors.phoneNumber}
-                                        </p>
-                                    )}
+                                            {errors.countryCode && (
+                                                <p
+                                                    className={styles.error}
+                                                    style={{ color: 'red' }}
+                                                >
+                                                    {errors.countryCode}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Contact Number - 60% */}
+                                        <div className={styles.contactNumberWrapper}>
+                                            <input
+                                                type="text"
+                                                autoComplete="off"
+                                                placeholder="Phone Number"
+                                                className={styles.inputField}
+                                                value={phoneNumber}
+                                                maxLength={10}
+                                                onChange={(e) => {
+                                                    const value =
+                                                        e.target.value.replace(
+                                                            /\D/g,
+                                                            ''
+                                                        );
+
+                                                    setPhoneNumber(value);
+                                                }}
+                                            />
+
+                                            {errors.phoneNumber && (
+                                                <p className={styles.error}>
+                                                    {errors.phoneNumber}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

@@ -124,6 +124,15 @@ const SubHeader = ({ heading, fetchFilteredData, dynamicFilters, filterValues, a
                                     {addButtonProps?.heading}
                                 </div>
                             </div>
+                        ) : heading === "EV Road Assistance Offline Leads" ? (
+                            <div className={styles.addButtonSection} onClick={addButtonProps?.onClick}>
+                                <div className={styles.addButtonImg}>
+                                    <img src={Plus} alt="plus" />
+                                </div>
+                                <div className={styles.addButtonText}>
+                                    {addButtonProps?.heading}
+                                </div>
+                            </div>
                         ) : (
                             <Link to={addButtonProps?.link}>
                                 <div className={styles.addButtonSection}>

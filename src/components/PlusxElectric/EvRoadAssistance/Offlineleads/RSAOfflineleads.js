@@ -17,15 +17,15 @@ import List from '../../../SharedComponent/List/List';
 
 const statusMapping = {
     'CNF': 'Booking Confirmed',
-    // 'A': 'Assigned',
-    // 'ER': 'Enroute',
-    // 'RL': 'Charging Van Reached at Location',
-    // 'CS': 'Charging Started',
-    // 'CC': 'Charging Completed',
+    'A': 'Assigned',
+    'ER': 'Enroute',
+    'RL': 'Charging Van Reached at Location',
+    'CS': 'Charging Started',
+    'CC': 'Charging Completed',
     'PU': 'Completed',
-    // 'C': 'Cancelled',
-    // 'RO': 'Charging Van Reached at Office',
-    // 'PNR': 'Payment Not Received',
+    'C': 'Cancelled',
+    'RO': 'Charging Van Reached at Office',
+    'PNR': 'Payment Not Received',
 };
 const dynamicFilters = [
     {
@@ -54,11 +54,6 @@ const searchTerm = [
     }
 ]
 
-const addButtonProps = {
-    heading: "Add New Booking",
-    link: "/electric/ev-road-assistance/add-rsa-offline-leads"
-};
-
 const RSAOfflineleads = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
@@ -78,7 +73,28 @@ const RSAOfflineleads = () => {
     const [loading, setLoading] = useState(false);
     const [rowOptions, setRowOptions] = useState([10, 25, 50, 100]);
     const [rowSelected, setARowSelected] = useState(10);
-
+    const [showBookingModal, setShowBookingModal] = useState(false);
+    
+    const handleAddBookingClick = () => {
+        setShowBookingModal(true);
+    };
+    
+    const handleBookingCompleted = (completed) => {
+        setShowBookingModal(false);
+    
+        if (completed) {
+            navigate('/electric/ev-road-assistance/add-rsa-offline-leads');
+        } else {
+            // Change this route if "No" should open a different page.
+            navigate('/electric/ev-road-assistance/add-rsa-offline-leads');
+        }
+    };
+    
+    const addButtonProps = {
+        heading: "Add New Booking",
+        link: "/electric/ev-road-assistance/add-rsa-offline-leads",
+        onClick: handleAddBookingClick,
+    };
     const handleCancelClick = (bookingId, riderId) => {
         setSelectedBookingId(bookingId);
         setSelectedRiderId(riderId)
@@ -227,6 +243,37 @@ const RSAOfflineleads = () => {
     };
     return (
         <div className='main-container'>
+            {showBookingModal && (
+                <div className={style.modalOverlay}>
+                    <div className={style.bookingModal}>
+                        <button
+                            className={style.closeButton}
+                            onClick={() => setShowBookingModal(false)}
+                            aria-label="Close modal"
+                        >
+                            &times;
+                        </button>
+
+                        <h3>Is booking completed?</h3>
+
+                        <div className={style.modalActions}>
+                            <button
+                                className={style.editCancelBtn}
+                                onClick={() => handleBookingCompleted(false)}
+                            >
+                                No
+                            </button>
+
+                            <button
+                                className={style.editSubmitBtn}
+                                onClick={() => handleBookingCompleted(true)}
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <SubHeader
                 heading="EV Road Assistance Offline Leads"
                 fetchFilteredData={fetchFilteredData}
