@@ -46,7 +46,6 @@ import FailedRideDetails from "../components/RideBooking/RideDetails/FailedRideD
 import InvoiceList from "../components/RideBooking/RideList/InvoiceList.jsx";
 import RideInvoiceDetails from "../components/RideBooking/Invoice/InvoiceDetails.jsx";
 import SupportRequestList from "../components/RideBooking/RideList/SupportRequestList.jsx";
-import SupportRequestList from "../components/RideBooking/RideList/SupportRequestList.jsx";
 import SupportRequestDetails from "../components/RideBooking/RideDetails/SupportRequestDetails.jsx";
 import RefundRequestList from "../components/RideBooking/RideList/RefundRequestList.jsx";
 import RefundRequestDetails from "../components/RideBooking/RideDetails/RefundRequestDetails.jsx";
