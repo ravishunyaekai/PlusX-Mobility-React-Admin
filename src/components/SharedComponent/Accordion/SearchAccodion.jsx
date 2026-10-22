@@ -17,14 +17,16 @@ const SearchAccodion = ({ type, isOpen, fetchFilteredData, dynamicFilters, filte
         }
     }, [isOpen]);
 
-    const handleInputChange = (e) => {        
+    console.log("filterValues", filterValues, searchTerm)
+    const handleInputChange = (e) => {
+        console.log("called filterValues", filterValues)
         const { name, value } = e.target;
         fetchFilteredData({ ...filterValues, [name]: value });
     };
 
     const handleBlur = () => {
         fetchFilteredData(filterValues);
-        setIsOpenDropdown(false); 
+        setIsOpenDropdown(false);
     };
 
     return (
@@ -47,29 +49,29 @@ const SearchAccodion = ({ type, isOpen, fetchFilteredData, dynamicFilters, filte
                                                 <div key={filter.name} className={`col-12 ${styles.filterItem}`}>
                                                     {/* <label className={styles.filterLabel} htmlFor={filter.name}>Search</label> */}
                                                     {filter.type === 'select' ? (
-                                                        <input 
-                                                        className={styles.filterInput} 
-                                                        type={filter.type} 
-                                                        id={filter.name} 
-                                                        name={filter.name} 
-                                                        value={filterValues[filter.name] || ''}
-                                                        onChange={handleInputChange}
-                                                        onBlur={handleBlur}
-                                                        autoComplete='off'
-                                                        placeholder='Search'
-                                                    />
+                                                        <input
+                                                            className={styles.filterInput}
+                                                            type={filter.type}
+                                                            id={filter.name}
+                                                            name={filter.name}
+                                                            value={filterValues[filter.name] || ''}
+                                                            onChange={handleInputChange}
+                                                            onBlur={handleBlur}
+                                                            autoComplete='off'
+                                                            placeholder='Search'
+                                                        />
                                                     ) : (
-                                                        <input 
-                                                        className={styles.filterInput} 
-                                                        type={filter.type} 
-                                                        id={filter.name} 
-                                                        name={filter.name} 
-                                                        value={filterValues[filter.name] || ''}
-                                                        onChange={handleInputChange}
-                                                        onBlur={handleBlur}
-                                                        autoComplete='off'
-                                                        placeholder='Search'
-                                                    />
+                                                        <input
+                                                            className={styles.filterInput}
+                                                            type={filter.type}
+                                                            id={filter.name}
+                                                            name={filter.name}
+                                                            value={filterValues[filter.name] || ''}
+                                                            onChange={handleInputChange}
+                                                            onBlur={handleBlur}
+                                                            autoComplete='off'
+                                                            placeholder='Search'
+                                                        />
                                                     )}
                                                 </div>
                                             ))}

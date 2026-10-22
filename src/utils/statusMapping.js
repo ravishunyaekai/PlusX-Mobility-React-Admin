@@ -8,6 +8,20 @@ export const statusCode = {
   C   : "C",
 }
 
+export const formatIndianNumber = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return value;
+  }
+
+  return number.toLocaleString("en-IN");
+};
+
 export const statusMapping = {
   [statusCode.CMP] : "Completed",
   [statusCode.ON]  : "On Going",

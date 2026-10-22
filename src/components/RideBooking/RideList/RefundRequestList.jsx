@@ -17,6 +17,7 @@ import Loader from "../../SharedComponent/Loader/Loader.jsx";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
 import View from '../../../assets/images/ViewEye.svg'
 import AddDriver from '../../../assets/images/AddDriver.svg';
+import { formatIndianNumber } from '../../../utils/statusMapping.js';
 
 // import { utils, writeFile } from 'xlsx';
 // import axios from 'axios';
@@ -123,29 +124,31 @@ const RefundRequestList = () => {
         fetchList(currentPage, filters, scheduleFilters);
     }, [currentPage, filters, scheduleFilters]);
 
-const handleApprove = (refundRequestId) => {
+    const handleApprove = async (refundRequestId) => {
 
-    const obj = {
-        refund_request_id: refundRequestId,
-        userId: userDetails?.user_id,
-        email: userDetails?.email
-    };
-    console.log("Payload =>", obj);
+        const obj = {
+            refund_request_id: refundRequestId,
+            userId: userDetails?.user_id,
+            email: userDetails?.email
+        };
+        console.log("Payload =>", obj);
 
-    postRequestWithToken(
-        'approve-refund-request',
-        obj,
-        (response) => {
+        await postRequestWithToken(
+            'approve-refund-request',
+            obj,
+            (response) => {
 
-            if (response.status === 1 || response.code === 200) {
-                alert('Refund approved successfully');
-                fetchList(currentPage, filters);
-            } else {
-                alert(response.message);
+                if (response.status === 1 || response.code === 200) {
+                    alert('Refund approved successfully');
+                    fetchList(currentPage, filters);
+                } else {
+                    alert(response.message);
+                }
             }
-        }
-    );
-};
+        );
+
+        fetchList(currentPage, filters, scheduleFilters);
+    };
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
     };
@@ -191,39 +194,40 @@ const handleApprove = (refundRequestId) => {
                                 { key: 'contact_no', label: 'Mobile No.' },
 
                                 // { key: 'requested_amount', label: 'Refundable Amount' },
-                                { key: 'refund_amount', label: 'Refundable Amount' },
+                                { key: 'refund_amount', label: 'Refundable Amount',
+                                    format: (refund_amount) => (refund_amount ? `INR ${formatIndianNumber(refund_amount)}` : formatIndianNumber(refund_amount)) },
                                 {
-                                key: 'status',
-                                label: 'Status',
-                                format: (status) => (
-                                    <span
-                                    className={
-                                        status === 'approved'
-                                        ? styles.approvedStatus
-                                        : styles.pendingStatus
-                                    }
-                                    >
-                                    {status === 'approved' ? 'Approved' : 'Pending'}
-                                    </span>
-                                )
+                                    key: 'status',
+                                    label: 'Status',
+                                    format: (status) => (
+                                        <span
+                                            className={
+                                                status === 'approved' || status === 'rejected'
+                                                    ? styles.approvedStatus
+                                                    : styles.pendingStatus
+                                            }
+                                        >
+                                            {status === 'approved' ? 'Approved' : status == 'rejected' ? 'Rejected' : 'Pending'}
+                                        </span>
+                                    )
                                 },
-                        // {
-                        //     key: 'id',
-                        //     label: 'Action',
-                        //     relatedKeys: ['status'],
-                        //     format: (id, status) => (
-                        //         status?.toLowerCase() === 'approved'
-                        //             ? '-'
-                        //             : (
-                        //                 <button
-                        //                     className={styles.approveBtn}
-                        //                     onClick={() => handleApprove(id)}
-                        //                 >
-                        //                     Approve
-                        //                 </button>
-                        //             )
-                        //     )
-                        // }
+                                // {
+                                //     key: 'id',
+                                //     label: 'Action',
+                                //     relatedKeys: ['status'],
+                                //     format: (id, status) => (
+                                //         status?.toLowerCase() === 'approved'
+                                //             ? '-'
+                                //             : (
+                                //                 <button
+                                //                     className={styles.approveBtn}
+                                //                     onClick={() => handleApprove(id)}
+                                //                 >
+                                //                     Approve
+                                //                 </button>
+                                //             )
+                                //     )
+                                // }
                                 //{ key: 'status', label: 'Status', format: (status) => supportStatus[status] },
                                 //{ key: 'issue_text', label: 'Issue' },
                                 // {

@@ -7,6 +7,7 @@ import BookingDetailsAccordion from '../../../SharedComponent/BookingDetails/Boo
 import Loader from '../../../SharedComponent/Loader/Loader.jsx';
 import { postRequestWithToken } from '../../../../api/Requests';
 import moment from 'moment';
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const statusMapping = {
     'PNR': 'Payment Not Received',
@@ -90,10 +91,10 @@ const RoadAssistanceBookingDetails = () => {
 
     }
     const sectionContent1 = {
-        bookingStatus: statusMapping[bookingDetails?.order_status] || bookingDetails?.order_status,
-        price: bookingDetails?.price + " INR",
-        vehicle: bookingDetails?.vehicle_data,
-        address: (
+        bookingStatus : statusMapping[bookingDetails?.order_status] || bookingDetails?.order_status,
+        price         : formatIndianNumber(bookingDetails?.price)+" INR",
+        vehicle        : bookingDetails?.vehicle_data,
+        address : (
             <a
                 href={`https://www.google.com/maps?q=${bookingDetails?.pickup_latitude},${bookingDetails?.pickup_longitude}`}
                 target="_blank"

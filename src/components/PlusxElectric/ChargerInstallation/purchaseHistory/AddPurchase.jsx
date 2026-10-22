@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from 'react-router-dom';
 import styles from './AddPurchase.module.css';
 
@@ -8,6 +8,7 @@ import InputMask from 'react-input-mask';
 import { postRequestWithTokenAndFile, postRequestWithToken } from '../../../../api/Requests';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import CustomDropdown from "../../../SharedComponent/UI/CustomDropdown/CustomDropdown";
 import MultiCustomDropdown from "../../../SharedComponent/UI/CustomMultiDropdown/MultiSelectDropdown";
 
@@ -16,43 +17,135 @@ import PdfIcon from "../../../../assets/images/PdfIcon.svg";
 import UploadIcon from '../../../../assets/images/uploadicon.svg';
 
 const AddPurchase = () => {
-    const userDetails            = JSON.parse(sessionStorage.getItem('userDetails'));
-    const navigate               = useNavigate();
-    const [file, setFile]        = useState(null);
-    const [errors, setErrors]    = useState({});
-    const [loading, setLoading]  = useState(false);
-    const brandDropdownRef       = useRef(null);
+    const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
+    const navigate = useNavigate();
+    const [file, setFile] = useState(null);
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+    const brandDropdownRef = useRef(null);
 
-    const [customerName, setCustomerName]       = useState('');
-    const [customerEmail, setCustomerEmail]     = useState('');
-    const [customerMobile, setCustomerMobile]   = useState(null);
+    const [customerName, setCustomerName] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('');
+    const [countryCode, setCountryCode] = useState("+91");
+    const [customerMobile, setCustomerMobile] = useState(null);
     const [customerAddress, setCustomerAddress] = useState('');
 
-    const [productName, setProductName]           = useState('');
-    const [outputPower, setoutputPower]           = useState([]);
-    const [price, setPrice]                       = useState('');
-    const [typeOfService, setTypeOfService]       = useState([]);
-    const [purchaseDate, setPurchaseDate]         = useState('');
-    const [warrantyExpires, setWarrantyExpires]   = useState('');
+    const [productName, setProductName] = useState('');
+    const [outputPower, setoutputPower] = useState([]);
+    const [price, setPrice] = useState('');
+    const [typeOfService, setTypeOfService] = useState([]);
+    const [purchaseDate, setPurchaseDate] = useState('');
+    const [warrantyExpires, setWarrantyExpires] = useState('');
     const [installationDate, setInstallationDate] = useState('');
- 
-    const [purchaseInvoice, setPurchaseInvoice]             = useState('');
-    const [installationInvoice, setInstallationInvoice]     = useState('');
+
+    const [purchaseInvoice, setPurchaseInvoice] = useState('');
+    const [installationInvoice, setInstallationInvoice] = useState('');
     const [completionCertificate, setCompletionCertificate] = useState('');
 
-    const [purchaseInfo, setPurchaseInfo]         = useState(false);
+    const [purchaseInfo, setPurchaseInfo] = useState(false);
     const [installationInfo, setInstallationInfo] = useState(false);
+    // =========================================================
+    // COUNTRY CODE OPTIONS
+    // =========================================================
+
+    const countryCodeOptions = useMemo(() => {
+        const displayNames = new Intl.DisplayNames(
+            ["en"],
+            {
+                type: "region",
+            }
+        );
+
+        return getCountries()
+            .map((country) => {
+                let countryName = country;
+
+                try {
+                    countryName =
+                        displayNames.of(country) || country;
+                } catch (error) {
+                    countryName = country;
+                }
+
+                let callingCode = "";
+
+                try {
+                    callingCode =
+                        `+${getCountryCallingCode(country)}`;
+                } catch (error) {
+                    console.error(
+                        `Unable to get calling code for ${country}`,
+                        error
+                    );
+
+                    return null;
+                }
+
+                return {
+                    value: callingCode,
+                    label: `${countryName} (${callingCode})`,
+                    countryName,
+                    country,
+                };
+            })
+            .filter(Boolean)
+            .sort((a, b) =>
+                a.countryName.localeCompare(
+                    b.countryName
+                )
+            );
+    }, []);
+
+    // =========================================================
+    // SELECTED COUNTRY CODE
+    // =========================================================
+
+    const selectedCountryCode =
+        countryCodeOptions.find(
+            (option) =>
+                option.value === countryCode
+        ) || null;
+
+    // =========================================================
+    // COUNTRY CODE CHANGE
+    // =========================================================
+
+    const handleCountryCodeChange = (
+        selectedOption
+    ) => {
+        let selectedValue = "";
+
+        if (
+            selectedOption &&
+            typeof selectedOption === "object"
+        ) {
+            selectedValue =
+                selectedOption?.value || "";
+        } else {
+            selectedValue =
+                selectedOption || "";
+        }
+
+        setCountryCode(selectedValue);
+
+        if (selectedValue) {
+            setErrors((prev) => ({
+                ...prev,
+                countryCode: "",
+            }));
+        }
+    };
 
     const powerOption = [
-        { value : '7KW',   label: '7KW'  },
-        { value : '12KW',  label: '12KW' },
-        { value : '20KW',  label: '20KW' },
-        { value : '22KW',  label: '22KW' },
+        { value: '7KW', label: '7KW' },
+        { value: '12KW', label: '12KW' },
+        { value: '20KW', label: '20KW' },
+        { value: '22KW', label: '22KW' },
     ];
     const serviceOption = [
-        { value : 'Charger & Installation', label: 'Charger & Installation'  },
-        { value : 'Charger Only',           label: 'Charger Only' },
-        { value : 'Installation Only',      label: 'Installation Only' },
+        { value: 'Charger & Installation', label: 'Charger & Installation' },
+        { value: 'Charger Only', label: 'Charger Only' },
+        { value: 'Installation Only', label: 'Installation Only' },
     ];
     useEffect(() => {
         if (!userDetails || !userDetails.access_token) {
@@ -65,18 +158,18 @@ const AddPurchase = () => {
     }
     const validateForm = () => {
         const fields = [
-            { name: "customerName",     value: customerName,     errorMessage: "Customer Name is required." },
-            { name: "customerEmail",    value: customerEmail,    errorMessage: "Email is required.", },
-            { name: "customerMobile",   value: customerMobile,   errorMessage: "Contact No. is required."},
-            { name: "customerAddress",  value: customerAddress,  errorMessage: "Address is required."},
-            
-            { name: "productName",      value: productName,      errorMessage: "Product Name is required." },
-            { name: "outputPower",      value: outputPower,      errorMessage: "Output Power is required.",     isArray: true },
-            { name: "price",            value: price,            errorMessage: "Price is required." },
-            { name: "typeOfService",    value: typeOfService,    errorMessage: "Type Of Service is required.",  isArray: true  },
-            { name: "purchaseDate",     value: purchaseDate,     errorMessage: "Date of Purchase is required.", },
-            { name: "warrantyExpires",  value: warrantyExpires,  errorMessage: "Warranty Expiry is required.",},
-            { name: "installationDate", value: installationDate, errorMessage: "Date of Installation is required.",},
+            { name: "customerName", value: customerName, errorMessage: "Customer Name is required." },
+            { name: "customerEmail", value: customerEmail, errorMessage: "Email is required.", },
+            { name: "customerMobile", value: customerMobile, errorMessage: "Contact No. is required." },
+            { name: "customerAddress", value: customerAddress, errorMessage: "Address is required." },
+
+            { name: "productName", value: productName, errorMessage: "Product Name is required." },
+            { name: "outputPower", value: outputPower, errorMessage: "Output Power is required.", isArray: true },
+            { name: "price", value: price, errorMessage: "Price is required." },
+            { name: "typeOfService", value: typeOfService, errorMessage: "Type Of Service is required.", isArray: true },
+            { name: "purchaseDate", value: purchaseDate, errorMessage: "Date of Purchase is required.", },
+            { name: "warrantyExpires", value: warrantyExpires, errorMessage: "Warranty Expiry is required.", },
+            { name: "installationDate", value: installationDate, errorMessage: "Date of Installation is required.", },
         ];
         // const newErrors = fields.reduce((errors, { name, value, errorMessage, isArray }) => {
         //     if ((isArray && (!value || value.length === 0)) || (!isArray && !value)) {
@@ -89,10 +182,10 @@ const AddPurchase = () => {
         // return Object.keys(newErrors).length === 0;
 
         const newErrors = fields.reduce((errors, { name, value, errorMessage, isArray }) => {
-            if ( (!isArray && !value) || ( isArray && (!value || value.length === 0) )) {
+            if ((!isArray && !value) || (isArray && (!value || value.length === 0))) {
                 errors[name] = errorMessage;
             }
-            if( (name === "purchaseDate" && purchaseInfo === false ) || (name === "warrantyExpires" && purchaseInfo === false) || (name === "installationDate" && installationInfo === false)){
+            if ((name === "purchaseDate" && purchaseInfo === false) || (name === "warrantyExpires" && purchaseInfo === false) || (name === "installationDate" && installationInfo === false)) {
                 delete errors[name];
             }
             return errors;
@@ -105,7 +198,7 @@ const AddPurchase = () => {
         setLoading(true);
 
         if (validateForm()) {
-        
+
             const formData = new FormData();
             formData.append("userId", userDetails?.user_id);
             formData.append("email", userDetails?.email);
@@ -113,16 +206,17 @@ const AddPurchase = () => {
             formData.append("customer_name", customerName);
             formData.append("customer_email", customerEmail);
             formData.append("customer_mobile", customerMobile);
+            formData.append("country_code", countryCode);
             formData.append("customer_address", customerAddress);
 
             formData.append("product_name", productName);
-            formData.append("output_Power", JSON.stringify(outputPower) );
+            formData.append("output_Power", JSON.stringify(outputPower));
             formData.append("price", price);
-            formData.append("type_of_service", JSON.stringify(typeOfService) );
+            formData.append("type_of_service", JSON.stringify(typeOfService));
             formData.append("purchase_date", purchaseDate);
             formData.append("warranty_expiry_date", warrantyExpires);
             formData.append("installation_date", installationDate);
- 
+
             if (purchaseInvoice) {
                 formData.append("purchase_invoice_pdf", purchaseInvoice);
             }
@@ -134,61 +228,61 @@ const AddPurchase = () => {
             }
             postRequestWithTokenAndFile('add-purchase-history', formData, async (response) => {
                 if (response.status === 1) {
-                    toast(response.message, {type:'success'})
+                    toast(response.message, { type: 'success' })
                     setTimeout(() => {
                         setLoading(false);
                         navigate('/electric/charger-installation/purchase-customer-list');
                     }, 1000);
                 } else {
-                    toast(response.message, {type:'error'})
+                    toast(response.message, { type: 'error' })
                     console.log('Error in add-accessories API:', response);
                     setLoading(false);
                 }
-            } )
+            })
         } else {
             toast.error("Some fields are missing");
             setLoading(false);
         }
-    };    
-    
+    };
+
     const handlePUChange = (event) => {
         const selectedFile = event.target.files[0];
-        if (selectedFile && selectedFile.type.startsWith('application/')) { 
+        if (selectedFile && selectedFile.type.startsWith('application/')) {
             setPurchaseInvoice(selectedFile);
             setErrors((prev) => ({ ...prev, purchaseInvoice: "" }));
         } else {
-            toast('Please upload a valid pdf file.', {type:'error'})
+            toast('Please upload a valid pdf file.', { type: 'error' })
         }
     };
     const handleInstallationChange = (event) => {
         const selectedFile = event.target.files[0];
-        if (selectedFile && selectedFile.type.startsWith('application/')) { 
+        if (selectedFile && selectedFile.type.startsWith('application/')) {
             setInstallationInvoice(selectedFile);
             setErrors((prev) => ({ ...prev, installationInvoice: "" })); //purchaseInvoice
         } else {
-            toast('Please upload a valid pdf file.', {type:'error'})
+            toast('Please upload a valid pdf file.', { type: 'error' })
         }
     };
     const handleCompletionChange = (event) => {
         const selectedFile = event.target.files[0];
-        if (selectedFile && selectedFile.type.startsWith('application/')) { 
+        if (selectedFile && selectedFile.type.startsWith('application/')) {
             setCompletionCertificate(selectedFile);
             setErrors((prev) => ({ ...prev, completionCertificate: "" }));
         } else {
-            toast('Please upload a valid pdf file.', {type:'error'})
+            toast('Please upload a valid pdf file.', { type: 'error' })
         }
     };
-    const handleRemovePurchaseInvoice       = () => setPurchaseInvoice(null);
-    const handleRemoveInstallationInvoice   = () => setInstallationInvoice(null);
+    const handleRemovePurchaseInvoice = () => setPurchaseInvoice(null);
+    const handleRemoveInstallationInvoice = () => setInstallationInvoice(null);
     const handleRemoveCompletionCertificate = () => setCompletionCertificate(null);
-    
-    const handleOutputPower = (selectedOptions) =>{
+
+    const handleOutputPower = (selectedOptions) => {
         setoutputPower(selectedOptions)
     }
     const handleServiceType = (selectedOptions) => {
-        
+
         let labels = selectedOptions.map(item => item.label);
-        labels     = labels.join(","); 
+        labels = labels.join(",");
 
         setPurchaseInfo(labels.includes("Charger"));
         setInstallationInfo(labels.includes("Installation"));
@@ -214,15 +308,60 @@ const AddPurchase = () => {
                             </div>
                         </div>
                         <div className={`col-lg-6`}>
-                            <label htmlFor="customerMobile" className={styles.labelText}>Contact No.</label>
+                            <label className={styles.labelText}>
+                                Contact No.
+                            </label>
+
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <input type="text" autoComplete="off" id="customerMobile" placeholder="Contact No." className={styles.inputField} value={customerMobile}
-                                        onChange={(e) => {
-                                        const value = e.target.value.replace(/\D/g, '');
-                                        setCustomerMobile(value.slice(0, 12)); 
-                                    }} />
-                                    {errors.customerMobile && (customerMobile?.length || 0 < 10) && <p className={styles.error} style={{ color: 'red' }}>{errors.customerMobile}</p>}
+                                    <div className={styles.contactNumberRow}>
+
+                                        {/* Country Code - 40% */}
+                                        <div className={styles.countryCodeWrapper}>
+                                            <CustomDropdown
+                                                options={countryCodeOptions}
+                                                value={selectedCountryCode}
+                                                onChange={handleCountryCodeChange}
+                                                placeholder="+91"
+                                            />
+
+                                            {errors.countryCode && (
+                                                <p
+                                                    className={styles.error}
+                                                    style={{ color: 'red' }}
+                                                >
+                                                    {errors.countryCode}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Contact Number - 60% */}
+                                        <div className={styles.contactNumberWrapper}>
+                                            <input
+                                                type="text"
+                                                autoComplete="off"
+                                                id="customerMobile"
+                                                placeholder="Contact No."
+                                                className={styles.inputField}
+                                                value={customerMobile || ''}
+                                                onChange={(e) => {
+                                                    const value = e.target.value.replace(/\D/g, '');
+                                                    setCustomerMobile(value.slice(0, 12));
+                                                }}
+                                            />
+
+                                            {errors.customerMobile &&
+                                                (customerMobile?.length || 0) < 10 && (
+                                                    <p
+                                                        className={styles.error}
+                                                        style={{ color: 'red' }}
+                                                    >
+                                                        {errors.customerMobile}
+                                                    </p>
+                                                )}
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -263,7 +402,7 @@ const AddPurchase = () => {
                             <label htmlFor="outputPower" className={styles.labelText}>Output Power</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <MultiCustomDropdown options={powerOption} value={outputPower} onChange={handleOutputPower} labelledBy="Output Power" closeOnChangedValue={false} closeOnSelect={false}/>
+                                    <MultiCustomDropdown options={powerOption} value={outputPower} onChange={handleOutputPower} labelledBy="Output Power" closeOnChangedValue={false} closeOnSelect={false} />
                                     {errors.outputPower && outputPower.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.outputPower}</p>}
                                 </div>
                             </div>
@@ -284,14 +423,14 @@ const AddPurchase = () => {
                             <label htmlFor="service" className={styles.labelText}>Type of Service</label>
                             <div className={`row`}>
                                 <div className={`col-xl-10 col-lg-12`}>
-                                    <MultiCustomDropdown options={serviceOption} value={typeOfService} onChange={handleServiceType} labelledBy="Type of Service" closeOnChangedValue={false} closeOnSelect={false} enableSelectAll/>
+                                    <MultiCustomDropdown options={serviceOption} value={typeOfService} onChange={handleServiceType} labelledBy="Type of Service" closeOnChangedValue={false} closeOnSelect={false} enableSelectAll />
                                     {errors.typeOfService && typeOfService.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.typeOfService}</p>}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    { purchaseInfo && (
+                    {purchaseInfo && (
                         <div className={`row`}>
                             <div className={`col-lg-6`}>
                                 <label htmlFor="propertyTypeOption" className={styles.labelText}>Purchase Date</label>
@@ -308,7 +447,7 @@ const AddPurchase = () => {
                                                 if (purchaseDate.length === 10) {
                                                     const [day, month, year] = purchaseDate.split('-');
                                                     const isValidDate = !isNaN(Date.parse(`${year}-${month}-${day}`)) &&
-                                                    day <= 31 && month <= 12; 
+                                                        day <= 31 && month <= 12;
                                                     if (!isValidDate) {
                                                         setErrors((prevErrors) => ({
                                                             ...prevErrors,
@@ -316,7 +455,7 @@ const AddPurchase = () => {
                                                         }));
                                                     }
                                                 }
-                                            }}/>
+                                            }} />
                                         {errors.purchaseDate && purchaseDate == null && <p className={styles.error} style={{ color: 'red' }}>{errors.purchaseDate}</p>}
                                     </div>
                                 </div>
@@ -336,7 +475,7 @@ const AddPurchase = () => {
                                                 if (warrantyExpires.length === 10) {
                                                     const [day, month, year] = warrantyExpires.split('-');
                                                     const isValidDate = !isNaN(Date.parse(`${year}-${month}-${day}`)) &&
-                                                    day <= 31 && month <= 12; 
+                                                        day <= 31 && month <= 12;
                                                     if (!isValidDate) {
                                                         setErrors((prevErrors) => ({
                                                             ...prevErrors,
@@ -353,7 +492,7 @@ const AddPurchase = () => {
                         </div>
                     )}
 
-                    { installationInfo && (
+                    {installationInfo && (
                         <div className={`row`}>
                             <div className={`col-lg-6`}>
                                 <label htmlFor="Date" className={styles.labelText}>Date of Installation</label>
@@ -370,7 +509,7 @@ const AddPurchase = () => {
                                                 if (installationDate.length === 10) {
                                                     const [day, month, year] = installationDate.split('-');
                                                     const isValidDate = !isNaN(Date.parse(`${year}-${month}-${day}`)) &&
-                                                    day <= 31 && month <= 12; 
+                                                        day <= 31 && month <= 12;
                                                     if (!isValidDate) {
                                                         setErrors((prevErrors) => ({
                                                             ...prevErrors,
@@ -467,18 +606,18 @@ const AddPurchase = () => {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className={`row`}>
                         <div className={`col-xl-11 col-lg-12`}>
                             <div className={`row`}>
                                 <div className={`col-lg-12 ${styles.editButton}`}>
                                     <button className={styles.editCancelBtn} onClick={() => handleCancel()}>Cancel</button>
                                     <button disabled={loading} type="submit" className={styles.editSubmitBtn}>
-                                    {loading ? (
-                                        <> <span className="spinner-border spinner-border-sm me-2"></span> Submit... </>
-                                    ) : (
-                                        "Submit"
-                                    )}
+                                        {loading ? (
+                                            <> <span className="spinner-border spinner-border-sm me-2"></span> Submit... </>
+                                        ) : (
+                                            "Submit"
+                                        )}
                                     </button>
                                 </div>
                             </div>

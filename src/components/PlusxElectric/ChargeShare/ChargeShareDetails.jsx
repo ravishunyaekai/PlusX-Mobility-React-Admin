@@ -11,6 +11,7 @@ import moment from 'moment';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from '../../SharedComponent/Loader/Loader.jsx';
+import { formatIndianNumber } from '../../../utils/statusMapping.js';
 
     const formatTime = (timeStr) => {
         if (timeStr === "Closed") return "Closed";
@@ -230,7 +231,7 @@ const ChargeShareDetails = () => {
         accessPermit     : bookingDetails?.accessPermit == 1 ? 'Yes' : 'No' || '-',
         park_no         : bookingDetails?.park_no || "-",
         park_floor      : bookingDetails?.park_floor||"-",
-        chargeRecomendRate     :bookingDetails?.chargeRecomendRate ? `₹ ${bookingDetails?.chargeRecomendRate || 0} per kW` : "",
+        chargeRecomendRate     :bookingDetails?.chargeRecomendRate ? `₹ ${formatIndianNumber(bookingDetails?.chargeRecomendRate || 0)} per kW` : "",
         charger_status  : bookingDetails?.charger_status|| "",
         open_days       : openDays,
         open_time       : openTimes

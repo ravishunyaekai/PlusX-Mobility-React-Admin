@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setActiveCardIndex } from "../../../../store/dashboardSlice";
 
 // Card Images
+import AppSignUpImage from "../../../../assets/images/DashboardCardIcons/Total App Sign Up.svg";
 import HomeCharging from "../../../../assets/images/DashboardCardIcons/HomeChargerBooking.svg";
 import ChargerInstallationImage from "../../../../assets/images/DashboardCardIcons/Charger Installation.svg";
 import EVRoadAssitanceImage from "../../../../assets/images/DashboardCardIcons/Total EV Road Assitance.svg";
@@ -35,6 +36,12 @@ const DashboardCard = ({ details }) => {
   };
 
 const cardData = [
+    {
+        icon  : AppSignUpImage,
+        count : details?.find((item) => item.module === "App Sign Up")?.count || 0,
+        title : "App Sign Up",
+        route : "/electric/app-signup/app-signup-list",
+    },
     {
         icon  : HomeCharging,
         count : details?.find((item) => item.module === "Home Charging Bookings")?.count || 0,

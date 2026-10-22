@@ -7,13 +7,15 @@ import { postRequestWithToken } from '../../../api/Requests';
 import moment from 'moment';
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Loader from "../../SharedComponent/Loader/Loader";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList';
 
 const SignupList = () => {
     const userDetails                     = JSON.parse(sessionStorage.getItem('userDetails')); 
     const navigate                        = useNavigate();
+    const location                        = useLocation();
+    const panel                           = location.pathname.startsWith('/mobility') ? 'mobility' : '';
     const [signupList, setSignupList]     = useState([]);
     const [currentPage, setCurrentPage]   = useState(1);
     const [totalPages, setTotalPages]     = useState(1);
@@ -34,10 +36,11 @@ const SignupList = () => {
             userId  : userDetails?.user_id,
             email   : userDetails?.email,
             page_no : page,
+            panel   : panel,
             ...appliedFilters,
         };
 
-        postRequestWithToken('mobility-rider-list', obj, (response) => {
+        postRequestWithToken(window?.location?.pathname?.includes('electric')?'electric-customer-list':'mobility-rider-list', obj, (response) => {
             if (response.code === 200) {
                 setSignupList(response?.data || []);  
                 setEmiratesList(response.emirates || []);
@@ -57,7 +60,7 @@ const SignupList = () => {
             return; 
         }
         fetchSignupUsers(currentPage, filters);
-    }, [currentPage, filters, refresh]);
+    }, [currentPage, filters, refresh, panel]);
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);

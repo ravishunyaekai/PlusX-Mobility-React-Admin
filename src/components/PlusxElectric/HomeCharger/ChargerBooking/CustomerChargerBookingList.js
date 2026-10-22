@@ -214,7 +214,7 @@ const CustomerChargerBookingList = () => {
                                 }
                             },
                             { key: 'user_name', label: 'Customer Name' },
-                            // { key: 'service_price', label: 'Price', format: (price) => (price ? `AED ${price}` : '') },   
+                            // { key: 'service_price', label: 'Price', format: (price) => (price ? `INR ${price}` : '') },   
                             { key: 'status', label: 'Status', format: (status) => statusMapping[status] || status },                    
                             { key: 'rsa_name', label: 'Driver Name' }, 
                             {

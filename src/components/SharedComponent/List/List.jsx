@@ -88,7 +88,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     {(pageHeading === "Total App Signup List") && (
                                         <>
                                             {access.includes('view') && (
-                                                <img src={View} alt="view" onClick={() => handleClickEvent('/mobility/app-signup/app-signup-details', data.rider_id)} />
+                                                <img src={View} alt="view" onClick={() => handleClickEvent(window?.location?.pathname?.includes('/electric/app-signup') ? '/electric/app-signup/app-signup-details' : '/mobility/app-signup/app-signup-details', data.rider_id)} />
                                             )}
                                         </>
                                     )}
@@ -103,6 +103,20 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                             {/* { access.includes('delete') && (
                                                 <img src={Delete} alt='delete' onClick={() => onDeleteSlot(data.station_id)} />
                                             )} */}
+                                        </>
+                                    )}
+                                    {pageHeading === "Mobile EV Charging Bookings" && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/mobile-ev-charging/charging-booking-details', data?.booking_id )} />
+                                            )}
+                                        </>
+                                    )}
+                                    {pageHeading === "EV Road Assistance Bookings" && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/ev-road-assistance/booking-details', data?.request_id )} />
+                                            )}
                                         </>
                                     )}
 
@@ -156,7 +170,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                     )}
 
                                     {pageHeading === 'Refund Request List' && (
-                                        data.status?.toLowerCase() !== 'approved' ? (
+                                        (data.status?.toLowerCase() !== 'approved' && data.status?.toLowerCase() !== 'rejected') ? (
                                             <button
                                                 className={styles.approveBtn}
                                                 style={{
@@ -176,6 +190,30 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                         ) : (
                                             "-"
                                         )
+                                    )}
+
+                                    {pageHeading === 'Total Session History' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/session-details/', data.booking_id)} />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {pageHeading === 'Total Invoice History' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/invoice-details/', data.invoice_id)} />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {pageHeading === 'Resident List' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/resident-details/', data.resident_id)} />
+                                            )}
+                                        </>
                                     )}
 
                                     {pageHeading === 'Ev Road Assistance Invoice List' && (
@@ -261,7 +299,7 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                                 <img src={View} alt="view" onClick={() => handleClickEvent('/electric/charger-installation/purchase-customer-details', data.purchase_id)} />
                                             )}
                                             {access.includes('edit') && (
-                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/charger-installation/purchase-edit', data.charger_id)} />
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/charger-installation/purchase-edit', data.purchase_id)} />
                                             )}
                                         </>
                                     )}
@@ -276,6 +314,36 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                         </>
                                     )}
 
+
+                                    {pageHeading === 'Total Community List' && (
+                                        <>
+                                            {access.includes('edit') && (
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/community/edit-community', data.community_id)} />
+                                            )}
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/community-details', data.community_id)} />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {pageHeading === 'Total Resident List' && (
+                                        <>
+                                            {access.includes('edit') && (
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/community/edit-resident', data.resident_id)} />
+                                            )}
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/resident-details', data.resident_id)} />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {pageHeading === 'Total Invoice List' && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/community/invoice-details', data.invoice_id)} />
+                                            )}
+                                        </>
+                                    )}
 
                                     {pageHeading === 'Offer List' && (
                                         <>

@@ -106,7 +106,7 @@ const AccordionFilter = ({ type, isOpen, fetchFilteredData, dynamicFilters, filt
                                 >
                                     <Card.Body>
                                         <form className={styles.filterForm}>
-                                            { (type === 'Driver Details' || type === "Mobile EV Charging Failed Booking List" || type === "Mobile EV Charging Area List" || type === "Mobile EV Charging Van List" || type === "Mobile EV Charging Booking List" || type ==="Invoice List") && (
+                                            { (type === 'Driver Details' || type === "Mobile EV Charging Failed Booking List" || type === "Mobile EV Charging Area List" || type === "Mobile EV Charging Van List" || type === "Mobile EV Charging Booking List"||"Total Resident List" || type ==="Invoice List") && (
                                                 <div className={`col-xl-3 col-lg-6 col-12 ${styles.filterItem}`}>
                                                     {/* <label className={styles.filterLabel} htmlFor="date_filter">Schedule Date</label> */}
                                                     <Calendar handleDateChange={handleScheduleDateChange} placeholder={type.includes('Booking') || type === 'Driver Details' ? 'Schedule Date' : 'Select  Date'} />

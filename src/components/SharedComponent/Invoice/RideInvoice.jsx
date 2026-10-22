@@ -5,6 +5,7 @@ import styles from './invoice.module.css';
 import logo from '../../../assets/images/Logo.svg';
 import html2pdf from 'html2pdf.js';
 import Download from '../../../assets/images/Download.svg'
+import { formatIndianNumber } from '../../../utils/statusMapping';
 
 const Invoice = ({ title, details }) => {
     console.log(details)
@@ -88,7 +89,7 @@ const Invoice = ({ title, details }) => {
                                                 <td>{moment(details?.updated_at).format('DD MMM YYYY')}</td>
                                                 <td>{details?.booking_id}</td>
                                                 <td>{details?.time_taken} Mins</td>
-                                                <td className={styles.amountRightAlign}>₹{( details?.price ||0 ).toFixed(2)}</td>
+                                                <td className={styles.amountRightAlign}>₹{formatIndianNumber(( details?.price ||0 ).toFixed(2))}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -118,7 +119,7 @@ const Invoice = ({ title, details }) => {
                                                 <td></td>
                                                 <td></td>
                                                 <td className={styles.amountRightAlign}>
-                                                    ₹{ Number( details?.base_price || 0 ).toFixed(2) }
+                                                    ₹{ formatIndianNumber(Number( details?.base_price || 0 ).toFixed(2)) }
                                                 </td>
                                             </tr>
                                             { !!details?.additionalPrice && 
@@ -133,7 +134,7 @@ const Invoice = ({ title, details }) => {
                                                     <td></td>
                                                     <td></td>
                                                     <td className={styles.amountRightAlign}>
-                                                        ₹{ Number(details?.additionalPrice || 0 ).toFixed(2)  }
+                                                        ₹{ formatIndianNumber(Number(details?.additionalPrice || 0 ).toFixed(2))  }
                                                     </td>
                                                 </tr>
                                             }
@@ -146,7 +147,7 @@ const Invoice = ({ title, details }) => {
                                                     <td></td>
                                                     <td></td>
                                                     <td className={styles.amountRightAlign}>
-                                                        ₹{ Number( details?.taxPrice || 0 ).toFixed(2) }
+                                                        ₹{ formatIndianNumber(Number( details?.taxPrice || 0 ).toFixed(2)) }
                                                     </td>
                                                 </tr>
                                             }
@@ -160,7 +161,7 @@ const Invoice = ({ title, details }) => {
                                 </td>
                                 <td className={styles.amountRightAlign}>
                                     <p className={styles.totalAmountValue}>
-                                        ₹{ Number( details?.price || 0 ).toFixed(2) }
+                                        ₹{ formatIndianNumber(Number( details?.price || 0 ).toFixed(2)) }
                                     </p>
                                 </td>
                             </tr>

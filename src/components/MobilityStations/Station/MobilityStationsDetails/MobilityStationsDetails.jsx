@@ -17,6 +17,7 @@ import List from '../../../SharedComponent/List/List.jsx';
 import AddDriver from '../../../../assets/images/AddDriver.svg';
 import LockerModal from '../../../SharedComponent/CustomModal/LockerModal.jsx';
 import Pagination from '../../../SharedComponent/Pagination/Pagination'
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const MobilityStationsDetails = () => {
     const userDetails                           = JSON.parse(sessionStorage.getItem('userDetails'));
@@ -45,7 +46,7 @@ const MobilityStationsDetails = () => {
         date.setMinutes(m);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     }
-    
+
     const headerItems = [
         { label: 'Station ID',        icon: Contact,    value: stationId },
         { label: 'Station Name',      icon: Station,    value: StationDetails?.station.station_name },
@@ -60,29 +61,29 @@ const MobilityStationsDetails = () => {
     const stationCards = [
         { title: "Station Address", value: `${StationDetails?.station?.building_name || ""} ${StationDetails?.station?.address || ""}` },
         { title: "Cycle Unit", customContent : (
-            <div className={styles.unitBlock}>
-                <div className={styles.unitItem}>
-                    <span className={styles.unitBadge}>{StationDetails?.station.ecycle_count}</span>
-                    <span className={styles.unitLabel}>E-Cycle</span>
+                <div className={styles.unitBlock}>
+                    <div className={styles.unitItem}>
+                        <span className={styles.unitBadge}>{StationDetails?.station.ecycle_count}</span>
+                        <span className={styles.unitLabel}>E-Cycle</span>
+                    </div>
+                    <div className={styles.unitItem}>
+                        <span className={styles.unitBadge}>{StationDetails?.station.cycle_count}</span>
+                        <span className={styles.unitLabel}>Cycle</span>
+                    </div>
                 </div>
-                <div className={styles.unitItem}>
-                    <span className={styles.unitBadge}>{StationDetails?.station.cycle_count}</span>
-                    <span className={styles.unitLabel}>Cycle</span>
-                </div>
-            </div>
         ) },
         { title: "Open Hours",
             customContent: StationDetails?.station?.open_time && StationDetails?.station?.close_time ? (
                 (() => {
                     const open_time = StationDetails?.station?.open_time;
                     const close_time = StationDetails?.station?.close_time;
-                    
+
                     return (
                         <div className={styles.value}>
                             {formatTime(open_time)} - {formatTime(close_time)}
                         </div>
                     );
-                     
+
                 })()
             ) : (
                 <div>Always Open</div>
@@ -102,8 +103,8 @@ const MobilityStationsDetails = () => {
                     label: item.label,
                     value: item.value,
                 }));
-                    setLockerOption(LockerList);
-                    setLoadingLocker(false);
+                setLockerOption(LockerList);
+                setLoadingLocker(false);
             } else {
                 toast(response.message?.station_id, { type: 'error' });
                 console.log('error in available-locker-list API', response);
@@ -202,7 +203,7 @@ const MobilityStationsDetails = () => {
         setCycleId(null);
     };
     const handleSubmitModal = () => {
-        
+
         setIsLoading(true);
         const obj = {
             userId          : userDetails?.user_id,
@@ -216,7 +217,7 @@ const MobilityStationsDetails = () => {
             if (response.code === 200) {
                 toast(response.message, { type: 'success' });
                 setIsModalOpen(false);
-                
+
                 setTimeout(() => fetchDetails(currentPage, filters), 1500);
             } else {
                 toast(response.message, { type: 'error' });
@@ -225,35 +226,35 @@ const MobilityStationsDetails = () => {
         });
     };
     const handleDeleteCycle = (cycle_id) => {
-        
+
         const confirmDelete = window.confirm("Are you sure you want to delete this Cycle?");
         if (confirmDelete) {
-            const obj = { 
+            const obj = {
                 userId     : userDetails?.user_id,
                 email      : userDetails?.email,
                 cycle_id   : cycle_id 
             };
             postRequestWithToken('cycle-delete', obj, async (response) => {
-                 
+
                 if (response.code === 200) {
                     toast(response.message, { type: "success" });
 
                     setTimeout(() => {
-                       fetchCycleList();
+                        fetchCycleList();
                     }, 1000);
-                } else if(response.code === 400){
+                } else if (response.code === 400) {
                     toast(response.message, { type: 'error' });
-                   
-                } else {  console.log('error in cycle-delete api', response); }
+
+                } else { console.log('error in cycle-delete api', response); }
             });
         }
     };
     const handleStatusChange = (e, cycle_id) => {
-    
+
         const confirm = window.confirm("Are you sure you want to change status ?");
 
         if (confirm) {
-            const checkchecked = e.target.checked ;
+            const checkchecked = e.target.checked;
             console.log(checkchecked, cycle_id)
             const obj = {
                 userId        : userDetails?.user_id,
@@ -272,7 +273,7 @@ const MobilityStationsDetails = () => {
             postRequestWithToken('/cycle-on-off', obj, async (response) => {
                 if (response.code === 200) {
                     toast(response.message, { type: 'success' });
-                    
+
                 } else {
                     toast(response.message, { type: 'error' });
                 }
@@ -280,12 +281,12 @@ const MobilityStationsDetails = () => {
             });
         }
 
-        
+
     };
 
-    const openLock = (lock_number) =>{
+    const openLock = (lock_number) => {
         const confirm = window.confirm("Are you sure you want to open lock ?");
-        if (confirm) { 
+        if (confirm) {
             setIsLoading(true)
             const obj = {
                 userId      : userDetails?.user_id,
@@ -296,7 +297,7 @@ const MobilityStationsDetails = () => {
             postRequestWithToken('/locker-open', obj, async (response) => {
                 if (response.code === 200) {
                     toast(response.message, { type: 'success' });
-                    
+
                 } else {
                     toast(response.message, { type: 'error' });
                 }
@@ -304,66 +305,66 @@ const MobilityStationsDetails = () => {
             });
         }
     }
-    
+
     const lockerTableHeaders = [
-        <div className={styles.tableWrapperButton}> 
+        <div className={styles.tableWrapperButton}>
             Lock 1
             <button onClick={() => openLock('lock1')} className={styles.lockerBtn} disabled={isLoading}>
-                { isLoading ? ( "Open..." ) :  "Open" }
-            </button> 
+                {isLoading ? ("Open...") : "Open"}
+            </button>
         </div>,
-        <div className={styles.tableWrapperButton}> 
+        <div className={styles.tableWrapperButton}>
             Lock 2
             <button onClick={() => openLock('lock2')} className={styles.lockerBtn} disabled={isLoading}>
-                { isLoading ? ( "Open..." ) :  "Open" }
-            </button> 
+                {isLoading ? ("Open...") : "Open"}
+            </button>
         </div>,
-        <div className={styles.tableWrapperButton}> 
+        <div className={styles.tableWrapperButton}>
             Lock 3
             <button onClick={() => openLock('lock3')} className={styles.lockerBtn} disabled={isLoading}>
-                { isLoading ? ( "Open..." ) :  "Open" }
-            </button> 
+                {isLoading ? ("Open...") : "Open"}
+            </button>
         </div>,
-        <div className={styles.tableWrapperButton}> 
+        <div className={styles.tableWrapperButton}>
             Lock 4
             <button onClick={() => openLock('lock4')} className={styles.lockerBtn} disabled={isLoading}>
-                { isLoading ? ( "Open..." ) :  "Open" }
-            </button> 
+                {isLoading ? ("Open...") : "Open"}
+            </button>
         </div>,
-        <div className={styles.tableWrapperButton}> 
+        <div className={styles.tableWrapperButton}>
             Lock 5
             <button onClick={() => openLock('lock5')} className={styles.lockerBtn} disabled={isLoading}>
-                { isLoading ? ( "Open..." ) :  "Open" }
-            </button> 
+                {isLoading ? ("Open...") : "Open"}
+            </button>
         </div>,
-        <div className={styles.tableWrapperButton}> 
+        <div className={styles.tableWrapperButton}>
             Lock 6
             <button onClick={() => openLock('lock6')} className={styles.lockerBtn} disabled={isLoading}>
-                { isLoading ? ( "Open..." ) :  "Open" }
-            </button> 
+                {isLoading ? ("Open...") : "Open"}
+            </button>
         </div>,
-        <div className={styles.tableWrapperButton}> 
+        <div className={styles.tableWrapperButton}>
             Lock 7
             <button onClick={() => openLock('lock7')} className={styles.lockerBtn} disabled={isLoading}>
-                { isLoading ? ( "Open..." ) :  "Open" }
-            </button> 
+                {isLoading ? ("Open...") : "Open"}
+            </button>
         </div>
     ];
     return (
         <div className='main-container'>
             <ToastContainer />
-            { loading ? <Loader /> : 
+            {loading ? <Loader /> :
                 <>
                     <DetailsCards items={headerItems} />
                     <div className={styles.mobilityContainer}>
                         {stationCards.map((card, index) => (
-                            <StationCard key={index} title={card.title} value={card.value} customContent={card.customContent}/>
+                            <StationCard key={index} title={card.title} value={card.value} customContent={card.customContent} />
                         ))}
                     </div>
                     <div className={styles.bookingDetailsSection}>
                         <div className={styles.DetailsMainHeading}>Locker Assign Details</div>
-                    </div>   
-                    { StationDetails?.cycle_list.length === 0 ? 
+                    </div>
+                    {StationDetails?.cycle_list.length === 0 ?
                         <EmptyList
                             tableHeaders={lockerTableHeaders}
                             message="No data available"
@@ -383,45 +384,50 @@ const MobilityStationsDetails = () => {
                                     { key: "lock7", label: "Lock 7" },
                                 ]}
                             />
-                        </> 
+                        </>
                     }
 
                     <div className={styles.bookingDetailsSection}>
                         <div className={styles.DetailsMainHeading}>Cycle List</div>
                     </div>
-                    { cycleList?.length === 0 ? 
-                            <EmptyList
-                                tableHeaders={["Cycle ID", "Cycle Brand", "Type of Cycle" ,"Base Price" ,"Locker No.", "Cycle Status", "Locker Assign", "Action"]}
-                                message="No data available"
-                            />
+                    {cycleList?.length === 0 ?
+                        <EmptyList
+                            tableHeaders={["Cycle ID", "Cycle Brand", "Type of Cycle", "Base Price", "Locker No.", "Cycle Status", "Locker Assign", "Action"]}
+                            message="No data available"
+                        />
                         : <>
                             <List
-                                tableHeaders={["Cycle ID", "Cycle Brand", "Type of Cycle" ,"Base Price" ,"Locker No.", "Cycle Status", "Locker Assign", "Action"]}
+                                tableHeaders={["Cycle ID", "Cycle Brand", "Type of Cycle", "Base Price", "Locker No.", "Cycle Status", "Locker Assign", "Action"]}
                                 listData={cycleList}
                                 pageHeading="Cycle List"
                                 onDeleteSlot={handleDeleteCycle}
                                 keyMapping={[
                                     { key: "cycle_id", label: "Cycle ID" },
-                                    { key: "brand",     label: "Cycle Brand" },
+                                    { key: "brand", label: "Cycle Brand" },
                                     { key: "cycle_type", label: "Type of Cycle" },
-                                    { key: "base_price", label: "Base Price" },
-                                    { key: 'lock_number',   label: 'Locker No.',  format: (value) => {
+                                    {
+                                        key: "base_price", label: "Base Price",
+                                        format: (base_price) => (base_price ? `INR ${formatIndianNumber(base_price)}` : formatIndianNumber(base_price))
+                                    },
+                                    {
+                                        key: 'lock_number', label: 'Locker No.', format: (value) => {
                                             if (!value) return "-";
                                             const num = value.replace("lock", "");
                                             return `Lock ${num}`;
-                                        } 
+                                        }
                                     },
                                     {
                                         key: 'device_status', label: 'Cycle Status', relatedKeys: ['cycle_id'], format: (value) => {
                                             return (
                                                 <label className={styles.switch}>
-                                                    <input type="checkbox" className={styles.switchInput} checked={value.device_status} onChange={(e) => handleStatusChange(e, value.cycle_id) } />
+                                                    <input type="checkbox" className={styles.switchInput} checked={value.device_status} onChange={(e) => handleStatusChange(e, value.cycle_id)} />
                                                     <span className={styles.slider}></span>
                                                 </label>
                                             );
                                         }
                                     },
-                                    {  key: 'assign_gateway', relatedKeys: ['order_status'],
+                                    {
+                                        key: 'assign_gateway', relatedKeys: ['order_status'],
                                         format: (data, key, relatedKeys) => {
                                             const isOngoing = data?.on_going_cycle === 0;
                                             return isOngoing ? <img src={AddDriver} className={"logo"} alt={data.cycle_id} onClick={() => openModal(data)} /> : null;
@@ -430,7 +436,7 @@ const MobilityStationsDetails = () => {
                                 ]}
                             />
                             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
-                        </> 
+                        </>
                     }
 
                     <div className={styles.mobilityContainer}>
@@ -440,22 +446,22 @@ const MobilityStationsDetails = () => {
                                     <div className={styles.serviceCard}>
                                         <div className={styles.serviceCardHeader}>
                                             <div className={styles.title}>Service Charge for</div>
-                                            { StationDetails?.station?.price_type === 'paid' ? (
+                                            {StationDetails?.station?.price_type === 'paid' ? (
                                                 <div className={styles.label}>Paid for Everyone</div>
-                                                ) : (
-                                                    <div className={styles.label}>Unpaid</div>
-                                                )
+                                            ) : (
+                                                <div className={styles.label}>Unpaid</div>
+                                            )
                                             }
                                         </div>
                                         {StationDetails?.station?.university && <div className={styles.value}>{StationDetails?.station?.university}</div>}
                                     </div>
                                     <div className={styles.availableCard}>
                                         <div className={styles.title}>Available For</div>
-                                        <div className={styles.value}>{ StationDetails?.station?.available_for  }</div>
+                                        <div className={styles.value}>{StationDetails?.station?.available_for}</div>
                                     </div>
                                 </div>
                             </div>
-                        
+
                             <div className={styles.rightPanel}>
                                 <div className={styles.coverImage}>
                                     <img src={`${StationDetails?.base_url}${StationDetails?.station.station_image}`} alt="Cover" className={styles.imageCover} />

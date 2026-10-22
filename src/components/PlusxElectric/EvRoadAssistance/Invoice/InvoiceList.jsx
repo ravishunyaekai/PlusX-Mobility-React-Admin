@@ -9,6 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import Loader from "../../../SharedComponent/Loader/Loader";
 import EmptyList from '../../../SharedComponent/EmptyList/EmptyList';
 import View from '../../../../assets/images/ViewEye.svg'
+import { formatIndianNumber } from '../../../../utils/statusMapping';
 
 const RoadAssistanceInvoiceList = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
@@ -109,7 +110,7 @@ const RoadAssistanceInvoiceList = () => {
                                 {
                                     key: 'amount',
                                     label: 'Amount',
-                                    format: (amount) => (amount ? `INR ${amount}` : amount)
+                                    format: (amount) => (amount ? `INR ${formatIndianNumber(amount)}` : formatIndianNumber(amount))
                                 },
                                 { key: 'payment_status', label: 'Status', format: (status) => (status === "succeeded" ? "Completed" : "Approved") },                            
                                 {
@@ -121,7 +122,7 @@ const RoadAssistanceInvoiceList = () => {
                                         return (
                                             <div className="editButtonSection">
                                                 {/* View Button (Always Displayed) */}
-                                                <img src={View} alt="view" className="viewButton" onClick={() => navigate(`/electric/ev-road-assistance/invoice-details/${data.request_id}`)} />
+                                                <img src={View} alt="view" className="viewButton" onClick={() => navigate(`/electric/ev-road-assistance/invoice-details/${data.invoice_id}`)} />
                                             </div>
                                         );
                                     }

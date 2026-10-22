@@ -10,7 +10,7 @@ import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from "../../SharedComponent/Loader/Loader";
 import EmptyList from '../../SharedComponent/EmptyList/EmptyList.jsx';
-import { statusCode, statusMapping } from "../../../utils/statusMapping.js";
+import { formatIndianNumber, statusCode, statusMapping } from "../../../utils/statusMapping.js";
 import AddDriver from '../../../assets/images/AddDriver.svg';
 import LockerModal from '../../SharedComponent/CustomModal/LockerModal.jsx';
 
@@ -118,7 +118,8 @@ const InvoiceList = () => {
                             { key: 'booking_id',        label: 'Booking ID' }, 
                             { key: 'user_name',         label: 'Customer Name' }, 
                             { key: 'contact_no',         label: 'Customer Mobile' }, 
-                            { key: 'price',             label: 'Amount' },
+                            { key: 'price',             label: 'Amount',
+                                    format: (price) => (price ? `INR ${formatIndianNumber(price)}` : formatIndianNumber(price)) },
                             { key: 'action', label: 'Action', relatedKeys: ['status'], 
                                 format: (data, key, relatedKeys) => {
                                     return (

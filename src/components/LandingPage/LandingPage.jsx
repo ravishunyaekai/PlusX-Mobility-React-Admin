@@ -8,13 +8,13 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 const LandingPage = () => {
-    const navigate      = useNavigate()
-    const userDetails   = JSON.parse(sessionStorage.getItem("userDetails"));
+    const navigate = useNavigate()
+    const userDetails = JSON.parse(sessionStorage.getItem("userDetails"));
 
     useEffect(() => {
         if (!userDetails || !userDetails.access_token) {
-            navigate("/login"); 
-            return; 
+            navigate("/login");
+            return;
         }
     }, [navigate, userDetails]);
 
@@ -22,6 +22,17 @@ const LandingPage = () => {
         sessionStorage.setItem("selectedApp", appName);
         navigate(`/${appName}/dashboard`);
     }
+    useEffect(() => {
+        if (userDetails?.departmentId === 2) {
+            // Do something
+            navigateToApp("electric");
+        } else if (userDetails?.departmentId === 3) {
+            // Do something else
+            navigateToApp("mobility");
+        } else {
+            // Handle other cases or do nothing
+        }
+    }, [userDetails?.departmentId]);
 
     return (
         <div className={styles.landingPageMainContainer}>
@@ -33,14 +44,18 @@ const LandingPage = () => {
                             <PanelLogo />
                         </div>
                         <div className={styles.loginCardSection}>
-                            <div className={styles.serviceCard}  onClick={()=> navigateToApp("electric")}>
-                                <div className={styles.serviceCardTitle}>PlusX Charging</div>
-                                <img src={Plusx} alt="charging" />
-                            </div>
-                            <div className={styles.serviceCard} onClick={()=> navigateToApp("mobility")}>
-                                <div className={styles.serviceCardTitle}>PlusX Mobility</div>
-                                <img src={mobility} alt="mobility" />
-                            </div>
+                            {(userDetails?.departmentId === 1) && (
+                                <div className={styles.serviceCard} onClick={() => navigateToApp("electric")}>
+                                    <div className={styles.serviceCardTitle}>PlusX Charging</div>
+                                    <img src={Plusx} alt="charging" />
+                                </div>
+                            )}
+                            {(userDetails?.departmentId === 1) && (
+                                <div className={styles.serviceCard} onClick={() => navigateToApp("mobility")}>
+                                    <div className={styles.serviceCardTitle}>PlusX Mobility</div>
+                                    <img src={mobility} alt="mobility" />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

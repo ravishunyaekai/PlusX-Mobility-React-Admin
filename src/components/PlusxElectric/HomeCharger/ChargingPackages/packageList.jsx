@@ -12,6 +12,7 @@ import EmptyList from '../../../SharedComponent/EmptyList/EmptyList';
 import { FiEdit2 } from "react-icons/fi";
 import { RiDeleteBinLine } from "react-icons/ri";
 import AddEditChargingPackage from "./AddChargingPackage";
+import { formatIndianNumber } from '../../../../utils/statusMapping';
 
 const ChargingPackageList = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
@@ -153,12 +154,12 @@ const ChargingPackageList = () => {
                                 {
                                     key: "price_per_unit",
                                     label: "Price Per Unit",
-                                    format: (value) => `₹${value}`
+                                    format: (value) => `₹${formatIndianNumber(value)}`
                                 },
                                 {
                                     key: "service_fee",
                                     label: "Service Fee",
-                                    format: (value) => `₹${value}`
+                                    format: (value) => `₹${formatIndianNumber(value)}`
                                 },
                                 {
                                     key: "status",
