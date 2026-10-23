@@ -4,6 +4,7 @@ import styles from './AddOfflineleads.module.css';
 import { postRequestWithToken } from '../../../../api/Requests';
 import { toast, ToastContainer } from 'react-toastify';
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
+import { State, City } from 'country-state-city';
 import { MdOutlineCloudUpload } from "react-icons/md";
 import { AiOutlineClose } from 'react-icons/ai';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,15 +23,77 @@ const AddOfflineleads = () => {
     const [customerName, setCustomerName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [emailId, setEmailId] = useState('');
+    const [state, setState] = useState(null);
+    const [city, setCity] = useState(null);
     const [locationLink, setLocationLink] = useState('');
     const [address, setAddress] = useState('');
     const [price, setPrice] = useState('');
 
     // =========================
+    // State Dropdown Options - India
+    // =========================
+    const stateOptions = useMemo(() => {
+        return State.getStatesOfCountry('IN')
+            .map((item) => ({
+                value: item.name,
+                label: item.name,
+                isoCode: item.isoCode,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+    }, []);
+
+    // =========================
+    // City Dropdown Options
+    // Depends on selected state
+    // =========================
+    const cityOptions = useMemo(() => {
+        if (!state?.isoCode) {
+            return [];
+        }
+
+        return City.getCitiesOfState('IN', state.isoCode)
+            .map((item) => ({
+                value: item.name,
+                label: item.name,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+    }, [state]);
+
+    // =========================
+    // Handle State Change
+    // =========================
+    const handleStateChange = (selectedOption) => {
+        setState(selectedOption || null);
+
+        // Reset city whenever state changes
+        setCity(null);
+
+        setErrors((prev) => ({
+            ...prev,
+            state: '',
+            city: '',
+        }));
+    };
+
+    // =========================
+    // Handle City Change
+    // =========================
+    const handleCityChange = (selectedOption) => {
+        setCity(selectedOption || null);
+
+        setErrors((prev) => ({
+            ...prev,
+            city: '',
+        }));
+    };
+
+    // =========================
     // Vehicle Details
     // =========================
-    const [vehicleMake, setVehicleMake] = useState('');
-    const [vehicleModel, setVehicleModel] = useState('');
+    const [vehicleList, setVehicleList] = useState([]);
+    const [vehicleListLoading, setVehicleListLoading] = useState(false);
+    const [vehicleMake, setVehicleMake] = useState(null);
+    const [vehicleModel, setVehicleModel] = useState(null);
     const [batteryLevel, setBatteryLevel] = useState(null);
     const [jumpStartRequired, setJumpStartRequired] = useState(null);
 
@@ -178,6 +241,213 @@ const AddOfflineleads = () => {
     ];
 
     // =========================
+    // Normalize Vehicle API Data
+    // Supports:
+    // [{ make: 'Tata', model: 'Nexon EV' }]
+    // [{ make: 'Tata', models: ['Nexon EV'] }]
+    // [{ make: 'Tata', models: [{ model: 'Nexon EV' }] }]
+    // =========================
+    const normalizeVehicleData = (responseData) => {
+        let rows = responseData;
+
+        // Handle common nested response structures.
+        if (!Array.isArray(rows)) {
+            rows =
+                rows?.vehicles ||
+                rows?.vehicleList ||
+                rows?.vehicle_brand_list ||
+                rows?.data ||
+                [];
+        }
+
+        if (!Array.isArray(rows)) {
+            return [];
+        }
+
+        const normalized = [];
+
+        rows.forEach((item) => {
+            if (!item || typeof item !== 'object') {
+                return;
+            }
+
+            const make = String(
+                item.make ?? item.value ?? ''
+            ).trim();
+
+            if (!make) {
+                return;
+            }
+
+            // Response contains a flat make/model row.
+            if (item.model != null && !Array.isArray(item.models)) {
+                const model = String(item.model).trim();
+
+                if (model) {
+                    normalized.push({ make, model });
+                }
+
+                return;
+            }
+
+            // Response contains a make with a models array.
+            if (Array.isArray(item.models)) {
+                item.models.forEach((modelItem) => {
+                    const model =
+                        typeof modelItem === 'string'
+                            ? modelItem.trim()
+                            : String(
+                                modelItem?.model ??
+                                modelItem?.label ??
+                                modelItem?.value ??
+                                ''
+                            ).trim();
+
+                    if (model) {
+                        normalized.push({ make, model });
+                    }
+                });
+
+                return;
+            }
+
+            // Handle a make-only item if returned by the API.
+            normalized.push({ make, model: '' });
+        });
+
+        // Remove duplicate make/model combinations.
+        const unique = new Map();
+
+        normalized.forEach(({ make, model }) => {
+            const key = `${make.toLowerCase()}::${model.toLowerCase()}`;
+
+            if (!unique.has(key)) {
+                unique.set(key, { make, model });
+            }
+        });
+
+        return Array.from(unique.values());
+    };
+
+    // =========================
+    // Fetch Vehicle Makes/Models
+    // =========================
+    useEffect(() => {
+        if (!userDetails?.access_token) {
+            return;
+        }
+
+        setVehicleListLoading(true);
+
+        postRequestWithToken(
+            'vehicle-brand-list',
+            {
+                email: userDetails?.email,
+                userId: userDetails?.user_id
+            },
+            (response) => {
+                if (
+                    response?.code === 200 ||
+                    response?.status === 1
+                ) {
+                    const responseData = response?.data ?? [];
+
+                    const normalizedVehicles =
+                        normalizeVehicleData(responseData);
+
+                    setVehicleList(normalizedVehicles);
+
+                    if (normalizedVehicles.length === 0) {
+                        toast.error(
+                            'No vehicle makes or models were returned by the API.'
+                        );
+                    }
+                } else {
+                    toast.error(
+                        response?.message?.[0] ||
+                        response?.message ||
+                        'Unable to fetch vehicle makes and models.'
+                    );
+                }
+
+                setVehicleListLoading(false);
+            }
+        );
+    }, [userDetails?.access_token]);
+
+    // =========================
+    // Vehicle Make Dropdown
+    // =========================
+    const vehicleMakeOptions = useMemo(() => {
+        const uniqueMakes = [
+            ...new Set(
+                vehicleList
+                    .map((vehicle) => vehicle.make)
+                    .filter(Boolean)
+            )
+        ];
+
+        return uniqueMakes
+            .sort((a, b) => a.localeCompare(b))
+            .map((make) => ({
+                value: make,
+                label: make
+            }));
+    }, [vehicleList]);
+
+    // =========================
+    // Vehicle Model Dropdown
+    // Filter models by selected make.
+    // =========================
+    const vehicleModelOptions = useMemo(() => {
+        if (!vehicleMake?.value) {
+            return [];
+        }
+
+        const uniqueModels = [
+            ...new Set(
+                vehicleList
+                    .filter(
+                        (vehicle) =>
+                            vehicle.make === vehicleMake.value
+                    )
+                    .map((vehicle) => vehicle.model)
+                    .filter(Boolean)
+            )
+        ];
+
+        return uniqueModels
+            .sort((a, b) => a.localeCompare(b))
+            .map((model) => ({
+                value: model,
+                label: model
+            }));
+    }, [vehicleList, vehicleMake]);
+
+    const handleVehicleMakeChange = (selectedOption) => {
+        setVehicleMake(selectedOption || null);
+
+        // Reset the model when its make changes.
+        setVehicleModel(null);
+
+        setErrors((prev) => ({
+            ...prev,
+            vehicleMake: '',
+            vehicleModel: ''
+        }));
+    };
+
+    const handleVehicleModelChange = (selectedOption) => {
+        setVehicleModel(selectedOption || null);
+
+        setErrors((prev) => ({
+            ...prev,
+            vehicleModel: ''
+        }));
+    };
+
+
+    // =========================
     // Validation
     // =========================
     const validateForm = () => {
@@ -201,6 +471,14 @@ const AddOfflineleads = () => {
             newErrors.emailId = 'Please enter a valid email ID.';
         }
 
+        if (!state?.value) {
+            newErrors.state = 'State is required.';
+        }
+
+        if (!city?.value) {
+            newErrors.city = 'City is required.';
+        }
+
         if (!locationLink.trim()) {
             newErrors.locationLink = 'Location Link is required.';
         }
@@ -213,23 +491,23 @@ const AddOfflineleads = () => {
             newErrors.price = 'Price including GST is required.';
         }
 
-        if (!vehicleMake.trim()) {
+        if (!vehicleMake?.value) {
             newErrors.vehicleMake = 'Vehicle Make is required.';
         }
 
-        if (!vehicleModel.trim()) {
+        if (!vehicleModel?.value) {
             newErrors.vehicleModel = 'Vehicle Model is required.';
         }
 
-        if (!batteryLevel) {
+        if (!batteryLevel?.value) {
             newErrors.batteryLevel = 'Battery Level is required.';
         }
 
-        if (!jumpStartRequired) {
+        if (!jumpStartRequired?.value) {
             newErrors.jumpStartRequired = 'Jump Start Required is required.';
         }
 
-        if (!paymentMode) {
+        if (!paymentMode?.value) {
             newErrors.paymentMode = 'Mode of Payment is required.';
         }
 
@@ -237,7 +515,7 @@ const AddOfflineleads = () => {
             newErrors.paymentProof = 'Payment Proof is required.';
         }
 
-        if (!bookingStatus) {
+        if (!bookingStatus?.value) {
             newErrors.bookingStatus = 'Booking Status is required.';
         }
 
@@ -265,40 +543,49 @@ const AddOfflineleads = () => {
             return;
         }
 
+        if (loading) {
+            return;
+        }
+
         setLoading(true);
 
         const formData = new FormData();
 
-        formData.append('userId', userDetails?.user_id);
-        formData.append('email', userDetails?.email);
+        formData.append('userId', userDetails?.user_id ?? '');
+        formData.append('email', userDetails?.email ?? '');
 
         // Customer Details
-        formData.append('customer_name', customerName);
+        formData.append('customer_name', customerName.trim());
         formData.append('phone_number', phoneNumber);
-        formData.append('email_id', emailId);
-        formData.append('location_link', locationLink);
-        formData.append('address', address);
+        formData.append('email_id', emailId.trim());
+        formData.append('state', state.value);
+        formData.append('city', city.value);
+        formData.append('location_link', locationLink.trim());
+        formData.append('address', address.trim());
         formData.append('price', price);
 
         // Vehicle Details
-        formData.append('vehicle_make', vehicleMake);
-        formData.append('vehicle_model', vehicleModel);
-        formData.append('battery_level', batteryLevel?.value);
+        formData.append('vehicle_make', vehicleMake.value);
+        formData.append('vehicle_model', vehicleModel.value);
+        formData.append('battery_level', batteryLevel.value);
         formData.append(
             'jump_start_required',
-            jumpStartRequired?.value
+            jumpStartRequired.value
         );
 
         // Payment Details
-        formData.append('payment_mode', paymentMode?.value);
+        formData.append('payment_mode', paymentMode.value);
 
-        if (paymentProof) {
-            formData.append('payment_proof', paymentProof);
-        }
+        paymentProof.forEach((file) => {
+            formData.append('payment_proof', file);
+        });
 
         // Booking Details
-        formData.append('booking_status', bookingStatus?.value);
-        formData.append('booking_completed_by', bookingCompletedBy);
+        formData.append('booking_status', bookingStatus.value);
+        formData.append(
+            'booking_completed_by',
+            bookingCompletedBy.trim()
+        );
 
         postRequestWithToken(
             'add-ev-road-assistance-offline-lead',
@@ -337,7 +624,7 @@ const AddOfflineleads = () => {
         if (!userDetails || !userDetails.access_token) {
             navigate('/login');
         }
-    }, []);
+    }, [navigate, userDetails?.access_token]);
 
     const handleCancel = () => {
         navigate('/electric/ev-road-assistance/rsa-offline-leads');
@@ -496,12 +783,70 @@ const AddOfflineleads = () => {
                             </div>
                         </div>
 
-                        {/* Location Link */}
+                        <div className="col-lg-6">
+                            <label className={styles.labelText}>
+                                State
+                            </label>
+
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
+                                    <CustomDropdown
+                                        options={stateOptions}
+                                        value={state}
+                                        onChange={handleStateChange}
+                                        placeholder="Select State"
+                                        labelledBy="Select State"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
+                                    />
+
+                                    {errors.state && (
+                                        <p className={styles.error}>
+                                            {errors.state}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row">
+                        <div className="col-lg-6">
+                            <label className={styles.labelText}>
+                                City
+                            </label>
+
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
+                                    <CustomDropdown
+                                        options={cityOptions}
+                                        value={city}
+                                        onChange={handleCityChange}
+                                        placeholder={
+                                            !state
+                                                ? 'Select State First'
+                                                : cityOptions.length === 0
+                                                    ? 'No Cities Available'
+                                                    : 'Select City'
+                                        }
+                                        labelledBy="Select City"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
+                                    />
+
+                                    {errors.city && (
+                                        <p className={styles.error}>
+                                            {errors.city}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="col-lg-6">
                             <label className={styles.labelText}>
                                 Location Link
                             </label>
-
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
                                     <input
@@ -617,18 +962,20 @@ const AddOfflineleads = () => {
                             <label className={styles.labelText}>
                                 Vehicle Make
                             </label>
-
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Make"
-                                        className={styles.inputField}
+                                    <CustomDropdown
+                                        options={vehicleMakeOptions}
                                         value={vehicleMake}
-                                        onChange={(e) =>
-                                            setVehicleMake(e.target.value)
+                                        onChange={handleVehicleMakeChange}
+                                        labelledBy="Select Vehicle Make"
+                                        placeholder={
+                                            vehicleListLoading
+                                                ? 'Loading vehicle makes...'
+                                                : 'Select Vehicle Make'
                                         }
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
 
                                     {errors.vehicleMake && (
@@ -648,15 +995,20 @@ const AddOfflineleads = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Model"
-                                        className={styles.inputField}
+                                    <CustomDropdown
+                                        options={vehicleModelOptions}
                                         value={vehicleModel}
-                                        onChange={(e) =>
-                                            setVehicleModel(e.target.value)
+                                        onChange={handleVehicleModelChange}
+                                        labelledBy="Select Vehicle Model"
+                                        placeholder={
+                                            !vehicleMake
+                                                ? 'Select Vehicle Make First'
+                                                : vehicleModelOptions.length === 0
+                                                    ? 'No Models Available'
+                                                    : 'Select Vehicle Model'
                                         }
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
 
                                     {errors.vehicleModel && (
@@ -688,7 +1040,6 @@ const AddOfflineleads = () => {
                                         closeOnChangedValue={true}
                                         closeOnSelect={true}
                                     />
-
                                     {errors.batteryLevel && (
                                         <p className={styles.error}>
                                             {errors.batteryLevel}

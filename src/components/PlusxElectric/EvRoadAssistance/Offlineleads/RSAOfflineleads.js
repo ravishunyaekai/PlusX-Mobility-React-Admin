@@ -83,10 +83,10 @@ const RSAOfflineleads = () => {
         setShowBookingModal(false);
     
         if (completed) {
-            navigate('/electric/ev-road-assistance/add-rsa-offline-leads');
+            navigate('/electric/ev-road-assistance/add-rsa-offline-leads?status=1');
         } else {
             // Change this route if "No" should open a different page.
-            navigate('/electric/ev-road-assistance/add-rsa-offline-leads');
+            navigate('/electric/ev-road-assistance/add-rsa-offline-leads?status=0');
         }
     };
     

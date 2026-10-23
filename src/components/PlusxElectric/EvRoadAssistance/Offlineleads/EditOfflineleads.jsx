@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
+import { State, City } from 'country-state-city';
 import styles from './AddOfflineleads.module.css';
 import { postRequestWithToken, getRequestWithToken } from '../../../../api/Requests';
 import { toast, ToastContainer } from 'react-toastify';
@@ -25,16 +26,78 @@ const EditOfflineleads = () => {
     const [customerName, setCustomerName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [emailId, setEmailId] = useState('');
+    const [state, setState] = useState(null);
+    const [city, setCity] = useState(null);
     const [locationLink, setLocationLink] = useState('');
     const [address, setAddress] = useState('');
     const [price, setPrice] = useState('');
+
+    // =========================
+    // State Dropdown Options - India
+    // =========================
+    const stateOptions = useMemo(() => {
+        return State.getStatesOfCountry('IN')
+            .map((item) => ({
+                value: item.name,
+                label: item.name,
+                isoCode: item.isoCode,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+    }, []);
+
+    // =========================
+    // City Dropdown Options
+    // Depends on selected state
+    // =========================
+    const cityOptions = useMemo(() => {
+        if (!state?.isoCode) {
+            return [];
+        }
+
+        return City.getCitiesOfState('IN', state.isoCode)
+            .map((item) => ({
+                value: item.name,
+                label: item.name,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+    }, [state]);
+
+    // =========================
+    // Handle State Change
+    // =========================
+    const handleStateChange = (selectedOption) => {
+        setState(selectedOption || null);
+
+        // Reset city whenever state changes
+        setCity(null);
+
+        setErrors((prev) => ({
+            ...prev,
+            state: '',
+            city: '',
+        }));
+    };
+
+    // =========================
+    // Handle City Change
+    // =========================
+    const handleCityChange = (selectedOption) => {
+        setCity(selectedOption || null);
+
+        setErrors((prev) => ({
+            ...prev,
+            city: '',
+        }));
+    };
 
     // =========================================================
     // Vehicle Details
     // =========================================================
 
-    const [vehicleMake, setVehicleMake] = useState('');
-    const [vehicleModel, setVehicleModel] = useState('');
+    const [vehicleList, setVehicleList] = useState([]);
+    const [vehicleListLoading, setVehicleListLoading] = useState(false);
+    const [vehicleMake, setVehicleMake] = useState(null);
+    const [vehicleModel, setVehicleModel] = useState(null);
 
     const [batteryLevel, setBatteryLevel] = useState(null);
     const [jumpStartRequired, setJumpStartRequired] =
@@ -271,6 +334,213 @@ const EditOfflineleads = () => {
             defaultMessage
         );
     };
+
+    // =========================
+    // Normalize Vehicle API Data
+    // Supports:
+    // [{ make: 'Tata', model: 'Nexon EV' }]
+    // [{ make: 'Tata', models: ['Nexon EV'] }]
+    // [{ make: 'Tata', models: [{ model: 'Nexon EV' }] }]
+    // =========================
+    const normalizeVehicleData = (responseData) => {
+        let rows = responseData;
+
+        // Handle common nested response structures.
+        if (!Array.isArray(rows)) {
+            rows =
+                rows?.vehicles ||
+                rows?.vehicleList ||
+                rows?.vehicle_brand_list ||
+                rows?.data ||
+                [];
+        }
+
+        if (!Array.isArray(rows)) {
+            return [];
+        }
+
+        const normalized = [];
+
+        rows.forEach((item) => {
+            if (!item || typeof item !== 'object') {
+                return;
+            }
+
+            const make = String(
+                item.make ?? item.value ?? ''
+            ).trim();
+
+            if (!make) {
+                return;
+            }
+
+            // Response contains a flat make/model row.
+            if (item.model != null && !Array.isArray(item.models)) {
+                const model = String(item.model).trim();
+
+                if (model) {
+                    normalized.push({ make, model });
+                }
+
+                return;
+            }
+
+            // Response contains a make with a models array.
+            if (Array.isArray(item.models)) {
+                item.models.forEach((modelItem) => {
+                    const model =
+                        typeof modelItem === 'string'
+                            ? modelItem.trim()
+                            : String(
+                                modelItem?.model ??
+                                modelItem?.label ??
+                                modelItem?.value ??
+                                ''
+                            ).trim();
+
+                    if (model) {
+                        normalized.push({ make, model });
+                    }
+                });
+
+                return;
+            }
+
+            // Handle a make-only item if returned by the API.
+            normalized.push({ make, model: '' });
+        });
+
+        // Remove duplicate make/model combinations.
+        const unique = new Map();
+
+        normalized.forEach(({ make, model }) => {
+            const key = `${make.toLowerCase()}::${model.toLowerCase()}`;
+
+            if (!unique.has(key)) {
+                unique.set(key, { make, model });
+            }
+        });
+
+        return Array.from(unique.values());
+    };
+
+    // =========================
+    // Fetch Vehicle Makes/Models
+    // =========================
+    useEffect(() => {
+        if (!userDetails?.access_token) {
+            return;
+        }
+
+        setVehicleListLoading(true);
+
+        postRequestWithToken(
+            'vehicle-brand-list',
+            {
+                email: userDetails?.email,
+                userId: userDetails?.user_id
+            },
+            (response) => {
+                if (
+                    response?.code === 200 ||
+                    response?.status === 1
+                ) {
+                    const responseData = response?.data ?? [];
+
+                    const normalizedVehicles =
+                        normalizeVehicleData(responseData);
+
+                    setVehicleList(normalizedVehicles);
+
+                    if (normalizedVehicles.length === 0) {
+                        toast.error(
+                            'No vehicle makes or models were returned by the API.'
+                        );
+                    }
+                } else {
+                    toast.error(
+                        response?.message?.[0] ||
+                        response?.message ||
+                        'Unable to fetch vehicle makes and models.'
+                    );
+                }
+
+                setVehicleListLoading(false);
+            }
+        );
+    }, [userDetails?.access_token]);
+
+    // =========================
+    // Vehicle Make Dropdown
+    // =========================
+    const vehicleMakeOptions = useMemo(() => {
+        const uniqueMakes = [
+            ...new Set(
+                vehicleList
+                    .map((vehicle) => vehicle.make)
+                    .filter(Boolean)
+            )
+        ];
+
+        return uniqueMakes
+            .sort((a, b) => a.localeCompare(b))
+            .map((make) => ({
+                value: make,
+                label: make
+            }));
+    }, [vehicleList]);
+
+    // =========================
+    // Vehicle Model Dropdown
+    // Filter models by selected make.
+    // =========================
+    const vehicleModelOptions = useMemo(() => {
+        if (!vehicleMake?.value) {
+            return [];
+        }
+
+        const uniqueModels = [
+            ...new Set(
+                vehicleList
+                    .filter(
+                        (vehicle) =>
+                            vehicle.make === vehicleMake.value
+                    )
+                    .map((vehicle) => vehicle.model)
+                    .filter(Boolean)
+            )
+        ];
+
+        return uniqueModels
+            .sort((a, b) => a.localeCompare(b))
+            .map((model) => ({
+                value: model,
+                label: model
+            }));
+    }, [vehicleList, vehicleMake]);
+
+    const handleVehicleMakeChange = (selectedOption) => {
+        setVehicleMake(selectedOption || null);
+
+        // Reset the model when its make changes.
+        setVehicleModel(null);
+
+        setErrors((prev) => ({
+            ...prev,
+            vehicleMake: '',
+            vehicleModel: ''
+        }));
+    };
+
+    const handleVehicleModelChange = (selectedOption) => {
+        setVehicleModel(selectedOption || null);
+
+        setErrors((prev) => ({
+            ...prev,
+            vehicleModel: ''
+        }));
+    };
+
 
     // =========================================================
     // Normalize Existing Payment Proof
@@ -733,6 +1003,14 @@ const EditOfflineleads = () => {
                 'Please enter a valid email ID.';
         }
 
+        if (!state?.value) {
+            newErrors.state = 'State is required.';
+        }
+
+        if (!city?.value) {
+            newErrors.city = 'City is required.';
+        }
+
         if (!locationLink.trim()) {
             newErrors.locationLink =
                 'Location Link is required.';
@@ -752,33 +1030,24 @@ const EditOfflineleads = () => {
         // Vehicle Details
         // =====================================================
 
-        if (!vehicleMake.trim()) {
-            newErrors.vehicleMake =
-                'Vehicle Make is required.';
+        if (!vehicleMake?.value) {
+            newErrors.vehicleMake = 'Vehicle Make is required.';
         }
 
-        if (!vehicleModel.trim()) {
-            newErrors.vehicleModel =
-                'Vehicle Model is required.';
+        if (!vehicleModel?.value) {
+            newErrors.vehicleModel = 'Vehicle Model is required.';
         }
 
-        if (!batteryLevel) {
-            newErrors.batteryLevel =
-                'Battery Level is required.';
+        if (!batteryLevel?.value) {
+            newErrors.batteryLevel = 'Battery Level is required.';
         }
 
-        if (!jumpStartRequired) {
-            newErrors.jumpStartRequired =
-                'Jump Start Required is required.';
+        if (!jumpStartRequired?.value) {
+            newErrors.jumpStartRequired = 'Jump Start Required is required.';
         }
 
-        // =====================================================
-        // Payment Details
-        // =====================================================
-
-        if (!paymentMode) {
-            newErrors.paymentMode =
-                'Mode of Payment is required.';
+        if (!paymentMode?.value) {
+            newErrors.paymentMode = 'Mode of Payment is required.';
         }
 
         if (
@@ -793,7 +1062,7 @@ const EditOfflineleads = () => {
         // Booking Details
         // =====================================================
 
-        if (!bookingStatus) {
+        if (!bookingStatus?.value) {
             newErrors.bookingStatus =
                 'Booking Status is required.';
         }
@@ -820,26 +1089,21 @@ const EditOfflineleads = () => {
     const handleSubmit = e => {
         e.preventDefault();
 
-        if (loading) {
-            return;
-        }
-
         const isValid = validateForm();
 
         if (!isValid) {
-            toast.error(
-                'Some fields are missing.'
-            );
+            toast.error('Some fields are missing.');
+            return;
+        }
+
+        if (loading) {
             return;
         }
 
         const userDetails = getUserDetails();
 
         if (!userDetails) {
-            toast.error(
-                'User session expired. Please login again.'
-            );
-
+            toast.error('User session expired. Please login again.');
             navigate('/login');
             return;
         }
@@ -852,97 +1116,42 @@ const EditOfflineleads = () => {
         // Common
         // =====================================================
 
-        formData.append(
-            'userId',
-            userDetails?.user_id || ''
-        );
-
-        formData.append(
-            'email',
-            userDetails?.email || ''
-        );
-
-        formData.append(
-            'id',
-            id || ''
-        );
+        formData.append('userId', userDetails?.user_id ?? '');
+        formData.append('email', userDetails?.email ?? '');
+        formData.append('id', id ?? '');
 
         // =====================================================
         // Customer Details
         // =====================================================
 
-        formData.append(
-            'customer_name',
-            customerName.trim()
-        );
-
-        formData.append(
-            'phone_number',
-            phoneNumber.trim()
-        );
-
-        formData.append(
-            'email_id',
-            emailId.trim()
-        );
-
-        formData.append(
-            'location_link',
-            locationLink.trim()
-        );
-
-        formData.append(
-            'address',
-            address.trim()
-        );
-
-        formData.append(
-            'price',
-            price.trim()
-        );
+        formData.append('customer_name', customerName.trim());
+        formData.append('phone_number', phoneNumber.trim());
+        formData.append('email_id', emailId.trim());
+        formData.append('state', state.trim());
+        formData.append('city', city.trim());
+        formData.append('location_link', locationLink.trim());
+        formData.append('address', address.trim());
+        formData.append('price', price.trim());
 
         // =====================================================
         // Vehicle Details
         // =====================================================
 
-        formData.append(
-            'vehicle_make',
-            vehicleMake.trim()
-        );
-
-        formData.append(
-            'vehicle_model',
-            vehicleModel.trim()
-        );
-
-        formData.append(
-            'battery_level',
-            batteryLevel?.value || ''
-        );
-
-        formData.append(
-            'jump_start_required',
-            jumpStartRequired?.value || ''
-        );
-
+        formData.append('vehicle_make', vehicleMake?.value ?? '');
+        formData.append('vehicle_model', vehicleModel?.value ?? '');
+        formData.append('battery_level', batteryLevel?.value ?? '');
+        formData.append('jump_start_required', jumpStartRequired?.value ?? '');
         // =====================================================
         // Payment Details
         // =====================================================
 
-        formData.append(
-            'payment_mode',
-            paymentMode?.value || ''
-        );
-
+        formData.append('payment_mode', paymentMode?.value ?? '');
         // =====================================================
         // New Payment Proof Files
         // =====================================================
 
         paymentProof.forEach(file => {
-            formData.append(
-                'payment_proof[]',
-                file
-            );
+            formData.append('payment_proof[]', file);
         });
 
         // =====================================================
@@ -954,45 +1163,14 @@ const EditOfflineleads = () => {
          * the user has NOT removed.
          */
 
-        formData.append(
-            'existing_payment_proof',
-            JSON.stringify(
-                existingPaymentProof
-            )
-        );
+        formData.append('existing_payment_proof', JSON.stringify(existingPaymentProof));
 
         // =====================================================
         // Booking Details
         // =====================================================
 
-        formData.append(
-            'booking_status',
-            bookingStatus?.value || ''
-        );
-
-        formData.append(
-            'booking_completed_by',
-            bookingCompletedBy.trim()
-        );
-
-        // =====================================================
-        // Debug FormData
-        // =====================================================
-
-        console.log(
-            'Updating offline lead ID:',
-            id
-        );
-
-        for (const [
-            key,
-            value
-        ] of formData.entries()) {
-            console.log(
-                key,
-                value
-            );
-        }
+        formData.append('booking_status', bookingStatus?.value ?? '');
+        formData.append('booking_completed_by', bookingCompletedBy.trim());
 
         // =====================================================
         // Update API
@@ -1002,37 +1180,16 @@ const EditOfflineleads = () => {
             `update-ev-road-assistance-offline-lead/${id}`,
             formData,
             response => {
-                console.log(
-                    'Update offline booking response:',
-                    response
-                );
 
-                if (
-                    response?.code === 200 ||
-                    response?.status === 1
-                ) {
-                    toast.success(
-                        getResponseMessage(
-                            response,
-                            'Booking updated successfully.'
-                        )
-                    );
+                if (response?.code === 200 || response?.status === 1) {
+                    toast.success(getResponseMessage(response, 'Booking updated successfully.'));
 
                     setTimeout(() => {
                         setLoading(false);
-
-                        navigate(
-                            '/electric/ev-road-assistance/rsa-offline-leads'
-                        );
+                        navigate('/electric/ev-road-assistance/rsa-offline-leads');
                     }, 1000);
                 } else {
-                    toast.error(
-                        getResponseMessage(
-                            response,
-                            'Something went wrong while updating booking.'
-                        )
-                    );
-
+                    toast.error(getResponseMessage(response, 'Something went wrong while updating booking.'));
                     setLoading(false);
                 }
             }
@@ -1047,23 +1204,14 @@ const EditOfflineleads = () => {
         const userDetails =
             getUserDetails();
 
-        if (
-            !userDetails ||
-            !userDetails.access_token
-        ) {
+        if (!userDetails || !userDetails.access_token) {
             navigate('/login');
             return;
         }
 
         if (!id) {
-            toast.error(
-                'Booking ID is missing.'
-            );
-
-            navigate(
-                '/electric/ev-road-assistance/rsa-offline-leads'
-            );
-
+            toast.error('Booking ID is missing.');
+            navigate('/electric/ev-road-assistance/rsa-offline-leads');
             return;
         }
 
@@ -1091,9 +1239,7 @@ const EditOfflineleads = () => {
             return;
         }
 
-        navigate(
-            '/electric/ev-road-assistance/rsa-offline-leads'
-        );
+        navigate('/electric/ev-road-assistance/rsa-offline-leads');
     };
 
     // =========================================================
@@ -1102,34 +1248,13 @@ const EditOfflineleads = () => {
 
     if (fetchingData) {
         return (
-            <div
-                className={
-                    styles.addStationContainer
-                }
-            >
+            <div className={styles.addStationContainer}>
                 <ToastContainer />
 
-                <div
-                    className={
-                        styles.addHeading
-                    }
-                >
-                    Edit EV Road Assistance Offline
-                    Booking
-                </div>
+                <div className={styles.addHeading}> Edit EV Road Assistance Offline Booking</div>
 
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        minHeight: '300px'
-                    }}
-                >
-                    <div
-                        className="spinner-border"
-                        role="status"
-                    >
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+                    <div className="spinner-border" role="status">
                         <span className="visually-hidden">
                             Loading...
                         </span>
@@ -1144,27 +1269,15 @@ const EditOfflineleads = () => {
     // =========================================================
 
     return (
-        <div
-            className={
-                styles.addStationContainer
-            }
+        <div className={styles.addStationContainer}
         >
             <ToastContainer />
 
-            <div
-                className={
-                    styles.addHeading
-                }
-            >
-                Edit EV Road Assistance Offline
-                Booking
+            <div className={styles.addHeading}>
+                Edit EV Road Assistance Offline Booking
             </div>
 
-            <div
-                className={
-                    styles.addStationFormSection
-                }
-            >
+            <div className={styles.addStationFormSection}>
                 <form
                     className={
                         styles.formSection
@@ -1206,9 +1319,7 @@ const EditOfflineleads = () => {
                                         type="text"
                                         autoComplete="off"
                                         placeholder="Customer Name"
-                                        className={
-                                            styles.inputField
-                                        }
+                                        className={styles.inputField}
                                         value={
                                             customerName
                                         }
@@ -1367,962 +1478,1017 @@ const EditOfflineleads = () => {
                         </div>
 
                         {/* Location */}
-
                         <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Location Link
+                            <label className={styles.labelText}>
+                                State
                             </label>
-
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="url"
-                                        autoComplete="off"
-                                        placeholder="Google Maps Location Link"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            locationLink
-                                        }
-                                        onChange={e =>
-                                            setLocationLink(
-                                                e.target.value
-                                            )
-                                        }
+                                    <CustomDropdown
+                                        options={stateOptions}
+                                        value={state}
+                                        onChange={handleStateChange}
+                                        placeholder="Select State"
+                                        labelledBy="Select State"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
-
-                                    {errors.locationLink && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.locationLink
-                                            }
+                                    {errors.state && (
+                                        <p className={styles.error}>
+                                            {errors.state}
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     <div className="row">
-
-                        {/* Address */}
-
                         <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Address
+                            <label className={styles.labelText}>
+                                City
                             </label>
-
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
-                                    <textarea
-                                        rows="3"
-                                        placeholder="Address"
-                                        className={
-                                            styles.inputField
+                                    <CustomDropdown
+                                        options={cityOptions}
+                                        value={city}
+                                        onChange={handleCityChange}
+                                        placeholder={
+                                            !state
+                                                ? 'Select State First'
+                                                : cityOptions.length === 0
+                                                    ? 'No Cities Available'
+                                                    : 'Select City'
                                         }
-                                        value={
-                                            address
-                                        }
-                                        onChange={e =>
-                                            setAddress(
-                                                e.target.value
-                                            )
-                                        }
+                                        labelledBy="Select City"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
-
-                                    {errors.address && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.address
-                                            }
+                                    {errors.city && (
+                                        <p className={styles.error}>
+                                            {errors.city}
                                         </p>
                                     )}
-
                                 </div>
-                            </div>
                         </div>
-
-                        {/* Price */}
-
-                        <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Price Including GST
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Price Including GST"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            price
-                                        }
-                                        onChange={e => {
-                                            const value =
-                                                e.target.value;
-
-                                            if (
-                                                /^\d{0,10}(\.\d{0,2})?$/.test(
-                                                    value
-                                                )
-                                            ) {
-                                                setPrice(
-                                                    value
-                                                );
-                                            }
-                                        }}
-                                    />
-
-                                    {errors.price && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.price
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
 
-                    {/* =================================================
+                    <div className="col-lg-6">
+                        <label
+                            className={
+                                styles.labelText
+                            }
+                        >
+                            Location Link
+                        </label>
+
+                        <div className="row">
+                            <div className="col-xl-10 col-lg-12">
+
+                                <input
+                                    type="url"
+                                    autoComplete="off"
+                                    placeholder="Google Maps Location Link"
+                                    className={
+                                        styles.inputField
+                                    }
+                                    value={
+                                        locationLink
+                                    }
+                                    onChange={e =>
+                                        setLocationLink(
+                                            e.target.value
+                                        )
+                                    }
+                                />
+
+                                {errors.locationLink && (
+                                    <p
+                                        className={
+                                            styles.error
+                                        }
+                                    >
+                                        {
+                                            errors.locationLink
+                                        }
+                                    </p>
+                                )}
+
+                            </div>
+                        </div>
+                    </div>
+
+            </div>
+
+            <div className="row">
+
+                {/* Address */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Address
+                    </label>
+
+                    <div className="row">
+                        <div className="col-xl-10 col-lg-12">
+
+                            <textarea
+                                rows="3"
+                                placeholder="Address"
+                                className={
+                                    styles.inputField
+                                }
+                                value={
+                                    address
+                                }
+                                onChange={e =>
+                                    setAddress(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            {errors.address && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.address
+                                    }
+                                </p>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+
+                {/* Price */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Price Including GST
+                    </label>
+
+                    <div className="row">
+                        <div className="col-xl-10 col-lg-12">
+
+                            <input
+                                type="text"
+                                autoComplete="off"
+                                placeholder="Price Including GST"
+                                className={
+                                    styles.inputField
+                                }
+                                value={
+                                    price
+                                }
+                                onChange={e => {
+                                    const value =
+                                        e.target.value;
+
+                                    if (
+                                        /^\d{0,10}(\.\d{0,2})?$/.test(
+                                            value
+                                        )
+                                    ) {
+                                        setPrice(
+                                            value
+                                        );
+                                    }
+                                }}
+                            />
+
+                            {errors.price && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.price
+                                    }
+                                </p>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {/* =================================================
                         VEHICLE DETAILS
                     ================================================= */}
 
 
 
-                    <div className={`row`}>
-                        <div className={`col-xl-11 col-lg-12`}>
-                            <label className={styles.featureLabel} htmlFor="Features"> Vehicle Details
+            <div className={`row`}>
+                <div className={`col-xl-11 col-lg-12`}>
+                    <label className={styles.featureLabel} htmlFor="Features"> Vehicle Details
 
-                            </label>
-                        </div>
-                    </div>
+                    </label>
+                </div>
+            </div>
 
-                    <div className="row">
+            <div className="row">
 
-                        {/* Vehicle Make */}
+                {/* Vehicle Make */}
 
-                        <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Vehicle Make
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Make"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            vehicleMake
-                                        }
-                                        onChange={e =>
-                                            setVehicleMake(
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-
-                                    {errors.vehicleMake && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.vehicleMake
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Vehicle Model */}
-
-                        <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Vehicle Model
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Model"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            vehicleModel
-                                        }
-                                        onChange={e =>
-                                            setVehicleModel(
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-
-                                    {errors.vehicleModel && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.vehicleModel
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Vehicle Make
+                    </label>
 
                     <div className="row">
+                        <div className="col-xl-10 col-lg-12">
 
-                        {/* Battery Level */}
-
-                        <div className="col-lg-6">
-                            <label
+                            <input
+                                type="text"
+                                autoComplete="off"
+                                placeholder="Vehicle Make"
                                 className={
-                                    styles.labelText
+                                    styles.inputField
                                 }
-                            >
-                                Battery Level
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <CustomDropdown
-                                        options={
-                                            batteryLevelOptions
-                                        }
-                                        value={
-                                            batteryLevel
-                                        }
-                                        onChange={
-                                            selectedOption => {
-                                                setBatteryLevel(
-                                                    selectedOption
-                                                );
-
-                                                setErrors(
-                                                    prev => ({
-                                                        ...prev,
-                                                        batteryLevel:
-                                                            ''
-                                                    })
-                                                );
-                                            }
-                                        }
-                                        labelledBy="Select Battery Level"
-                                        closeOnChangedValue
-                                        closeOnSelect
-                                    />
-
-                                    {errors.batteryLevel && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.batteryLevel
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Jump Start */}
-
-                        <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
+                                value={
+                                    vehicleMake
                                 }
-                            >
-                                Jump Start Required
-                            </label>
+                                onChange={e =>
+                                    setVehicleMake(
+                                        e.target.value
+                                    )
+                                }
+                            />
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
+                            {errors.vehicleMake && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.vehicleMake
+                                    }
+                                </p>
+                            )}
 
-                                    <CustomDropdown
-                                        options={
-                                            jumpStartOptions
-                                        }
-                                        value={
-                                            jumpStartRequired
-                                        }
-                                        onChange={
-                                            selectedOption => {
-                                                setJumpStartRequired(
-                                                    selectedOption
-                                                );
-
-                                                setErrors(
-                                                    prev => ({
-                                                        ...prev,
-                                                        jumpStartRequired:
-                                                            ''
-                                                    })
-                                                );
-                                            }
-                                        }
-                                        labelledBy="Select Option"
-                                        closeOnChangedValue
-                                        closeOnSelect
-                                    />
-
-                                    {errors.jumpStartRequired && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.jumpStartRequired
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-                            </div>
                         </div>
-
                     </div>
+                </div>
 
-                    {/* =================================================
+                {/* Vehicle Model */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Vehicle Model
+                    </label>
+
+                    <div className="row">
+                        <div className="col-xl-10 col-lg-12">
+
+                            <input
+                                type="text"
+                                autoComplete="off"
+                                placeholder="Vehicle Model"
+                                className={
+                                    styles.inputField
+                                }
+                                value={
+                                    vehicleModel
+                                }
+                                onChange={e =>
+                                    setVehicleModel(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                            {errors.vehicleModel && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.vehicleModel
+                                    }
+                                </p>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div className="row">
+
+                {/* Battery Level */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Battery Level
+                    </label>
+
+                    <div className="row">
+                        <div className="col-xl-10 col-lg-12">
+
+                            <CustomDropdown
+                                options={
+                                    batteryLevelOptions
+                                }
+                                value={
+                                    batteryLevel
+                                }
+                                onChange={
+                                    selectedOption => {
+                                        setBatteryLevel(
+                                            selectedOption
+                                        );
+
+                                        setErrors(
+                                            prev => ({
+                                                ...prev,
+                                                batteryLevel:
+                                                    ''
+                                            })
+                                        );
+                                    }
+                                }
+                                labelledBy="Select Battery Level"
+                                closeOnChangedValue
+                                closeOnSelect
+                            />
+
+                            {errors.batteryLevel && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.batteryLevel
+                                    }
+                                </p>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+
+                {/* Jump Start */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Jump Start Required
+                    </label>
+
+                    <div className="row">
+                        <div className="col-xl-10 col-lg-12">
+
+                            <CustomDropdown
+                                options={
+                                    jumpStartOptions
+                                }
+                                value={
+                                    jumpStartRequired
+                                }
+                                onChange={
+                                    selectedOption => {
+                                        setJumpStartRequired(
+                                            selectedOption
+                                        );
+
+                                        setErrors(
+                                            prev => ({
+                                                ...prev,
+                                                jumpStartRequired:
+                                                    ''
+                                            })
+                                        );
+                                    }
+                                }
+                                labelledBy="Select Option"
+                                closeOnChangedValue
+                                closeOnSelect
+                            />
+
+                            {errors.jumpStartRequired && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.jumpStartRequired
+                                    }
+                                </p>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {/* =================================================
                         PAYMENT DETAILS
                     ================================================= */}
 
 
 
-                    <div className={`row`}>
-                        <div className={`col-xl-11 col-lg-12`}>
-                            <label className={styles.featureLabel} htmlFor="Features"> Payment Details
+            <div className={`row`}>
+                <div className={`col-xl-11 col-lg-12`}>
+                    <label className={styles.featureLabel} htmlFor="Features"> Payment Details
 
-                            </label>
+                    </label>
+                </div>
+            </div>
+
+            <div className="row">
+
+                {/* Payment Mode */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Mode of Payment
+                    </label>
+
+                    <div className="row">
+                        <div className="col-xl-10 col-lg-12">
+
+                            <CustomDropdown
+                                options={
+                                    paymentModeOptions
+                                }
+                                value={
+                                    paymentMode
+                                }
+                                onChange={
+                                    selectedOption => {
+                                        setPaymentMode(
+                                            selectedOption
+                                        );
+
+                                        setErrors(
+                                            prev => ({
+                                                ...prev,
+                                                paymentMode:
+                                                    ''
+                                            })
+                                        );
+                                    }
+                                }
+                                labelledBy="Select Payment Mode"
+                                closeOnChangedValue
+                                closeOnSelect
+                            />
+
+                            {errors.paymentMode && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.paymentMode
+                                    }
+                                </p>
+                            )}
+
                         </div>
                     </div>
+                </div>
+
+                {/* Payment Proof */}
+
+                <div className="col-lg-6">
+
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Payment Proof
+                    </label>
 
                     <div className="row">
 
-                        {/* Payment Mode */}
+                        <div className="col-xl-10 col-lg-12">
 
-                        <div className="col-lg-6">
-                            <label
+                            <div
                                 className={
-                                    styles.labelText
+                                    styles.uploadContainer
                                 }
                             >
-                                Mode of Payment
-                            </label>
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
+                                <span
+                                    className={
+                                        styles.uploadLabel
+                                    }
+                                >
+                                    {paymentProof.length >
+                                        0
+                                        ? paymentProof.length >
+                                            2
+                                            ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
+                                            : paymentProof
+                                                .map(
+                                                    file =>
+                                                        file.name
+                                                )
+                                                .join(
+                                                    ', '
+                                                )
+                                        : 'Upload Payment Proof'}
+                                </span>
 
-                                    <CustomDropdown
-                                        options={
-                                            paymentModeOptions
-                                        }
-                                        value={
-                                            paymentMode
-                                        }
-                                        onChange={
-                                            selectedOption => {
-                                                setPaymentMode(
-                                                    selectedOption
-                                                );
+                                <label
+                                    htmlFor="galleryImage"
+                                    className={
+                                        styles.uploadButton
+                                    }
+                                >
+                                    <MdOutlineCloudUpload />
+                                    Upload
+                                </label>
 
-                                                setErrors(
-                                                    prev => ({
-                                                        ...prev,
-                                                        paymentMode:
-                                                            ''
-                                                    })
-                                                );
-                                            }
-                                        }
-                                        labelledBy="Select Payment Mode"
-                                        closeOnChangedValue
-                                        closeOnSelect
-                                    />
+                                <input
+                                    type="file"
+                                    multiple
+                                    id="galleryImage"
+                                    accept=".jpg,.jpeg,.png"
+                                    onChange={
+                                        handleGalleryChange
+                                    }
+                                    className={
+                                        styles.hiddenInput
+                                    }
+                                />
 
-                                    {errors.paymentMode && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.paymentMode
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
                             </div>
+
+                            {errors.paymentProof &&
+                                paymentProof.length ===
+                                0 &&
+                                existingPaymentProof.length ===
+                                0 && (
+                                    <p
+                                        className={
+                                            styles.error
+                                        }
+                                    >
+                                        {
+                                            errors.paymentProof
+                                        }
+                                    </p>
+                                )}
+
                         </div>
+                    </div>
 
-                        {/* Payment Proof */}
+                    {/* =================================================
+                                Existing Payment Proof
+                            ================================================= */}
 
-                        <div className="col-lg-6">
-
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
-                                Payment Proof
-                            </label>
-
-                            <div className="row">
+                    {existingPaymentProof.length >
+                        0 && (
+                            <div className="row mt-2">
 
                                 <div className="col-xl-10 col-lg-12">
 
                                     <div
+                                        style={{
+                                            fontWeight: 600,
+                                            marginBottom:
+                                                '10px'
+                                        }}
+                                    >
+                                        Existing Payment
+                                        Proof
+                                    </div>
+
+                                    <div
                                         className={
-                                            styles.uploadContainer
+                                            styles.galleryContainer
                                         }
                                     >
 
-                                        <span
-                                            className={
-                                                styles.uploadLabel
-                                            }
-                                        >
-                                            {paymentProof.length >
-                                                0
-                                                ? paymentProof.length >
-                                                    2
-                                                    ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
-                                                    : paymentProof
-                                                        .map(
-                                                            file =>
-                                                                file.name
-                                                        )
-                                                        .join(
-                                                            ', '
-                                                        )
-                                                : 'Upload Payment Proof'}
-                                        </span>
+                                        {existingPaymentProof.map(
+                                            (
+                                                file,
+                                                index
+                                            ) => {
+                                                const imageUrl =
+                                                    getExistingImageUrl(
+                                                        file
+                                                    );
 
-                                        <label
-                                            htmlFor="galleryImage"
-                                            className={
-                                                styles.uploadButton
-                                            }
-                                        >
-                                            <MdOutlineCloudUpload />
-                                            Upload
-                                        </label>
+                                                return (
+                                                    <div
+                                                        className={
+                                                            styles.imageContainer
+                                                        }
+                                                        key={
+                                                            file?.id ||
+                                                            index
+                                                        }
+                                                    >
 
-                                        <input
-                                            type="file"
-                                            multiple
-                                            id="galleryImage"
-                                            accept=".jpg,.jpeg,.png"
-                                            onChange={
-                                                handleGalleryChange
-                                            }
-                                            className={
-                                                styles.hiddenInput
-                                            }
-                                        />
-
-                                    </div>
-
-                                    {errors.paymentProof &&
-                                        paymentProof.length ===
-                                        0 &&
-                                        existingPaymentProof.length ===
-                                        0 && (
-                                            <p
-                                                className={
-                                                    styles.error
-                                                }
-                                            >
-                                                {
-                                                    errors.paymentProof
-                                                }
-                                            </p>
-                                        )}
-
-                                </div>
-                            </div>
-
-                            {/* =================================================
-                                Existing Payment Proof
-                            ================================================= */}
-
-                            {existingPaymentProof.length >
-                                0 && (
-                                    <div className="row mt-2">
-
-                                        <div className="col-xl-10 col-lg-12">
-
-                                            <div
-                                                style={{
-                                                    fontWeight: 600,
-                                                    marginBottom:
-                                                        '10px'
-                                                }}
-                                            >
-                                                Existing Payment
-                                                Proof
-                                            </div>
-
-                                            <div
-                                                className={
-                                                    styles.galleryContainer
-                                                }
-                                            >
-
-                                                {existingPaymentProof.map(
-                                                    (
-                                                        file,
-                                                        index
-                                                    ) => {
-                                                        const imageUrl =
-                                                            getExistingImageUrl(
-                                                                file
-                                                            );
-
-                                                        return (
-                                                            <div
-                                                                className={
-                                                                    styles.imageContainer
-                                                                }
-                                                                key={
-                                                                    file?.id ||
-                                                                    index
-                                                                }
-                                                            >
-
-                                                                {imageUrl ? (
-                                                                    <img
-                                                                        src={
-                                                                            imageUrl
-                                                                        }
-                                                                        alt={`Existing Payment Proof ${index +
-                                                                            1
-                                                                            }`}
-                                                                        className={
-                                                                            styles.previewImage
-                                                                        }
-                                                                    />
-                                                                ) : (
-                                                                    <div
-                                                                        style={{
-                                                                            width:
-                                                                                '100%',
-                                                                            height:
-                                                                                '100px',
-                                                                            display:
-                                                                                'flex',
-                                                                            alignItems:
-                                                                                'center',
-                                                                            justifyContent:
-                                                                                'center',
-                                                                            background:
-                                                                                '#f5f5f5',
-                                                                            color:
-                                                                                '#777'
-                                                                        }}
-                                                                    >
-                                                                        Image
-                                                                        not
-                                                                        available
-                                                                    </div>
-                                                                )}
-
-                                                                <button
-                                                                    type="button"
-                                                                    className={
-                                                                        styles.removeButton
-                                                                    }
-                                                                    onClick={() =>
-                                                                        handleRemoveExistingProof(
-                                                                            index
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <AiOutlineClose
-                                                                        size={
-                                                                            20
-                                                                        }
-                                                                        style={{
-                                                                            padding:
-                                                                                '2px'
-                                                                        }}
-                                                                    />
-                                                                </button>
-
-                                                            </div>
-                                                        );
-                                                    }
-                                                )}
-
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                )}
-
-                            {/* =================================================
-                                Newly Selected Payment Proof
-                            ================================================= */}
-
-                            {paymentProof.length >
-                                0 && (
-                                    <div className="row mt-2">
-
-                                        <div className="col-xl-10 col-lg-12">
-
-                                            <div
-                                                style={{
-                                                    fontWeight: 600,
-                                                    marginBottom:
-                                                        '10px'
-                                                }}
-                                            >
-                                                New Payment
-                                                Proof
-                                            </div>
-
-                                            <div
-                                                className={
-                                                    styles.galleryContainer
-                                                }
-                                            >
-
-                                                {paymentProof.map(
-                                                    (
-                                                        file,
-                                                        index
-                                                    ) => (
-                                                        <div
-                                                            className={
-                                                                styles.imageContainer
-                                                            }
-                                                            key={`${file.name}-${file.lastModified}-${index}`}
-                                                        >
-
+                                                        {imageUrl ? (
                                                             <img
                                                                 src={
-                                                                    paymentProofPreviews[
-                                                                    index
-                                                                    ]
+                                                                    imageUrl
                                                                 }
-                                                                alt={`Preview ${index +
+                                                                alt={`Existing Payment Proof ${index +
                                                                     1
                                                                     }`}
                                                                 className={
                                                                     styles.previewImage
                                                                 }
                                                             />
-
-                                                            <button
-                                                                type="button"
-                                                                className={
-                                                                    styles.removeButton
-                                                                }
-                                                                onClick={() =>
-                                                                    handleRemoveGalleryImage(
-                                                                        index
-                                                                    )
-                                                                }
+                                                        ) : (
+                                                            <div
+                                                                style={{
+                                                                    width:
+                                                                        '100%',
+                                                                    height:
+                                                                        '100px',
+                                                                    display:
+                                                                        'flex',
+                                                                    alignItems:
+                                                                        'center',
+                                                                    justifyContent:
+                                                                        'center',
+                                                                    background:
+                                                                        '#f5f5f5',
+                                                                    color:
+                                                                        '#777'
+                                                                }}
                                                             >
-                                                                <AiOutlineClose
-                                                                    size={
-                                                                        20
-                                                                    }
-                                                                    style={{
-                                                                        padding:
-                                                                            '2px'
-                                                                    }}
-                                                                />
-                                                            </button>
+                                                                Image
+                                                                not
+                                                                available
+                                                            </div>
+                                                        )}
 
-                                                        </div>
-                                                    )
-                                                )}
+                                                        <button
+                                                            type="button"
+                                                            className={
+                                                                styles.removeButton
+                                                            }
+                                                            onClick={() =>
+                                                                handleRemoveExistingProof(
+                                                                    index
+                                                                )
+                                                            }
+                                                        >
+                                                            <AiOutlineClose
+                                                                size={
+                                                                    20
+                                                                }
+                                                                style={{
+                                                                    padding:
+                                                                        '2px'
+                                                                }}
+                                                            />
+                                                        </button>
 
-                                            </div>
+                                                    </div>
+                                                );
+                                            }
+                                        )}
 
-                                        </div>
                                     </div>
-                                )}
 
-                        </div>
-
-                    </div>
+                                </div>
+                            </div>
+                        )}
 
                     {/* =================================================
+                                Newly Selected Payment Proof
+                            ================================================= */}
+
+                    {paymentProof.length >
+                        0 && (
+                            <div className="row mt-2">
+
+                                <div className="col-xl-10 col-lg-12">
+
+                                    <div
+                                        style={{
+                                            fontWeight: 600,
+                                            marginBottom:
+                                                '10px'
+                                        }}
+                                    >
+                                        New Payment
+                                        Proof
+                                    </div>
+
+                                    <div
+                                        className={
+                                            styles.galleryContainer
+                                        }
+                                    >
+
+                                        {paymentProof.map(
+                                            (
+                                                file,
+                                                index
+                                            ) => (
+                                                <div
+                                                    className={
+                                                        styles.imageContainer
+                                                    }
+                                                    key={`${file.name}-${file.lastModified}-${index}`}
+                                                >
+
+                                                    <img
+                                                        src={
+                                                            paymentProofPreviews[
+                                                            index
+                                                            ]
+                                                        }
+                                                        alt={`Preview ${index +
+                                                            1
+                                                            }`}
+                                                        className={
+                                                            styles.previewImage
+                                                        }
+                                                    />
+
+                                                    <button
+                                                        type="button"
+                                                        className={
+                                                            styles.removeButton
+                                                        }
+                                                        onClick={() =>
+                                                            handleRemoveGalleryImage(
+                                                                index
+                                                            )
+                                                        }
+                                                    >
+                                                        <AiOutlineClose
+                                                            size={
+                                                                20
+                                                            }
+                                                            style={{
+                                                                padding:
+                                                                    '2px'
+                                                            }}
+                                                        />
+                                                    </button>
+
+                                                </div>
+                                            )
+                                        )}
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        )}
+
+                </div>
+
+            </div>
+
+            {/* =================================================
                         BOOKING DETAILS
                     ================================================= */}
 
 
 
-                    <div className={`row`}>
-                        <div className={`col-xl-11 col-lg-12`}>
-                            <label className={styles.featureLabel} htmlFor="Features"> Booking Details
+            <div className={`row`}>
+                <div className={`col-xl-11 col-lg-12`}>
+                    <label className={styles.featureLabel} htmlFor="Features"> Booking Details
 
-                            </label>
-                        </div>
-                    </div>
+                    </label>
+                </div>
+            </div>
+
+            <div className="row">
+
+                {/* Booking Status */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Booking Status
+                    </label>
 
                     <div className="row">
+                        <div className="col-xl-10 col-lg-12">
 
-                        {/* Booking Status */}
-
-                        <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
+                            <CustomDropdown
+                                options={
+                                    bookingStatusOptions
                                 }
-                            >
-                                Booking Status
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <CustomDropdown
-                                        options={
-                                            bookingStatusOptions
-                                        }
-                                        value={
-                                            bookingStatus
-                                        }
-                                        onChange={
-                                            selectedOption => {
-                                                setBookingStatus(
-                                                    selectedOption
-                                                );
-
-                                                setErrors(
-                                                    prev => ({
-                                                        ...prev,
-                                                        bookingStatus:
-                                                            '',
-                                                        bookingCompletedBy:
-                                                            ''
-                                                    })
-                                                );
-
-                                                if (
-                                                    selectedOption?.value !==
-                                                    'completed'
-                                                ) {
-                                                    setBookingCompletedBy(
-                                                        ''
-                                                    );
-                                                }
-                                            }
-                                        }
-                                        labelledBy="Select Booking Status"
-                                        closeOnChangedValue
-                                        closeOnSelect
-                                    />
-
-                                    {errors.bookingStatus && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.bookingStatus
-                                            }
-                                        </p>
-                                    )}
-
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Completed By */}
-
-                        <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
+                                value={
+                                    bookingStatus
                                 }
-                            >
-                                Booking Completed By
-                            </label>
+                                onChange={
+                                    selectedOption => {
+                                        setBookingStatus(
+                                            selectedOption
+                                        );
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
+                                        setErrors(
+                                            prev => ({
+                                                ...prev,
+                                                bookingStatus:
+                                                    '',
+                                                bookingCompletedBy:
+                                                    ''
+                                            })
+                                        );
 
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Booking Completed By"
-                                        className={
-                                            styles.inputField
-                                        }
-                                        value={
-                                            bookingCompletedBy
-                                        }
-                                        onChange={e => {
-                                            setBookingCompletedBy(
-                                                e.target.value
-                                            );
-
-                                            setErrors(
-                                                prev => ({
-                                                    ...prev,
-                                                    bookingCompletedBy:
-                                                        ''
-                                                })
-                                            );
-                                        }}
-                                        disabled={
-                                            bookingStatus?.value !==
+                                        if (
+                                            selectedOption?.value !==
                                             'completed'
+                                        ) {
+                                            setBookingCompletedBy(
+                                                ''
+                                            );
                                         }
-                                    />
+                                    }
+                                }
+                                labelledBy="Select Booking Status"
+                                closeOnChangedValue
+                                closeOnSelect
+                            />
 
-                                    {errors.bookingCompletedBy && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.bookingCompletedBy
-                                            }
-                                        </p>
-                                    )}
+                            {errors.bookingStatus && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.bookingStatus
+                                    }
+                                </p>
+                            )}
 
-                                </div>
-                            </div>
                         </div>
-
                     </div>
+                </div>
 
-                    {/* =================================================
+                {/* Completed By */}
+
+                <div className="col-lg-6">
+                    <label
+                        className={
+                            styles.labelText
+                        }
+                    >
+                        Booking Completed By
+                    </label>
+
+                    <div className="row">
+                        <div className="col-xl-10 col-lg-12">
+
+                            <input
+                                type="text"
+                                autoComplete="off"
+                                placeholder="Booking Completed By"
+                                className={
+                                    styles.inputField
+                                }
+                                value={
+                                    bookingCompletedBy
+                                }
+                                onChange={e => {
+                                    setBookingCompletedBy(
+                                        e.target.value
+                                    );
+
+                                    setErrors(
+                                        prev => ({
+                                            ...prev,
+                                            bookingCompletedBy:
+                                                ''
+                                        })
+                                    );
+                                }}
+                                disabled={
+                                    bookingStatus?.value !==
+                                    'completed'
+                                }
+                            />
+
+                            {errors.bookingCompletedBy && (
+                                <p
+                                    className={
+                                        styles.error
+                                    }
+                                >
+                                    {
+                                        errors.bookingCompletedBy
+                                    }
+                                </p>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            {/* =================================================
                         BUTTONS
                     ================================================= */}
 
+            <div className="row">
+
+                <div className="col-xl-11 col-lg-12">
+
                     <div className="row">
 
-                        <div className="col-xl-11 col-lg-12">
+                        <div
+                            className={`col-lg-12 ${styles.editButton}`}
+                        >
 
-                            <div className="row">
+                            <button
+                                type="button"
+                                className={
+                                    styles.editCancelBtn
+                                }
+                                onClick={
+                                    handleCancel
+                                }
+                                disabled={
+                                    loading
+                                }
+                            >
+                                Cancel
+                            </button>
 
-                                <div
-                                    className={`col-lg-12 ${styles.editButton}`}
-                                >
+                            <button
+                                disabled={
+                                    loading
+                                }
+                                type="submit"
+                                className={
+                                    styles.editSubmitBtn
+                                }
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2"></span>
 
-                                    <button
-                                        type="button"
-                                        className={
-                                            styles.editCancelBtn
-                                        }
-                                        onClick={
-                                            handleCancel
-                                        }
-                                        disabled={
-                                            loading
-                                        }
-                                    >
-                                        Cancel
-                                    </button>
-
-                                    <button
-                                        disabled={
-                                            loading
-                                        }
-                                        type="submit"
-                                        className={
-                                            styles.editSubmitBtn
-                                        }
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <span className="spinner-border spinner-border-sm me-2"></span>
-
-                                                Updating...
-                                            </>
-                                        ) : (
-                                            'Update'
-                                        )}
-                                    </button>
-
-                                </div>
-
-                            </div>
+                                        Updating...
+                                    </>
+                                ) : (
+                                    'Update'
+                                )}
+                            </button>
 
                         </div>
 
                     </div>
 
-                </form>
+                </div>
+
             </div>
-        </div>
+
+        </form>
+            </div >
+        </div >
     );
 };
 
