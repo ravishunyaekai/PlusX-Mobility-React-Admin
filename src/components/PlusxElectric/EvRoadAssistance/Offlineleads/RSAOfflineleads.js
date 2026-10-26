@@ -14,6 +14,7 @@ import moment from 'moment';
 import Loader from "../../../SharedComponent/Loader/Loader";
 import EmptyList from '../../../SharedComponent/EmptyList/EmptyList';
 import List from '../../../SharedComponent/List/List';
+import { formatIndianNumber } from '../../../../utils/statusMapping';
 
 const statusMapping = {
     'CNF': 'Booking Confirmed',
@@ -165,13 +166,13 @@ const RSAOfflineleads = () => {
             rowSelected,
             ...appliedFilters,
         };
-        postRequestWithToken('ev-road-assistance-booking-list', obj, async (response) => {
+        postRequestWithToken('ev-road-assistance-offline-booking-list', obj, async (response) => {
             if (response.code === 200) {
                 setChargerBookingList(response?.data);
                 setTotalPages(response?.total_page || 1);
                 setTotalCount(response?.total || 0)
             } else {
-                console.log('error in ev-road-assistance-booking-list', response);
+                console.log('error in ev-road-assistance-offline-booking-list', response);
             }
             setLoading(false);
         });
@@ -304,7 +305,7 @@ const RSAOfflineleads = () => {
                                 { key: 'created_at', label: 'Date & Time', format: (date) => moment(date).format('DD MMM YYYY hh:mm A') },
                                 { key: 'request_id', label: 'Order ID' },
                                 { key: 'name', label: 'Customer Name' },
-                                { key: 'price', label: 'Price', format: (price) => (price ? `${price.toFixed(2)} INR` : '0 INR') },
+                                { key: 'price', label: 'Price', format: (price) => (price ? `${formatIndianNumber(Number(price)?.toFixed(2))} INR` : '0 INR') },
                                 { key: 'order_status', label: 'Status', format: (status) => statusMapping[status] || status },
                                 { key: 'rsa_name', label: 'Driver Name' },
                                 {

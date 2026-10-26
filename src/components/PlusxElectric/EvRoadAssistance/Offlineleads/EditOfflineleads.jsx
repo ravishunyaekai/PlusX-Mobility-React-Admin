@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import { State, City } from 'country-state-city';
 import styles from './AddOfflineleads.module.css';
@@ -8,9 +8,12 @@ import { toast, ToastContainer } from 'react-toastify';
 import { MdOutlineCloudUpload } from 'react-icons/md';
 import { AiOutlineClose } from 'react-icons/ai';
 import 'react-toastify/dist/ReactToastify.css';
-import CustomDropdown from '../../../SharedComponent/UI/CustomDropdown/CustomDropdown';
+import CustomDropdown, { CustomDropdownDisabled } from '../../../SharedComponent/UI/CustomDropdown/CustomDropdown';
 
 const EditOfflineleads = () => {
+    const location = useLocation();
+    const status = new URLSearchParams(location.search).get("status");
+
     const navigate = useNavigate();
     const { id } = useParams();
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
@@ -18,6 +21,16 @@ const EditOfflineleads = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [fetchingData, setFetchingData] = useState(true);
+
+    // =========================
+    // Rider Lookup Details
+    // =========================
+    const [riderLookupLoading, setRiderLookupLoading] = useState(false);
+    const [riderLookupMessage, setRiderLookupMessage] = useState('');
+    const [lookupTrigger, setLookupTrigger] = useState('');
+
+    const lastLookupRef = useRef('');
+    const lookupRequestRef = useRef(0);
 
     // =========================================================
     // Customer Details
@@ -595,7 +608,7 @@ const EditOfflineleads = () => {
         };
 
         postRequestWithToken(
-            'ev-road-assistance-booking-details',
+            'ev-road-assistance-offline-booking-details',
             obj,
             response => {
                 console.log(
@@ -953,6 +966,180 @@ const EditOfflineleads = () => {
         });
     };
 
+
+    const applyRiderDetails = (rider) => {
+        if (!rider) return;
+
+        if (rider.customer_name) {
+            setCustomerName(rider.customer_name);
+        }
+
+        if (rider.mobile_no) {
+            const digits = String(rider.mobile_no).replace(/\D/g, '');
+
+            // Remove the country calling code if the API returns it
+            // as part of the mobile number.
+            const callingCode = String(rider.country_code || countryCode)
+                .replace(/\D/g, '');
+
+            const localNumber =
+                digits.length > 10 && digits.startsWith(callingCode)
+                    ? digits.slice(callingCode.length)
+                    : digits;
+
+            setPhoneNumber(localNumber.slice(-10));
+        }
+
+        if (rider.email_id) {
+            setEmailId(rider.email_id);
+        }
+
+        if (rider.country_code) {
+            const matchedCode = countryCodeOptions.find(
+                (option) => option.value === rider.country_code
+            );
+
+            if (matchedCode) {
+                setCountryCode(matchedCode.value);
+            }
+        }
+
+        // Your current state dropdown contains Indian states only.
+        // Autofill only when the returned emirates value matches
+        // an existing dropdown option.
+        if (rider.emirates) {
+            const matchedState = stateOptions.find(
+                (option) =>
+                    option.label.toLowerCase() ===
+                    String(rider.emirates).trim().toLowerCase()
+            );
+
+            if (matchedState) {
+                setState(matchedState);
+                setCity(null);
+            }
+        }
+
+        setErrors((prev) => ({
+            ...prev,
+            customerName: '',
+            phoneNumber: '',
+            emailId: '',
+            state: '',
+            city: '',
+        }));
+    };
+
+    useEffect(() => {
+        let timer;
+
+        const lookupValue =
+            lookupTrigger === 'mobile'
+                ? phoneNumber.trim()
+                : emailId.trim();
+
+        if (!lookupTrigger || !lookupValue) {
+            return;
+        }
+
+        // Mobile lookup requires exactly 10 digits.
+        if (
+            lookupTrigger === 'mobile' &&
+            !/^\d{10}$/.test(lookupValue)
+        ) {
+            setRiderLookupMessage('');
+            return;
+        }
+
+        // Email lookup requires a complete, valid email address.
+        if (
+            lookupTrigger === 'email' &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lookupValue)
+        ) {
+            setRiderLookupMessage('');
+            return;
+        }
+
+        const lookupKey = `${lookupTrigger}:${lookupValue.toLowerCase()}`;
+
+        if (lastLookupRef.current === lookupKey) {
+            return;
+        }
+
+        timer = setTimeout(() => {
+            lastLookupRef.current = lookupKey;
+
+            const requestId = ++lookupRequestRef.current;
+
+            setRiderLookupLoading(true);
+            setRiderLookupMessage('Checking existing rider...');
+
+            const payload = {
+                userId: userDetails?.user_id,
+                email: userDetails?.email,
+                country_code: countryCode,
+            };
+
+            if (lookupTrigger === 'mobile') {
+                payload.mobile_no = lookupValue;
+            } else {
+                payload.email_id = lookupValue;
+            }
+
+            postRequestWithToken(
+                'ev-road-assistance-offline-rider-lookup',
+                payload,
+                (response) => {
+                    // Ignore an older response if a newer lookup started.
+                    if (requestId !== lookupRequestRef.current) {
+                        return;
+                    }
+
+                    setRiderLookupLoading(false);
+
+                    if (
+                        response?.code === 200 &&
+                        response?.found === 1 &&
+                        response?.data
+                    ) {
+                        applyRiderDetails(response.data);
+
+                        setRiderLookupMessage(
+                            'Existing rider found. Details autofilled.'
+                        );
+                    } else if (
+                        response?.code === 200 &&
+                        response?.found === 0
+                    ) {
+                        setRiderLookupMessage(
+                            'No existing rider found. Enter new rider details.'
+                        );
+                    } else {
+                        // Allow retrying if the API returns an error.
+                        lastLookupRef.current = '';
+
+                        setRiderLookupMessage(
+                            response?.message?.[0] ||
+                            response?.message ||
+                            'Unable to look up rider details.'
+                        );
+                    }
+                }
+            );
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [
+        lookupTrigger,
+        phoneNumber,
+        emailId,
+        countryCode,
+        countryCodeOptions,
+        stateOptions,
+        userDetails?.user_id,
+        userDetails?.email,
+    ]);
+
     // =========================================================
     // Remove Existing Payment Proof
     // =========================================================
@@ -991,17 +1178,17 @@ const EditOfflineleads = () => {
                 'Please enter a valid 10 digit phone number.';
         }
 
-        if (!emailId.trim()) {
-            newErrors.emailId =
-                'Email ID is required.';
-        } else if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                emailId
-            )
-        ) {
-            newErrors.emailId =
-                'Please enter a valid email ID.';
-        }
+        // if (!emailId.trim()) {
+        //     newErrors.emailId =
+        //         'Email ID is required.';
+        // } else if (
+        //     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        //         emailId
+        //     )
+        // ) {
+        //     newErrors.emailId =
+        //         'Please enter a valid email ID.';
+        // }
 
         if (!state?.value) {
             newErrors.state = 'State is required.';
@@ -1115,6 +1302,7 @@ const EditOfflineleads = () => {
         // =====================================================
         // Common
         // =====================================================
+        formData.append('status', status == 1 ? 'completed' : 'not completed');
 
         formData.append('userId', userDetails?.user_id ?? '');
         formData.append('email', userDetails?.email ?? '');
@@ -1177,7 +1365,7 @@ const EditOfflineleads = () => {
         // =====================================================
 
         postRequestWithToken(
-            `update-ev-road-assistance-offline-lead/${id}`,
+            `ev-road-assistance-edit-offline-booking/${id}`,
             formData,
             response => {
 
@@ -1363,11 +1551,12 @@ const EditOfflineleads = () => {
 
                                         {/* Country Code - 40% */}
                                         <div className={styles.countryCodeWrapper}>
-                                            <CustomDropdown
+                                            <CustomDropdownDisabled
                                                 options={countryCodeOptions}
                                                 value={selectedCountryCode}
                                                 onChange={handleCountryCodeChange}
                                                 placeholder="+91"
+                                                isDisabled={true} 
                                             />
 
                                             {errors.countryCode && (
@@ -1389,20 +1578,32 @@ const EditOfflineleads = () => {
                                                 className={
                                                     styles.inputField
                                                 }
+                                                disabled={true}
                                                 value={
                                                     phoneNumber
                                                 }
                                                 maxLength={10}
-                                                onChange={e => {
-                                                    const value =
-                                                        e.target.value.replace(
-                                                            /\D/g,
-                                                            ''
-                                                        );
+                                                // onChange={e => {
+                                                //     const value =
+                                                //         e.target.value.replace(
+                                                //             /\D/g,
+                                                //             ''
+                                                //         );
 
-                                                    setPhoneNumber(
-                                                        value
-                                                    );
+                                                //     setPhoneNumber(
+                                                //         value
+                                                //     );
+                                                // }}
+                                                onChange={(e) => {
+                                                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+
+                                                    setPhoneNumber(value);
+                                                    setLookupTrigger('mobile');
+
+                                                    setErrors((prev) => ({
+                                                        ...prev,
+                                                        phoneNumber: '',
+                                                    }));
                                                 }}
                                             />
 
@@ -1454,11 +1655,21 @@ const EditOfflineleads = () => {
                                         value={
                                             emailId
                                         }
-                                        onChange={e =>
-                                            setEmailId(
-                                                e.target.value
-                                            )
-                                        }
+                                        disabled={true}
+                                        // onChange={e =>
+                                        //     setEmailId(
+                                        //         e.target.value
+                                        //     )
+                                        // }
+                                        onChange={(e) => {
+                                            setEmailId(e.target.value);
+                                            setLookupTrigger('email');
+
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                emailId: '',
+                                            }));
+                                        }}
                                     />
 
                                     {errors.emailId && (
@@ -1531,962 +1742,962 @@ const EditOfflineleads = () => {
                                         </p>
                                     )}
                                 </div>
-                        </div>
-                    </div>
-
-                    <div className="col-lg-6">
-                        <label
-                            className={
-                                styles.labelText
-                            }
-                        >
-                            Location Link
-                        </label>
-
-                        <div className="row">
-                            <div className="col-xl-10 col-lg-12">
-
-                                <input
-                                    type="url"
-                                    autoComplete="off"
-                                    placeholder="Google Maps Location Link"
-                                    className={
-                                        styles.inputField
-                                    }
-                                    value={
-                                        locationLink
-                                    }
-                                    onChange={e =>
-                                        setLocationLink(
-                                            e.target.value
-                                        )
-                                    }
-                                />
-
-                                {errors.locationLink && (
-                                    <p
-                                        className={
-                                            styles.error
-                                        }
-                                    >
-                                        {
-                                            errors.locationLink
-                                        }
-                                    </p>
-                                )}
-
                             </div>
                         </div>
+
+                        <div className="col-lg-6">
+                            <label
+                                className={
+                                    styles.labelText
+                                }
+                            >
+                                Location Link
+                            </label>
+
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
+
+                                    <input
+                                        type="url"
+                                        autoComplete="off"
+                                        placeholder="Google Maps Location Link"
+                                        className={
+                                            styles.inputField
+                                        }
+                                        value={
+                                            locationLink
+                                        }
+                                        onChange={e =>
+                                            setLocationLink(
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                    {errors.locationLink && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.locationLink
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-
-            </div>
-
-            <div className="row">
-
-                {/* Address */}
-
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Address
-                    </label>
 
                     <div className="row">
-                        <div className="col-xl-10 col-lg-12">
 
-                            <textarea
-                                rows="3"
-                                placeholder="Address"
+                        {/* Address */}
+
+                        <div className="col-lg-6">
+                            <label
                                 className={
-                                    styles.inputField
+                                    styles.labelText
                                 }
-                                value={
-                                    address
-                                }
-                                onChange={e =>
-                                    setAddress(
-                                        e.target.value
-                                    )
-                                }
-                            />
+                            >
+                                Address
+                            </label>
 
-                            {errors.address && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.address
-                                    }
-                                </p>
-                            )}
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
+                                    <textarea
+                                        rows="3"
+                                        placeholder="Address"
+                                        className={
+                                            styles.inputField
+                                        }
+                                        value={
+                                            address
+                                        }
+                                        onChange={e =>
+                                            setAddress(
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                    {errors.address && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.address
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Price */}
+                        {/* Price */}
 
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Price Including GST
-                    </label>
-
-                    <div className="row">
-                        <div className="col-xl-10 col-lg-12">
-
-                            <input
-                                type="text"
-                                autoComplete="off"
-                                placeholder="Price Including GST"
+                        <div className="col-lg-6">
+                            <label
                                 className={
-                                    styles.inputField
+                                    styles.labelText
                                 }
-                                value={
-                                    price
-                                }
-                                onChange={e => {
-                                    const value =
-                                        e.target.value;
+                            >
+                                Price Including GST
+                            </label>
 
-                                    if (
-                                        /^\d{0,10}(\.\d{0,2})?$/.test(
-                                            value
-                                        )
-                                    ) {
-                                        setPrice(
-                                            value
-                                        );
-                                    }
-                                }}
-                            />
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
-                            {errors.price && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.price
-                                    }
-                                </p>
-                            )}
+                                    <input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Price Including GST"
+                                        className={
+                                            styles.inputField
+                                        }
+                                        value={
+                                            price
+                                        }
+                                        onChange={e => {
+                                            const value =
+                                                e.target.value;
 
+                                            if (
+                                                /^\d{0,10}(\.\d{0,2})?$/.test(
+                                                    value
+                                                )
+                                            ) {
+                                                setPrice(
+                                                    value
+                                                );
+                                            }
+                                        }}
+                                    />
+
+                                    {errors.price && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.price
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
                         </div>
+
                     </div>
-                </div>
 
-            </div>
-
-            {/* =================================================
+                    {/* =================================================
                         VEHICLE DETAILS
                     ================================================= */}
 
 
 
-            <div className={`row`}>
-                <div className={`col-xl-11 col-lg-12`}>
-                    <label className={styles.featureLabel} htmlFor="Features"> Vehicle Details
+                    <div className={`row`}>
+                        <div className={`col-xl-11 col-lg-12`}>
+                            <label className={styles.featureLabel} htmlFor="Features"> Vehicle Details
 
-                    </label>
-                </div>
-            </div>
-
-            <div className="row">
-
-                {/* Vehicle Make */}
-
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Vehicle Make
-                    </label>
+                            </label>
+                        </div>
+                    </div>
 
                     <div className="row">
-                        <div className="col-xl-10 col-lg-12">
 
-                            <input
-                                type="text"
-                                autoComplete="off"
-                                placeholder="Vehicle Make"
+                        {/* Vehicle Make */}
+
+                        <div className="col-lg-6">
+                            <label
                                 className={
-                                    styles.inputField
+                                    styles.labelText
                                 }
-                                value={
-                                    vehicleMake
-                                }
-                                onChange={e =>
-                                    setVehicleMake(
-                                        e.target.value
-                                    )
-                                }
-                            />
+                            >
+                                Vehicle Make
+                            </label>
 
-                            {errors.vehicleMake && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.vehicleMake
-                                    }
-                                </p>
-                            )}
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
+                                    <input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Vehicle Make"
+                                        className={
+                                            styles.inputField
+                                        }
+                                        value={
+                                            vehicleMake
+                                        }
+                                        onChange={e =>
+                                            setVehicleMake(
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                    {errors.vehicleMake && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.vehicleMake
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Vehicle Model */}
+                        {/* Vehicle Model */}
 
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Vehicle Model
-                    </label>
-
-                    <div className="row">
-                        <div className="col-xl-10 col-lg-12">
-
-                            <input
-                                type="text"
-                                autoComplete="off"
-                                placeholder="Vehicle Model"
+                        <div className="col-lg-6">
+                            <label
                                 className={
-                                    styles.inputField
+                                    styles.labelText
                                 }
-                                value={
-                                    vehicleModel
-                                }
-                                onChange={e =>
-                                    setVehicleModel(
-                                        e.target.value
-                                    )
-                                }
-                            />
+                            >
+                                Vehicle Model
+                            </label>
 
-                            {errors.vehicleModel && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.vehicleModel
-                                    }
-                                </p>
-                            )}
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
+                                    <input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Vehicle Model"
+                                        className={
+                                            styles.inputField
+                                        }
+                                        value={
+                                            vehicleModel
+                                        }
+                                        onChange={e =>
+                                            setVehicleModel(
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+
+                                    {errors.vehicleModel && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.vehicleModel
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
                         </div>
+
                     </div>
-                </div>
-
-            </div>
-
-            <div className="row">
-
-                {/* Battery Level */}
-
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Battery Level
-                    </label>
 
                     <div className="row">
-                        <div className="col-xl-10 col-lg-12">
 
-                            <CustomDropdown
-                                options={
-                                    batteryLevelOptions
+                        {/* Battery Level */}
+
+                        <div className="col-lg-6">
+                            <label
+                                className={
+                                    styles.labelText
                                 }
-                                value={
-                                    batteryLevel
-                                }
-                                onChange={
-                                    selectedOption => {
-                                        setBatteryLevel(
-                                            selectedOption
-                                        );
+                            >
+                                Battery Level
+                            </label>
 
-                                        setErrors(
-                                            prev => ({
-                                                ...prev,
-                                                batteryLevel:
-                                                    ''
-                                            })
-                                        );
-                                    }
-                                }
-                                labelledBy="Select Battery Level"
-                                closeOnChangedValue
-                                closeOnSelect
-                            />
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
-                            {errors.batteryLevel && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.batteryLevel
-                                    }
-                                </p>
-                            )}
+                                    <CustomDropdown
+                                        options={
+                                            batteryLevelOptions
+                                        }
+                                        value={
+                                            batteryLevel
+                                        }
+                                        onChange={
+                                            selectedOption => {
+                                                setBatteryLevel(
+                                                    selectedOption
+                                                );
 
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        batteryLevel:
+                                                            ''
+                                                    })
+                                                );
+                                            }
+                                        }
+                                        labelledBy="Select Battery Level"
+                                        closeOnChangedValue
+                                        closeOnSelect
+                                    />
+
+                                    {errors.batteryLevel && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.batteryLevel
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Jump Start */}
+                        {/* Jump Start */}
 
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Jump Start Required
-                    </label>
-
-                    <div className="row">
-                        <div className="col-xl-10 col-lg-12">
-
-                            <CustomDropdown
-                                options={
-                                    jumpStartOptions
+                        <div className="col-lg-6">
+                            <label
+                                className={
+                                    styles.labelText
                                 }
-                                value={
-                                    jumpStartRequired
-                                }
-                                onChange={
-                                    selectedOption => {
-                                        setJumpStartRequired(
-                                            selectedOption
-                                        );
+                            >
+                                Jump Start Required
+                            </label>
 
-                                        setErrors(
-                                            prev => ({
-                                                ...prev,
-                                                jumpStartRequired:
-                                                    ''
-                                            })
-                                        );
-                                    }
-                                }
-                                labelledBy="Select Option"
-                                closeOnChangedValue
-                                closeOnSelect
-                            />
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
-                            {errors.jumpStartRequired && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.jumpStartRequired
-                                    }
-                                </p>
-                            )}
+                                    <CustomDropdown
+                                        options={
+                                            jumpStartOptions
+                                        }
+                                        value={
+                                            jumpStartRequired
+                                        }
+                                        onChange={
+                                            selectedOption => {
+                                                setJumpStartRequired(
+                                                    selectedOption
+                                                );
 
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        jumpStartRequired:
+                                                            ''
+                                                    })
+                                                );
+                                            }
+                                        }
+                                        labelledBy="Select Option"
+                                        closeOnChangedValue
+                                        closeOnSelect
+                                    />
+
+                                    {errors.jumpStartRequired && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.jumpStartRequired
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
                         </div>
+
                     </div>
-                </div>
 
-            </div>
-
-            {/* =================================================
+                    {/* =================================================
                         PAYMENT DETAILS
                     ================================================= */}
 
 
 
-            <div className={`row`}>
-                <div className={`col-xl-11 col-lg-12`}>
-                    <label className={styles.featureLabel} htmlFor="Features"> Payment Details
+                    <div className={`row`}>
+                        <div className={`col-xl-11 col-lg-12`}>
+                            <label className={styles.featureLabel} htmlFor="Features"> Payment Details
 
-                    </label>
-                </div>
-            </div>
-
-            <div className="row">
-
-                {/* Payment Mode */}
-
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Mode of Payment
-                    </label>
-
-                    <div className="row">
-                        <div className="col-xl-10 col-lg-12">
-
-                            <CustomDropdown
-                                options={
-                                    paymentModeOptions
-                                }
-                                value={
-                                    paymentMode
-                                }
-                                onChange={
-                                    selectedOption => {
-                                        setPaymentMode(
-                                            selectedOption
-                                        );
-
-                                        setErrors(
-                                            prev => ({
-                                                ...prev,
-                                                paymentMode:
-                                                    ''
-                                            })
-                                        );
-                                    }
-                                }
-                                labelledBy="Select Payment Mode"
-                                closeOnChangedValue
-                                closeOnSelect
-                            />
-
-                            {errors.paymentMode && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.paymentMode
-                                    }
-                                </p>
-                            )}
-
+                            </label>
                         </div>
                     </div>
-                </div>
-
-                {/* Payment Proof */}
-
-                <div className="col-lg-6">
-
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Payment Proof
-                    </label>
 
                     <div className="row">
 
-                        <div className="col-xl-10 col-lg-12">
+                        {/* Payment Mode */}
 
-                            <div
+                        <div className="col-lg-6">
+                            <label
                                 className={
-                                    styles.uploadContainer
+                                    styles.labelText
                                 }
                             >
+                                Mode of Payment
+                            </label>
 
-                                <span
-                                    className={
-                                        styles.uploadLabel
-                                    }
-                                >
-                                    {paymentProof.length >
-                                        0
-                                        ? paymentProof.length >
-                                            2
-                                            ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
-                                            : paymentProof
-                                                .map(
-                                                    file =>
-                                                        file.name
-                                                )
-                                                .join(
-                                                    ', '
-                                                )
-                                        : 'Upload Payment Proof'}
-                                </span>
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
-                                <label
-                                    htmlFor="galleryImage"
-                                    className={
-                                        styles.uploadButton
-                                    }
-                                >
-                                    <MdOutlineCloudUpload />
-                                    Upload
-                                </label>
+                                    <CustomDropdown
+                                        options={
+                                            paymentModeOptions
+                                        }
+                                        value={
+                                            paymentMode
+                                        }
+                                        onChange={
+                                            selectedOption => {
+                                                setPaymentMode(
+                                                    selectedOption
+                                                );
 
-                                <input
-                                    type="file"
-                                    multiple
-                                    id="galleryImage"
-                                    accept=".jpg,.jpeg,.png"
-                                    onChange={
-                                        handleGalleryChange
-                                    }
-                                    className={
-                                        styles.hiddenInput
-                                    }
-                                />
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        paymentMode:
+                                                            ''
+                                                    })
+                                                );
+                                            }
+                                        }
+                                        labelledBy="Select Payment Mode"
+                                        closeOnChangedValue
+                                        closeOnSelect
+                                    />
 
+                                    {errors.paymentMode && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.paymentMode
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
                             </div>
-
-                            {errors.paymentProof &&
-                                paymentProof.length ===
-                                0 &&
-                                existingPaymentProof.length ===
-                                0 && (
-                                    <p
-                                        className={
-                                            styles.error
-                                        }
-                                    >
-                                        {
-                                            errors.paymentProof
-                                        }
-                                    </p>
-                                )}
-
                         </div>
-                    </div>
 
-                    {/* =================================================
-                                Existing Payment Proof
-                            ================================================= */}
+                        {/* Payment Proof */}
 
-                    {existingPaymentProof.length >
-                        0 && (
-                            <div className="row mt-2">
+                        <div className="col-lg-6">
+
+                            <label
+                                className={
+                                    styles.labelText
+                                }
+                            >
+                                Payment Proof
+                            </label>
+
+                            <div className="row">
 
                                 <div className="col-xl-10 col-lg-12">
 
                                     <div
-                                        style={{
-                                            fontWeight: 600,
-                                            marginBottom:
-                                                '10px'
-                                        }}
-                                    >
-                                        Existing Payment
-                                        Proof
-                                    </div>
-
-                                    <div
                                         className={
-                                            styles.galleryContainer
+                                            styles.uploadContainer
                                         }
                                     >
 
-                                        {existingPaymentProof.map(
-                                            (
-                                                file,
-                                                index
-                                            ) => {
-                                                const imageUrl =
-                                                    getExistingImageUrl(
-                                                        file
-                                                    );
+                                        <span
+                                            className={
+                                                styles.uploadLabel
+                                            }
+                                        >
+                                            {paymentProof.length >
+                                                0
+                                                ? paymentProof.length >
+                                                    2
+                                                    ? `${paymentProof[0].name}, ${paymentProof[1].name}... (${paymentProof.length - 2} more)`
+                                                    : paymentProof
+                                                        .map(
+                                                            file =>
+                                                                file.name
+                                                        )
+                                                        .join(
+                                                            ', '
+                                                        )
+                                                : 'Upload Payment Proof'}
+                                        </span>
 
-                                                return (
-                                                    <div
-                                                        className={
-                                                            styles.imageContainer
-                                                        }
-                                                        key={
-                                                            file?.id ||
-                                                            index
-                                                        }
-                                                    >
+                                        <label
+                                            htmlFor="galleryImage"
+                                            className={
+                                                styles.uploadButton
+                                            }
+                                        >
+                                            <MdOutlineCloudUpload />
+                                            Upload
+                                        </label>
 
-                                                        {imageUrl ? (
+                                        <input
+                                            type="file"
+                                            multiple
+                                            id="galleryImage"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={
+                                                handleGalleryChange
+                                            }
+                                            className={
+                                                styles.hiddenInput
+                                            }
+                                        />
+
+                                    </div>
+
+                                    {errors.paymentProof &&
+                                        paymentProof.length ===
+                                        0 &&
+                                        existingPaymentProof.length ===
+                                        0 && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.paymentProof
+                                                }
+                                            </p>
+                                        )}
+
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                Existing Payment Proof
+                            ================================================= */}
+
+                            {existingPaymentProof.length >
+                                0 && (
+                                    <div className="row mt-2">
+
+                                        <div className="col-xl-10 col-lg-12">
+
+                                            <div
+                                                style={{
+                                                    fontWeight: 600,
+                                                    marginBottom:
+                                                        '10px'
+                                                }}
+                                            >
+                                                Existing Payment
+                                                Proof
+                                            </div>
+
+                                            <div
+                                                className={
+                                                    styles.galleryContainer
+                                                }
+                                            >
+
+                                                {existingPaymentProof.map(
+                                                    (
+                                                        file,
+                                                        index
+                                                    ) => {
+                                                        const imageUrl =
+                                                            getExistingImageUrl(
+                                                                file
+                                                            );
+
+                                                        return (
+                                                            <div
+                                                                className={
+                                                                    styles.imageContainer
+                                                                }
+                                                                key={
+                                                                    file?.id ||
+                                                                    index
+                                                                }
+                                                            >
+
+                                                                {imageUrl ? (
+                                                                    <img
+                                                                        src={
+                                                                            imageUrl
+                                                                        }
+                                                                        alt={`Existing Payment Proof ${index +
+                                                                            1
+                                                                            }`}
+                                                                        className={
+                                                                            styles.previewImage
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    <div
+                                                                        style={{
+                                                                            width:
+                                                                                '100%',
+                                                                            height:
+                                                                                '100px',
+                                                                            display:
+                                                                                'flex',
+                                                                            alignItems:
+                                                                                'center',
+                                                                            justifyContent:
+                                                                                'center',
+                                                                            background:
+                                                                                '#f5f5f5',
+                                                                            color:
+                                                                                '#777'
+                                                                        }}
+                                                                    >
+                                                                        Image
+                                                                        not
+                                                                        available
+                                                                    </div>
+                                                                )}
+
+                                                                <button
+                                                                    type="button"
+                                                                    className={
+                                                                        styles.removeButton
+                                                                    }
+                                                                    onClick={() =>
+                                                                        handleRemoveExistingProof(
+                                                                            index
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <AiOutlineClose
+                                                                        size={
+                                                                            20
+                                                                        }
+                                                                        style={{
+                                                                            padding:
+                                                                                '2px'
+                                                                        }}
+                                                                    />
+                                                                </button>
+
+                                                            </div>
+                                                        );
+                                                    }
+                                                )}
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+
+                            {/* =================================================
+                                Newly Selected Payment Proof
+                            ================================================= */}
+
+                            {paymentProof.length >
+                                0 && (
+                                    <div className="row mt-2">
+
+                                        <div className="col-xl-10 col-lg-12">
+
+                                            <div
+                                                style={{
+                                                    fontWeight: 600,
+                                                    marginBottom:
+                                                        '10px'
+                                                }}
+                                            >
+                                                New Payment
+                                                Proof
+                                            </div>
+
+                                            <div
+                                                className={
+                                                    styles.galleryContainer
+                                                }
+                                            >
+
+                                                {paymentProof.map(
+                                                    (
+                                                        file,
+                                                        index
+                                                    ) => (
+                                                        <div
+                                                            className={
+                                                                styles.imageContainer
+                                                            }
+                                                            key={`${file.name}-${file.lastModified}-${index}`}
+                                                        >
+
                                                             <img
                                                                 src={
-                                                                    imageUrl
+                                                                    paymentProofPreviews[
+                                                                    index
+                                                                    ]
                                                                 }
-                                                                alt={`Existing Payment Proof ${index +
+                                                                alt={`Preview ${index +
                                                                     1
                                                                     }`}
                                                                 className={
                                                                     styles.previewImage
                                                                 }
                                                             />
-                                                        ) : (
-                                                            <div
-                                                                style={{
-                                                                    width:
-                                                                        '100%',
-                                                                    height:
-                                                                        '100px',
-                                                                    display:
-                                                                        'flex',
-                                                                    alignItems:
-                                                                        'center',
-                                                                    justifyContent:
-                                                                        'center',
-                                                                    background:
-                                                                        '#f5f5f5',
-                                                                    color:
-                                                                        '#777'
-                                                                }}
-                                                            >
-                                                                Image
-                                                                not
-                                                                available
-                                                            </div>
-                                                        )}
 
-                                                        <button
-                                                            type="button"
-                                                            className={
-                                                                styles.removeButton
-                                                            }
-                                                            onClick={() =>
-                                                                handleRemoveExistingProof(
-                                                                    index
-                                                                )
-                                                            }
-                                                        >
-                                                            <AiOutlineClose
-                                                                size={
-                                                                    20
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    styles.removeButton
                                                                 }
-                                                                style={{
-                                                                    padding:
-                                                                        '2px'
-                                                                }}
-                                                            />
-                                                        </button>
+                                                                onClick={() =>
+                                                                    handleRemoveGalleryImage(
+                                                                        index
+                                                                    )
+                                                                }
+                                                            >
+                                                                <AiOutlineClose
+                                                                    size={
+                                                                        20
+                                                                    }
+                                                                    style={{
+                                                                        padding:
+                                                                            '2px'
+                                                                    }}
+                                                                />
+                                                            </button>
 
-                                                    </div>
-                                                );
-                                            }
-                                        )}
+                                                        </div>
+                                                    )
+                                                )}
 
+                                            </div>
+
+                                        </div>
                                     </div>
+                                )}
 
-                                </div>
-                            </div>
-                        )}
+                        </div>
+
+                    </div>
 
                     {/* =================================================
-                                Newly Selected Payment Proof
-                            ================================================= */}
-
-                    {paymentProof.length >
-                        0 && (
-                            <div className="row mt-2">
-
-                                <div className="col-xl-10 col-lg-12">
-
-                                    <div
-                                        style={{
-                                            fontWeight: 600,
-                                            marginBottom:
-                                                '10px'
-                                        }}
-                                    >
-                                        New Payment
-                                        Proof
-                                    </div>
-
-                                    <div
-                                        className={
-                                            styles.galleryContainer
-                                        }
-                                    >
-
-                                        {paymentProof.map(
-                                            (
-                                                file,
-                                                index
-                                            ) => (
-                                                <div
-                                                    className={
-                                                        styles.imageContainer
-                                                    }
-                                                    key={`${file.name}-${file.lastModified}-${index}`}
-                                                >
-
-                                                    <img
-                                                        src={
-                                                            paymentProofPreviews[
-                                                            index
-                                                            ]
-                                                        }
-                                                        alt={`Preview ${index +
-                                                            1
-                                                            }`}
-                                                        className={
-                                                            styles.previewImage
-                                                        }
-                                                    />
-
-                                                    <button
-                                                        type="button"
-                                                        className={
-                                                            styles.removeButton
-                                                        }
-                                                        onClick={() =>
-                                                            handleRemoveGalleryImage(
-                                                                index
-                                                            )
-                                                        }
-                                                    >
-                                                        <AiOutlineClose
-                                                            size={
-                                                                20
-                                                            }
-                                                            style={{
-                                                                padding:
-                                                                    '2px'
-                                                            }}
-                                                        />
-                                                    </button>
-
-                                                </div>
-                                            )
-                                        )}
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        )}
-
-                </div>
-
-            </div>
-
-            {/* =================================================
                         BOOKING DETAILS
                     ================================================= */}
 
 
 
-            <div className={`row`}>
-                <div className={`col-xl-11 col-lg-12`}>
-                    <label className={styles.featureLabel} htmlFor="Features"> Booking Details
+                    <div className={`row`}>
+                        <div className={`col-xl-11 col-lg-12`}>
+                            <label className={styles.featureLabel} htmlFor="Features"> Booking Details
 
-                    </label>
-                </div>
-            </div>
-
-            <div className="row">
-
-                {/* Booking Status */}
-
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Booking Status
-                    </label>
-
-                    <div className="row">
-                        <div className="col-xl-10 col-lg-12">
-
-                            <CustomDropdown
-                                options={
-                                    bookingStatusOptions
-                                }
-                                value={
-                                    bookingStatus
-                                }
-                                onChange={
-                                    selectedOption => {
-                                        setBookingStatus(
-                                            selectedOption
-                                        );
-
-                                        setErrors(
-                                            prev => ({
-                                                ...prev,
-                                                bookingStatus:
-                                                    '',
-                                                bookingCompletedBy:
-                                                    ''
-                                            })
-                                        );
-
-                                        if (
-                                            selectedOption?.value !==
-                                            'completed'
-                                        ) {
-                                            setBookingCompletedBy(
-                                                ''
-                                            );
-                                        }
-                                    }
-                                }
-                                labelledBy="Select Booking Status"
-                                closeOnChangedValue
-                                closeOnSelect
-                            />
-
-                            {errors.bookingStatus && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.bookingStatus
-                                    }
-                                </p>
-                            )}
-
+                            </label>
                         </div>
                     </div>
-                </div>
-
-                {/* Completed By */}
-
-                <div className="col-lg-6">
-                    <label
-                        className={
-                            styles.labelText
-                        }
-                    >
-                        Booking Completed By
-                    </label>
 
                     <div className="row">
-                        <div className="col-xl-10 col-lg-12">
 
-                            <input
-                                type="text"
-                                autoComplete="off"
-                                placeholder="Booking Completed By"
+                        {/* Booking Status */}
+
+                        <div className="col-lg-6">
+                            <label
                                 className={
-                                    styles.inputField
+                                    styles.labelText
                                 }
-                                value={
-                                    bookingCompletedBy
-                                }
-                                onChange={e => {
-                                    setBookingCompletedBy(
-                                        e.target.value
-                                    );
+                            >
+                                Booking Status
+                            </label>
 
-                                    setErrors(
-                                        prev => ({
-                                            ...prev,
-                                            bookingCompletedBy:
-                                                ''
-                                        })
-                                    );
-                                }}
-                                disabled={
-                                    bookingStatus?.value !==
-                                    'completed'
-                                }
-                            />
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
 
-                            {errors.bookingCompletedBy && (
-                                <p
-                                    className={
-                                        styles.error
-                                    }
-                                >
-                                    {
-                                        errors.bookingCompletedBy
-                                    }
-                                </p>
-                            )}
+                                    <CustomDropdown
+                                        options={
+                                            bookingStatusOptions
+                                        }
+                                        value={
+                                            bookingStatus
+                                        }
+                                        onChange={
+                                            selectedOption => {
+                                                setBookingStatus(
+                                                    selectedOption
+                                                );
 
+                                                setErrors(
+                                                    prev => ({
+                                                        ...prev,
+                                                        bookingStatus:
+                                                            '',
+                                                        bookingCompletedBy:
+                                                            ''
+                                                    })
+                                                );
+
+                                                if (
+                                                    selectedOption?.value !==
+                                                    'completed'
+                                                ) {
+                                                    setBookingCompletedBy(
+                                                        ''
+                                                    );
+                                                }
+                                            }
+                                        }
+                                        labelledBy="Select Booking Status"
+                                        closeOnChangedValue
+                                        closeOnSelect
+                                    />
+
+                                    {errors.bookingStatus && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.bookingStatus
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Completed By */}
+
+                        <div className="col-lg-6">
+                            <label
+                                className={
+                                    styles.labelText
+                                }
+                            >
+                                Booking Completed By
+                            </label>
+
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
+
+                                    <input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Booking Completed By"
+                                        className={
+                                            styles.inputField
+                                        }
+                                        value={
+                                            bookingCompletedBy
+                                        }
+                                        onChange={e => {
+                                            setBookingCompletedBy(
+                                                e.target.value
+                                            );
+
+                                            setErrors(
+                                                prev => ({
+                                                    ...prev,
+                                                    bookingCompletedBy:
+                                                        ''
+                                                })
+                                            );
+                                        }}
+                                        disabled={
+                                            bookingStatus?.value !==
+                                            'completed'
+                                        }
+                                    />
+
+                                    {errors.bookingCompletedBy && (
+                                        <p
+                                            className={
+                                                styles.error
+                                            }
+                                        >
+                                            {
+                                                errors.bookingCompletedBy
+                                            }
+                                        </p>
+                                    )}
+
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                </div>
 
-            </div>
-
-            {/* =================================================
+                    {/* =================================================
                         BUTTONS
                     ================================================= */}
 
-            <div className="row">
-
-                <div className="col-xl-11 col-lg-12">
-
                     <div className="row">
 
-                        <div
-                            className={`col-lg-12 ${styles.editButton}`}
-                        >
+                        <div className="col-xl-11 col-lg-12">
 
-                            <button
-                                type="button"
-                                className={
-                                    styles.editCancelBtn
-                                }
-                                onClick={
-                                    handleCancel
-                                }
-                                disabled={
-                                    loading
-                                }
-                            >
-                                Cancel
-                            </button>
+                            <div className="row">
 
-                            <button
-                                disabled={
-                                    loading
-                                }
-                                type="submit"
-                                className={
-                                    styles.editSubmitBtn
-                                }
-                            >
-                                {loading ? (
-                                    <>
-                                        <span className="spinner-border spinner-border-sm me-2"></span>
+                                <div
+                                    className={`col-lg-12 ${styles.editButton}`}
+                                >
 
-                                        Updating...
-                                    </>
-                                ) : (
-                                    'Update'
-                                )}
-                            </button>
+                                    <button
+                                        type="button"
+                                        className={
+                                            styles.editCancelBtn
+                                        }
+                                        onClick={
+                                            handleCancel
+                                        }
+                                        disabled={
+                                            loading
+                                        }
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        disabled={
+                                            loading
+                                        }
+                                        type="submit"
+                                        className={
+                                            styles.editSubmitBtn
+                                        }
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm me-2"></span>
+
+                                                Updating...
+                                            </>
+                                        ) : (
+                                            'Update'
+                                        )}
+                                    </button>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
                     </div>
 
-                </div>
-
-            </div>
-
-        </form>
+                </form>
             </div >
         </div >
     );

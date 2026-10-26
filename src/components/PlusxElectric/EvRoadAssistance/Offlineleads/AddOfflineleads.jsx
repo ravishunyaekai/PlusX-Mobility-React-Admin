@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './AddOfflineleads.module.css';
 import { postRequestWithToken } from '../../../../api/Requests';
 import { toast, ToastContainer } from 'react-toastify';
@@ -11,11 +11,24 @@ import 'react-toastify/dist/ReactToastify.css';
 import CustomDropdown from '../../../SharedComponent/UI/CustomDropdown/CustomDropdown';
 
 const AddOfflineleads = () => {
+    const location = useLocation();
+    const status = new URLSearchParams(location.search).get("status");
+
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+
+    // =========================
+    // Rider Lookup Details
+    // =========================
+    const [riderLookupLoading, setRiderLookupLoading] = useState(false);
+    const [riderLookupMessage, setRiderLookupMessage] = useState('');
+    const [lookupTrigger, setLookupTrigger] = useState('');
+
+    const lastLookupRef = useRef('');
+    const lookupRequestRef = useRef(0);
 
     // =========================
     // Customer Details
@@ -216,6 +229,179 @@ const AddOfflineleads = () => {
             }));
         }
     };
+
+    const applyRiderDetails = (rider) => {
+        if (!rider) return;
+
+        if (rider.customer_name) {
+            setCustomerName(rider.customer_name);
+        }
+
+        if (rider.mobile_no) {
+            const digits = String(rider.mobile_no).replace(/\D/g, '');
+
+            // Remove the country calling code if the API returns it
+            // as part of the mobile number.
+            const callingCode = String(rider.country_code || countryCode)
+                .replace(/\D/g, '');
+
+            const localNumber =
+                digits.length > 10 && digits.startsWith(callingCode)
+                    ? digits.slice(callingCode.length)
+                    : digits;
+
+            setPhoneNumber(localNumber.slice(-10));
+        }
+
+        if (rider.email_id) {
+            setEmailId(rider.email_id);
+        }
+
+        if (rider.country_code) {
+            const matchedCode = countryCodeOptions.find(
+                (option) => option.value === rider.country_code
+            );
+
+            if (matchedCode) {
+                setCountryCode(matchedCode.value);
+            }
+        }
+
+        // Your current state dropdown contains Indian states only.
+        // Autofill only when the returned emirates value matches
+        // an existing dropdown option.
+        if (rider.emirates) {
+            const matchedState = stateOptions.find(
+                (option) =>
+                    option.label.toLowerCase() ===
+                    String(rider.emirates).trim().toLowerCase()
+            );
+
+            if (matchedState) {
+                setState(matchedState);
+                setCity(null);
+            }
+        }
+
+        setErrors((prev) => ({
+            ...prev,
+            customerName: '',
+            phoneNumber: '',
+            emailId: '',
+            state: '',
+            city: '',
+        }));
+    };
+
+    useEffect(() => {
+        let timer;
+
+        const lookupValue =
+            lookupTrigger === 'mobile'
+                ? phoneNumber.trim()
+                : emailId.trim();
+
+        if (!lookupTrigger || !lookupValue) {
+            return;
+        }
+
+        // Mobile lookup requires exactly 10 digits.
+        if (
+            lookupTrigger === 'mobile' &&
+            !/^\d{10}$/.test(lookupValue)
+        ) {
+            setRiderLookupMessage('');
+            return;
+        }
+
+        // Email lookup requires a complete, valid email address.
+        if (
+            lookupTrigger === 'email' &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lookupValue)
+        ) {
+            setRiderLookupMessage('');
+            return;
+        }
+
+        const lookupKey = `${lookupTrigger}:${lookupValue.toLowerCase()}`;
+
+        if (lastLookupRef.current === lookupKey) {
+            return;
+        }
+
+        timer = setTimeout(() => {
+            lastLookupRef.current = lookupKey;
+
+            const requestId = ++lookupRequestRef.current;
+
+            setRiderLookupLoading(true);
+            setRiderLookupMessage('Checking existing rider...');
+
+            const payload = {
+                userId: userDetails?.user_id,
+                email: userDetails?.email,
+                country_code: countryCode,
+            };
+
+            if (lookupTrigger === 'mobile') {
+                payload.mobile_no = lookupValue;
+            } else {
+                payload.email_id = lookupValue;
+            }
+
+            postRequestWithToken(
+                'ev-road-assistance-offline-rider-lookup',
+                payload,
+                (response) => {
+                    // Ignore an older response if a newer lookup started.
+                    if (requestId !== lookupRequestRef.current) {
+                        return;
+                    }
+
+                    setRiderLookupLoading(false);
+
+                    if (
+                        response?.code === 200 &&
+                        response?.found === 1 &&
+                        response?.data
+                    ) {
+                        applyRiderDetails(response.data);
+
+                        setRiderLookupMessage(
+                            'Existing rider found. Details autofilled.'
+                        );
+                    } else if (
+                        response?.code === 200 &&
+                        response?.found === 0
+                    ) {
+                        setRiderLookupMessage(
+                            'No existing rider found. Enter new rider details.'
+                        );
+                    } else {
+                        // Allow retrying if the API returns an error.
+                        lastLookupRef.current = '';
+
+                        setRiderLookupMessage(
+                            response?.message?.[0] ||
+                            response?.message ||
+                            'Unable to look up rider details.'
+                        );
+                    }
+                }
+            );
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [
+        lookupTrigger,
+        phoneNumber,
+        emailId,
+        countryCode,
+        countryCodeOptions,
+        stateOptions,
+        userDetails?.user_id,
+        userDetails?.email,
+    ]);
 
     // =========================
     // Dropdown Options
@@ -551,6 +737,7 @@ const AddOfflineleads = () => {
 
         const formData = new FormData();
 
+        formData.append('status', status == 1 ? 'completed' : 'not completed');
         formData.append('userId', userDetails?.user_id ?? '');
         formData.append('email', userDetails?.email ?? '');
 
@@ -588,7 +775,7 @@ const AddOfflineleads = () => {
         );
 
         postRequestWithToken(
-            'add-ev-road-assistance-offline-lead',
+            'ev-road-assistance-add-offline-booking',
             formData,
             async (response) => {
                 if (response.code === 200 || response.status === 1) {
@@ -727,14 +914,25 @@ const AddOfflineleads = () => {
                                                 className={styles.inputField}
                                                 value={phoneNumber}
                                                 maxLength={10}
+                                                // onChange={(e) => {
+                                                //     const value =
+                                                //         e.target.value.replace(
+                                                //             /\D/g,
+                                                //             ''
+                                                //         );
+
+                                                //     setPhoneNumber(value);
+                                                // }}
                                                 onChange={(e) => {
-                                                    const value =
-                                                        e.target.value.replace(
-                                                            /\D/g,
-                                                            ''
-                                                        );
+                                                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
 
                                                     setPhoneNumber(value);
+                                                    setLookupTrigger('mobile');
+
+                                                    setErrors((prev) => ({
+                                                        ...prev,
+                                                        phoneNumber: '',
+                                                    }));
                                                 }}
                                             />
 
@@ -769,9 +967,18 @@ const AddOfflineleads = () => {
                                         placeholder="Email ID"
                                         className={styles.inputField}
                                         value={emailId}
-                                        onChange={(e) =>
-                                            setEmailId(e.target.value)
-                                        }
+                                        // onChange={(e) =>
+                                        //     setEmailId(e.target.value)
+                                        // }
+                                        onChange={(e) => {
+                                            setEmailId(e.target.value);
+                                            setLookupTrigger('email');
+
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                emailId: '',
+                                            }));
+                                        }}
                                     />
 
                                     {errors.emailId && (
