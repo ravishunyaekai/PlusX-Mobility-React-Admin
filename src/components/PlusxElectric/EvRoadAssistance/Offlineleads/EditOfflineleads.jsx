@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import { State, City } from 'country-state-city';
 import styles from './AddOfflineleads.module.css';
-import { postRequestWithToken, getRequestWithToken } from '../../../../api/Requests';
+import { postRequestWithToken, getRequestWithToken, postRequestWithTokenAndFile } from '../../../../api/Requests';
 import { toast, ToastContainer } from 'react-toastify';
 import { MdOutlineCloudUpload } from 'react-icons/md';
 import { AiOutlineClose } from 'react-icons/ai';
@@ -230,9 +230,50 @@ const EditOfflineleads = () => {
     // =========================================================
 
     const [bookingStatus, setBookingStatus] = useState(null);
-    const [bookingCompletedBy, setBookingCompletedBy] =
-        useState('');
+    const [bookingCompletedDate, setBookingCompletedDate] = useState('');
+    const [bookingCompletedBy, setBookingCompletedBy] = useState('');
+    const [driverOptions, setDriverOptions] = useState([]);
+    const [driverListLoading, setDriverListLoading] = useState(false);
 
+    // =========================
+    // Fetch Driver List
+    // =========================
+    useEffect(() => {
+        if (!userDetails?.access_token) return;
+
+        setDriverListLoading(true);
+
+        postRequestWithToken(
+            'all-rsa-list',
+            {
+                email: userDetails?.email,
+                userId: userDetails?.user_id,
+                service_type: 'EV Roadside Assistance',
+            },
+            (response) => {
+                if (
+                    response?.code === 200 &&
+                    response?.status === 1
+                ) {
+                    const options = (response?.data || []).map(
+                        (driver) => ({
+                            value: driver.rsa_name,
+                            label: driver.rsa_name,
+                        })
+                    );
+
+                    setDriverOptions(options);
+                } else {
+                    toast.error(
+                        response?.message?.[0] ||
+                        'Unable to fetch drivers.'
+                    );
+                }
+
+                setDriverListLoading(false);
+            }
+        );
+    }, [userDetails?.access_token]);
     // =========================================================
     // Dropdown Options
     // =========================================================
@@ -310,19 +351,15 @@ const EditOfflineleads = () => {
     // =========================================================
 
     const getDropdownValue = (options, value) => {
-        if (
-            value === null ||
-            value === undefined ||
-            value === ''
-        ) {
+        if (value === null || value === undefined || value === '') {
             return null;
         }
 
         return (
             options.find(
-                option =>
-                    String(option.value).toLowerCase() ===
-                    String(value).toLowerCase()
+                (option) =>
+                    String(option.value).trim().toLowerCase() ===
+                    String(value).trim().toLowerCase()
             ) || null
         );
     };
@@ -532,6 +569,44 @@ const EditOfflineleads = () => {
             }));
     }, [vehicleList, vehicleMake]);
 
+    useEffect(() => {
+        if (vehicleList.length === 0) {
+            return;
+        }
+
+        setVehicleMake((currentMake) => {
+            if (!currentMake?.value) {
+                return null;
+            }
+
+            return (
+                getDropdownValue(
+                    vehicleMakeOptions,
+                    currentMake.value
+                ) || currentMake
+            );
+        });
+    }, [vehicleList, vehicleMakeOptions]);
+
+    useEffect(() => {
+        if (!vehicleMake?.value || vehicleList.length === 0) {
+            return;
+        }
+
+        setVehicleModel((currentModel) => {
+            if (!currentModel?.value) {
+                return null;
+            }
+
+            return (
+                getDropdownValue(
+                    vehicleModelOptions,
+                    currentModel.value
+                ) || currentModel
+            );
+        });
+    }, [vehicleList, vehicleMake, vehicleModelOptions]);
+
     const handleVehicleMakeChange = (selectedOption) => {
         setVehicleMake(selectedOption || null);
 
@@ -597,6 +672,49 @@ const EditOfflineleads = () => {
     // =========================================================
     // Fetch Existing Booking
     // =========================================================
+    const getBookingStatusOption = (booking) => {
+        const completedValue = String(
+            booking?.is_booking_completed ?? ''
+        ).trim().toLowerCase();
+
+        // The API's completion flag takes priority.
+        if (['yes', '1', 'true', 'completed'].includes(completedValue)) {
+            return getDropdownValue(
+                bookingStatusOptions,
+                'completed'
+            );
+        }
+
+        if (['no', '0', 'false', 'confirmed'].includes(completedValue)) {
+            return getDropdownValue(
+                bookingStatusOptions,
+                'confirmed'
+            );
+        }
+
+        // Fallback when the completion flag is absent.
+        const orderStatus = String(
+            booking?.order_status ?? ''
+        ).trim().toUpperCase();
+
+        if (['CNF', 'A', 'CONFIRMED'].includes(orderStatus)) {
+            return getDropdownValue(
+                bookingStatusOptions,
+                'confirmed'
+            );
+        }
+
+        if (
+            ['C', 'COM', 'CMP', 'COMPLETED'].includes(orderStatus)
+        ) {
+            return getDropdownValue(
+                bookingStatusOptions,
+                'completed'
+            );
+        }
+
+        return null;
+    };
 
     const getBookingDetails = () => {
         setFetchingData(true);
@@ -604,247 +722,199 @@ const EditOfflineleads = () => {
         const obj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
-            request_id: id
+            request_id: id,
         };
 
         postRequestWithToken(
             'ev-road-assistance-offline-booking-details',
             obj,
-            response => {
-                console.log(
-                    'Get booking details response:',
-                    response
-                );
-
+            (response) => {
                 try {
                     if (
                         response?.status === 1 ||
                         response?.code === 200
                     ) {
-                        const booking =
-                            response?.data?.booking || {};
+                        const booking = response?.data?.booking || {};
+                        const history = response?.data?.history || [];
 
-                        const history =
-                            response?.data?.history || [];
-
-                        console.log(
-                            'Booking:',
-                            booking
-                        );
-
-                        console.log(
-                            'History:',
-                            history
-                        );
-
-                        // =================================================
-                        // Customer Details
-                        // =================================================
-
-                        setCustomerName(
-                            booking?.name || ''
-                        );
+                        // Customer details
+                        setCustomerName(booking.name || '');
 
                         setPhoneNumber(
-                            booking?.contact_no || ''
+                            String(
+                                booking.mobile_no ||
+                                booking.contact_no ||
+                                ''
+                            )
+                                .replace(/\D/g, '')
+                                .slice(-10)
                         );
 
-                        /*
-                         * Your API response does not contain email.
-                         * Keep the existing form field empty.
-                         */
-                        setEmailId('');
+                        setEmailId(booking.email || '');
+                        setBookingCompletedDate(booking.booking_completed_date || '');
 
-                        /*
-                         * Your API response does not contain
-                         * location_link separately.
-                         *
-                         * We can create Google Maps link from
-                         * latitude + longitude.
-                         */
-                        if (
-                            booking?.pickup_latitude &&
-                            booking?.pickup_longitude
-                        ) {
-                            setLocationLink(
-                                `https://www.google.com/maps?q=${booking.pickup_latitude},${booking.pickup_longitude}`
-                            );
-                        } else {
-                            setLocationLink('');
+                        // Country calling code
+                        const matchedCountryCode = countryCodeOptions.find(
+                            (option) =>
+                                option.value === booking.country_code
+                        );
+
+                        if (matchedCountryCode) {
+                            setCountryCode(matchedCountryCode.value);
                         }
 
-                        setAddress(
-                            booking?.pickup_address || ''
+                        // State dropdown: must receive an option object.
+                        const matchedState = getDropdownValue(
+                            stateOptions,
+                            booking.state
+                        );
+
+                        const selectedState = matchedState
+                            ? {
+                                ...matchedState,
+                                isoCode: stateOptions.find(
+                                    (option) =>
+                                        option.value === matchedState.value
+                                )?.isoCode,
+                            }
+                            : null;
+
+                        setState(selectedState);
+
+                        // City dropdown: must receive an option object.
+                        if (selectedState?.isoCode && booking.city) {
+                            const availableCities = City.getCitiesOfState(
+                                'IN',
+                                selectedState.isoCode
+                            );
+
+                            const matchedCity = availableCities.find(
+                                (item) =>
+                                    item.name.trim().toLowerCase() ===
+                                    String(booking.city)
+                                        .trim()
+                                        .toLowerCase()
+                            );
+
+                            setCity(
+                                matchedCity
+                                    ? {
+                                        value: matchedCity.name,
+                                        label: matchedCity.name,
+                                    }
+                                    : null
+                            );
+                        } else {
+                            setCity(null);
+                        }
+
+                        // Address and location
+                        setAddress(booking.pickup_address || '');
+
+                        setLocationLink(
+                            booking.location_link || ''
                         );
 
                         setPrice(
-                            booking?.price !== null &&
-                                booking?.price !== undefined
+                            booking.price != null
                                 ? String(booking.price)
                                 : ''
                         );
 
-                        // =================================================
-                        // Vehicle Details
-                        // =================================================
+                        // Vehicle make/model.
+                        // Keep temporary values until vehicle options load.
+                        const vehicleData = String(
+                            booking.vehicle_data || ''
+                        )
+                            .split(',')
+                            .map((item) => item.trim());
 
-                        /*
-                         * vehicle_data:
-                         * "BMW, BMW i5, DL 26 SC 0009"
-                         *
-                         * Format:
-                         * [0] Make
-                         * [1] Model
-                         * [2] Registration Number
-                         */
+                        const make =
+                            booking.vehicle_make || vehicleData[0] || '';
 
-                        const vehicleData =
-                            booking?.vehicle_data || '';
-
-                        const vehicleParts =
-                            vehicleData
-                                .split(',')
-                                .map(item => item.trim());
+                        const model =
+                            booking.vehicle_model || vehicleData[1] || '';
 
                         setVehicleMake(
-                            vehicleParts?.[0] || ''
+                            make
+                                ? { value: make, label: make }
+                                : null
                         );
 
                         setVehicleModel(
-                            vehicleParts?.[1] || ''
+                            model
+                                ? { value: model, label: model }
+                                : null
                         );
 
-                        /*
-                         * The API response does not contain:
-                         *
-                         * battery_level
-                         * jump_start_required
-                         *
-                         * So keep these fields empty.
-                         */
-                        setBatteryLevel(null);
+                        // Battery level: do not use `|| null` for numeric zero.
+                        const batteryValue =
+                            booking.battery_level === null ||
+                                booking.battery_level === undefined ||
+                                booking.battery_level === ''
+                                ? null
+                                : Number(booking.battery_level) === 0
+                                    ? '0%'
+                                    : 'more_than_5%';
 
-                        setJumpStartRequired(null);
+                        setBatteryLevel(
+                            batteryValue
+                                ? getDropdownValue(
+                                    batteryLevelOptions,
+                                    batteryValue
+                                )
+                                : null
+                        );
 
-                        // =================================================
-                        // Payment Details
-                        // =================================================
+                        // Jump-start option
+                        const jumpValue = String(
+                            booking.jump_start_required ?? ''
+                        ).trim().toLowerCase();
 
-                        /*
-                         * API response does not contain:
-                         *
-                         * payment_mode
-                         * payment_proof
-                         *
-                         * So keep existing fields empty.
-                         */
+                        setJumpStartRequired(
+                            ['yes', 'no'].includes(jumpValue)
+                                ? getDropdownValue(
+                                    jumpStartOptions,
+                                    jumpValue
+                                )
+                                : null
+                        );
 
-                        setPaymentMode(null);
-
-                        setExistingPaymentProof([]);
-
-                        // =================================================
-                        // Booking Details
-                        // =================================================
-
-                        /*
-                         * API:
-                         *
-                         * order_status: "A"
-                         *
-                         * Your existing dropdown has:
-                         *
-                         * confirmed
-                         * completed
-                         *
-                         * Therefore map API status to your
-                         * existing dropdown values.
-                         *
-                         * CNF = confirmed
-                         * A   = confirmed/assigned
-                         * C   = completed (if your backend uses C)
-                         * COM = completed (if your backend uses COM)
-                         */
-
-                        let mappedBookingStatus = '';
-
-                        const orderStatus =
-                            String(
-                                booking?.order_status || ''
-                            ).toUpperCase();
-
-                        if (
-                            orderStatus === 'CNF' ||
-                            orderStatus === 'A'
-                        ) {
-                            mappedBookingStatus =
-                                'confirmed';
-                        } else if (
-                            orderStatus === 'C' ||
-                            orderStatus === 'COM' ||
-                            orderStatus === 'CMP' ||
-                            orderStatus === 'COMPLETED'
-                        ) {
-                            mappedBookingStatus =
-                                'completed';
-                        }
-
-                        setBookingStatus(
+                        // Payment mode
+                        setPaymentMode(
                             getDropdownValue(
-                                bookingStatusOptions,
-                                mappedBookingStatus
+                                paymentModeOptions,
+                                booking.mode_of_payment
                             )
                         );
 
-                        // =================================================
-                        // Booking Completed By
-                        // =================================================
+                        // Existing payment proof
+                        const proofData =
+                            booking.proof_of_transaction_url ||
+                            booking.proof_of_transaction ||
+                            [];
 
-                        /*
-                         * RSA data:
-                         *
-                         * "AJAY,+91-9312800125"
-                         *
-                         * This gives us the RSA/driver name.
-                         */
-
-                        let completedBy = '';
-
-                        if (booking?.rsa_data) {
-                            completedBy =
-                                String(
-                                    booking.rsa_data
-                                )
-                                    .split(',')[0]
-                                    .trim();
-                        }
-
-                        /*
-                         * If the history contains rsa_name,
-                         * use that as the preferred value.
-                         */
-
-                        const latestHistory =
-                            history.length > 0
-                                ? history[
-                                history.length - 1
-                                ]
-                                : null;
-
-                        if (
-                            latestHistory?.rsa_name
-                        ) {
-                            completedBy =
-                                latestHistory.rsa_name;
-                        }
-
-                        setBookingCompletedBy(
-                            completedBy || ''
+                        setExistingPaymentProof(
+                            normalizePaymentProof(proofData)
                         );
 
-                        // =================================================
-                        // Clear Errors
-                        // =================================================
+                        // Booking status
+                        setBookingStatus(
+                            getBookingStatusOption(booking)
+                        );
+
+                        // Booking completed by
+                        const latestHistory =
+                            history.length > 0
+                                ? history[history.length - 1]
+                                : null;
+
+                        setBookingCompletedBy(
+                            booking.booking_completed_by ||
+                            booking.driver_name ||
+                            latestHistory?.driver_name ||
+                            ''
+                        );
 
                         setErrors({});
                     } else {
@@ -1315,8 +1385,8 @@ const EditOfflineleads = () => {
         formData.append('customer_name', customerName.trim());
         formData.append('phone_number', phoneNumber.trim());
         formData.append('email_id', emailId.trim());
-        formData.append('state', state.trim());
-        formData.append('city', city.trim());
+        formData.append('state', state?.value ?? '');
+        formData.append('city', city?.value ?? '');
         formData.append('location_link', locationLink.trim());
         formData.append('address', address.trim());
         formData.append('price', price.trim());
@@ -1333,13 +1403,16 @@ const EditOfflineleads = () => {
         // Payment Details
         // =====================================================
 
-        formData.append('payment_mode', paymentMode?.value ?? '');
+        formData.append('mode_of_payment', paymentMode?.value ?? '');
         // =====================================================
         // New Payment Proof Files
         // =====================================================
 
+        // paymentProof.forEach(file => {
+        //     formData.append('payment_proof[]', file);
+        // });
         paymentProof.forEach(file => {
-            formData.append('payment_proof[]', file);
+            formData.append('proof_of_transaction', file);
         });
 
         // =====================================================
@@ -1351,21 +1424,29 @@ const EditOfflineleads = () => {
          * the user has NOT removed.
          */
 
-        formData.append('existing_payment_proof', JSON.stringify(existingPaymentProof));
+        // formData.append('existing_payment_proof', JSON.stringify(existingPaymentProof));
 
         // =====================================================
         // Booking Details
         // =====================================================
 
         formData.append('booking_status', bookingStatus?.value ?? '');
-        formData.append('booking_completed_by', bookingCompletedBy.trim());
+        formData.append('request_id', id ?? '');
+        formData.append(
+            'booking_completed_by',
+            bookingCompletedBy
+        );
+        formData.append(
+            'booking_completed_date',
+            bookingCompletedDate
+        );
 
         // =====================================================
         // Update API
         // =====================================================
 
-        postRequestWithToken(
-            `ev-road-assistance-edit-offline-booking/${id}`,
+        postRequestWithTokenAndFile(
+            `ev-road-assistance-edit-offline-booking`,
             formData,
             response => {
 
@@ -1556,7 +1637,7 @@ const EditOfflineleads = () => {
                                                 value={selectedCountryCode}
                                                 onChange={handleCountryCodeChange}
                                                 placeholder="+91"
-                                                isDisabled={true} 
+                                                isDisabled={true}
                                             />
 
                                             {errors.countryCode && (
@@ -1928,21 +2009,18 @@ const EditOfflineleads = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
 
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Make"
-                                        className={
-                                            styles.inputField
+                                    <CustomDropdown
+                                        options={vehicleMakeOptions}
+                                        value={vehicleMake}
+                                        onChange={handleVehicleMakeChange}
+                                        labelledBy="Select Vehicle Make"
+                                        placeholder={
+                                            vehicleListLoading
+                                                ? 'Loading vehicle makes...'
+                                                : 'Select Vehicle Make'
                                         }
-                                        value={
-                                            vehicleMake
-                                        }
-                                        onChange={e =>
-                                            setVehicleMake(
-                                                e.target.value
-                                            )
-                                        }
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
 
                                     {errors.vehicleMake && (
@@ -1975,21 +2053,20 @@ const EditOfflineleads = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
 
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Vehicle Model"
-                                        className={
-                                            styles.inputField
+                                    <CustomDropdown
+                                        options={vehicleModelOptions}
+                                        value={vehicleModel}
+                                        onChange={handleVehicleModelChange}
+                                        labelledBy="Select Vehicle Model"
+                                        placeholder={
+                                            !vehicleMake
+                                                ? 'Select Vehicle Make First'
+                                                : vehicleModelOptions.length === 0
+                                                    ? 'No Models Available'
+                                                    : 'Select Vehicle Model'
                                         }
-                                        value={
-                                            vehicleModel
-                                        }
-                                        onChange={e =>
-                                            setVehicleModel(
-                                                e.target.value
-                                            )
-                                        }
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
 
                                     {errors.vehicleModel && (
@@ -2579,65 +2656,85 @@ const EditOfflineleads = () => {
                             </div>
                         </div>
 
-                        {/* Completed By */}
-
+                        {/* Booking Completed Date */}
                         <div className="col-lg-6">
-                            <label
-                                className={
-                                    styles.labelText
-                                }
-                            >
+                            <label className={styles.labelText}>
+                                Booking Completed Date
+                            </label>
+
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
+                                    <input
+                                        type="date"
+                                        className={styles.inputField}
+                                        value={bookingCompletedDate}
+                                        max={new Date().toLocaleDateString('en-CA')}
+                                        onChange={(e) => {
+                                            setBookingCompletedDate(e.target.value);
+
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                bookingCompletedDate: '',
+                                            }));
+                                        }}
+                                        disabled={bookingStatus?.value !== 'completed'}
+                                    />
+
+                                    {errors.bookingCompletedDate && (
+                                        <p className={styles.error}>
+                                            {errors.bookingCompletedDate}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Booking Completed By */}
+                        <div className="col-lg-6">
+                            <label className={styles.labelText}>
                                 Booking Completed By
                             </label>
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Booking Completed By"
-                                        className={
-                                            styles.inputField
-                                        }
+                                    <CustomDropdown
+                                        options={driverOptions}
                                         value={
-                                            bookingCompletedBy
+                                            driverOptions.find(
+                                                (driver) =>
+                                                    driver.value === bookingCompletedBy
+                                            ) || null
                                         }
-                                        onChange={e => {
+                                        onChange={(selectedOption) => {
                                             setBookingCompletedBy(
-                                                e.target.value
+                                                selectedOption?.value || ''
                                             );
 
-                                            setErrors(
-                                                prev => ({
-                                                    ...prev,
-                                                    bookingCompletedBy:
-                                                        ''
-                                                })
-                                            );
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                bookingCompletedBy: '',
+                                            }));
                                         }}
-                                        disabled={
-                                            bookingStatus?.value !==
-                                            'completed'
+                                        placeholder={
+                                            driverListLoading
+                                                ? 'Loading drivers...'
+                                                : driverOptions.length === 0
+                                                    ? 'No drivers available'
+                                                    : 'Select Driver'
                                         }
+                                        labelledBy="Select Driver"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
 
                                     {errors.bookingCompletedBy && (
-                                        <p
-                                            className={
-                                                styles.error
-                                            }
-                                        >
-                                            {
-                                                errors.bookingCompletedBy
-                                            }
+                                        <p className={styles.error}>
+                                            {errors.bookingCompletedBy}
                                         </p>
                                     )}
-
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     {/* =================================================

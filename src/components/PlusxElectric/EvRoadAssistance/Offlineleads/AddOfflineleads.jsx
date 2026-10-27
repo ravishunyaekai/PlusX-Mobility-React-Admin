@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './AddOfflineleads.module.css';
-import { postRequestWithToken } from '../../../../api/Requests';
+import { postRequestWithToken, postRequestWithTokenAndFile } from '../../../../api/Requests';
 import { toast, ToastContainer } from 'react-toastify';
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import { State, City } from 'country-state-city';
@@ -18,7 +18,7 @@ const AddOfflineleads = () => {
     const navigate = useNavigate();
 
     const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);;
 
     // =========================
     // Rider Lookup Details
@@ -136,7 +136,50 @@ const AddOfflineleads = () => {
     // Booking Details
     // =========================
     const [bookingStatus, setBookingStatus] = useState(null);
+    const [bookingCompletedDate, setBookingCompletedDate] = useState('');
     const [bookingCompletedBy, setBookingCompletedBy] = useState('');
+    const [driverOptions, setDriverOptions] = useState([]);
+    const [driverListLoading, setDriverListLoading] = useState(false);
+
+    // =========================
+    // Fetch Driver List
+    // =========================
+    useEffect(() => {
+        if (!userDetails?.access_token) return;
+
+        setDriverListLoading(true);
+
+        postRequestWithToken(
+            'all-rsa-list',
+            {
+                email: userDetails?.email,
+                userId: userDetails?.user_id,
+                service_type: 'EV Roadside Assistance',
+            },
+            (response) => {
+                if (
+                    response?.code === 200 &&
+                    response?.status === 1
+                ) {
+                    const options = (response?.data || []).map(
+                        (driver) => ({
+                            value: driver.rsa_name,
+                            label: driver.rsa_name,
+                        })
+                    );
+
+                    setDriverOptions(options);
+                } else {
+                    toast.error(
+                        response?.message?.[0] ||
+                        'Unable to fetch drivers.'
+                    );
+                }
+
+                setDriverListLoading(false);
+            }
+        );
+    }, [userDetails?.access_token]);
 
     // =========================================================
     // COUNTRY CODE OPTIONS
@@ -764,17 +807,21 @@ const AddOfflineleads = () => {
         formData.append('payment_mode', paymentMode.value);
 
         paymentProof.forEach((file) => {
-            formData.append('payment_proof', file);
+            formData.append('proof_of_transaction', file);
         });
 
         // Booking Details
         formData.append('booking_status', bookingStatus.value);
         formData.append(
             'booking_completed_by',
-            bookingCompletedBy.trim()
+            bookingCompletedBy
+        );
+        formData.append(
+            'booking_completed_date',
+            bookingCompletedDate
         );
 
-        postRequestWithToken(
+        postRequestWithTokenAndFile(
             'ev-road-assistance-add-offline-booking',
             formData,
             async (response) => {
@@ -1435,7 +1482,41 @@ const AddOfflineleads = () => {
                             </div>
                         </div>
 
-                        {/* Completed By */}
+
+                        {/* Booking Completed Date */}
+                        <div className="col-lg-6">
+                            <label className={styles.labelText}>
+                                Booking Completed Date
+                            </label>
+
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
+                                    <input
+                                        type="date"
+                                        className={styles.inputField}
+                                        value={bookingCompletedDate}
+                                        max={new Date().toLocaleDateString('en-CA')}
+                                        onChange={(e) => {
+                                            setBookingCompletedDate(e.target.value);
+
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                bookingCompletedDate: '',
+                                            }));
+                                        }}
+                                        disabled={bookingStatus?.value !== 'completed'}
+                                    />
+
+                                    {errors.bookingCompletedDate && (
+                                        <p className={styles.error}>
+                                            {errors.bookingCompletedDate}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Booking Completed By */}
                         <div className="col-lg-6">
                             <label className={styles.labelText}>
                                 Booking Completed By
@@ -1443,17 +1524,34 @@ const AddOfflineleads = () => {
 
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Booking Completed By"
-                                        className={styles.inputField}
-                                        value={bookingCompletedBy}
-                                        onChange={(e) =>
-                                            setBookingCompletedBy(
-                                                e.target.value
-                                            )
+                                    <CustomDropdown
+                                        options={driverOptions}
+                                        value={
+                                            driverOptions.find(
+                                                (driver) =>
+                                                    driver.value === bookingCompletedBy
+                                            ) || null
                                         }
+                                        onChange={(selectedOption) => {
+                                            setBookingCompletedBy(
+                                                selectedOption?.value || ''
+                                            );
+
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                bookingCompletedBy: '',
+                                            }));
+                                        }}
+                                        placeholder={
+                                            driverListLoading
+                                                ? 'Loading drivers...'
+                                                : driverOptions.length === 0
+                                                    ? 'No drivers available'
+                                                    : 'Select Driver'
+                                        }
+                                        labelledBy="Select Driver"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
                                     />
 
                                     {errors.bookingCompletedBy && (
@@ -1464,6 +1562,7 @@ const AddOfflineleads = () => {
                                 </div>
                             </div>
                         </div>
+
 
                     </div>
 

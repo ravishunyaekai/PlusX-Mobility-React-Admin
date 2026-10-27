@@ -191,6 +191,7 @@ import CommunityInvoiceDetails from "../components/PlusxElectric/CommunityList/I
 import SessionDetails from "../components/PlusxElectric/CommunityList/SessionDetails.jsx";
 import AppSignupDetailsElectric from "../components/AppSignUp/AppSignupDetails/AppSignupDetailsElectric.jsx";
 import PanelRouteGuard from "./PanelRouteGuard.jsx";
+import RoadAssistanceOfflineBookingDetails from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/OfflineBookingDetails.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -588,6 +589,9 @@ export const router = createBrowserRouter([
                     }, {
                         path: "rsa-offline-leads",
                         element: <RSAOfflineleads />,
+                    }, {
+                        path: "rsa-offline-lead-details/:request_id",
+                        element: <RoadAssistanceOfflineBookingDetails />,
                     }, {
                         path: "add-rsa-offline-leads",
                         element: <AddOfflineleads />,

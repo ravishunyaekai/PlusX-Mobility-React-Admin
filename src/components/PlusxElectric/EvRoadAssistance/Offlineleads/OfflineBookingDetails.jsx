@@ -7,6 +7,7 @@ import BookingDetailsAccordion from '../../../SharedComponent/BookingDetails/Boo
 import Loader from '../../../SharedComponent/Loader/Loader.jsx';
 import { postRequestWithToken } from '../../../../api/Requests';
 import moment from 'moment';
+import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 
 const statusMapping = {
     'PNR': 'Payment Not Received',
@@ -28,7 +29,7 @@ const statusMapping = {
 const RoadAssistanceOfflineBookingDetails = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
     const navigate = useNavigate();
-    const { requestId } = useParams();
+    const { request_id } = useParams();
     const [bookingDetails, setBookingDetails] = useState();
     const [history, setHistory] = useState([]);
     const [feedBack, setFeedBack] = useState();
@@ -39,7 +40,7 @@ const RoadAssistanceOfflineBookingDetails = () => {
         const obj = {
             userId: userDetails?.user_id,
             email: userDetails?.email,
-            request_id: requestId
+            request_id: request_id
         };
         postRequestWithToken('ev-road-assistance-offline-booking-details', obj, (response) => {
             if (response.code === 200) {
@@ -87,13 +88,15 @@ const RoadAssistanceOfflineBookingDetails = () => {
         jumpStart: "Jump Start Reqiured",
         locationLink: "Location Link",
         address: "Address",
+        city: "City",
+        state: "State",
         modeOfPayment: "Mode Of Payment",
         paymentStatus: "Payment Status",
 
     }
     const sectionContent1 = {
         bookingStatus: statusMapping[bookingDetails?.order_status] || bookingDetails?.order_status,
-        price: bookingDetails?.price + " INR",
+        price: formatIndianNumber(bookingDetails?.price) + " INR",
         vehicle: bookingDetails?.vehicle_data,
         current_percent: bookingDetails?.battery_level > 0 ? "More than 5%" : "0%",
         jumpStart: bookingDetails?.jump_start_required,
@@ -108,6 +111,8 @@ const RoadAssistanceOfflineBookingDetails = () => {
                 {bookingDetails?.pickup_address || 'View on Map'}
             </a>
         ),
+        city: bookingDetails?.city,
+        state: bookingDetails?.state,
         modeOfPayment: bookingDetails?.mode_of_payment,
         paymentStatus: bookingDetails?.payment_status,
     }

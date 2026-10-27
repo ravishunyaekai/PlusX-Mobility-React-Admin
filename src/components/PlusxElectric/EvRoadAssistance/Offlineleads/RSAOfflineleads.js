@@ -110,7 +110,7 @@ const RSAOfflineleads = () => {
     const handleReasonChange = (e) => {
         setReason(e.target.value);
     };
-    const handleRoadAssistanceBookingDetails = (id) => navigate(`/electric/ev-road-assistance/booking-details/${id}`)
+    const handleRoadAssistanceBookingDetails = (id) => navigate(`/electric/ev-road-assistance/rsa-offline-lead-details/${id}`)
     const handleRoadAssistanceEditBookingDetails = (id) => {
         console.log('Edit ID:', id);
 
@@ -307,7 +307,7 @@ const RSAOfflineleads = () => {
                                 { key: 'name', label: 'Customer Name' },
                                 { key: 'price', label: 'Price', format: (price) => (price ? `${formatIndianNumber(Number(price)?.toFixed(2))} INR` : '0 INR') },
                                 { key: 'order_status', label: 'Status', format: (status) => statusMapping[status] || status },
-                                { key: 'rsa_name', label: 'Driver Name' },
+                                { key: 'driver_name', label: 'Driver Name' },
                                 {
                                     key: 'action',
                                     label: 'Action',
