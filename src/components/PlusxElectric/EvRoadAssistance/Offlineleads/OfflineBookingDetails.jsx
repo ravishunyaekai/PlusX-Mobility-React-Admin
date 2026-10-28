@@ -12,18 +12,18 @@ import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 const statusMapping = {
     'PNR': 'Payment Not Received',
     'CNF': 'Booking Confirmed',
-    'A': 'Assigned',
-    'ER': 'Enroute',
-    'RL': 'Charging Van Reached at Location',
-    'CS': 'Charging Started',
-    'CC': 'Charging Completed',
-    'PU': 'Charging Van Picked Up',
-    'VP': 'Vehicle Pickup',
-    'RS': 'Reached Charging Spot',
-    'WC': 'Work Completed',
-    'DO': 'Drop Off',
-    'C': 'Cancel',
-    'RO': 'Charging Van Reached at Office',
+    'A'  : 'Assigned',
+    'ER' : 'Enroute',
+    'RL' : 'Charging Van Reached at Location',
+    'CS' : 'Charging Started',
+    'CC' : 'Charging Completed',
+    'PU' : 'Charging Van Picked Up',
+    'VP' : 'Vehicle Pickup',
+    'RS' : 'Reached Charging Spot',
+    'WC' : 'Work Completed',
+    'DO' : 'Drop Off',
+    'C'  : 'Cancel',
+    'RO' : 'Charging Van Reached at Office',
 };
 
 const RoadAssistanceOfflineBookingDetails = () => {
@@ -122,7 +122,15 @@ const RoadAssistanceOfflineBookingDetails = () => {
                 <>
                     <BookingDetailsHeader content={content} titles={headerTitles} sectionContent={sectionContent1} type='evRoadAssitanceBooking' feedBack={feedBack} />
                     <div className={styles.bookingDetailsSection}>
-                        <BookingLeftDetails titles={sectionTitles1} content={sectionContent1} type='evRoadAssitanceBooking' />
+                        <BookingLeftDetails
+                            titles={sectionTitles1}
+                            content={sectionContent1}
+                            type='evRoadAssitanceBooking'
+                            paymentProof={bookingDetails?.payment_proof || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
+                            }
+                            serviceTnC={bookingDetails?.service_terms_condition || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
+                            }
+                        />
                         <BookingDetailsAccordion history={history} rsa={content} />
                     </div>
                 </>

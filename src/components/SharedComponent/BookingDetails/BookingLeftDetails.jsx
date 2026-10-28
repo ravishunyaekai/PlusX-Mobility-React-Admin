@@ -1,7 +1,7 @@
 import styles from './bookingdetails.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const BookingLeftDetails = ({ titles, content, sectionTitles2, sectionContent2, sectionTitles3, sectionContent3, sectionTitles4, sectionContent4, sectionTitles5, sectionContent5, sectionTitles6, sectionContent6, sectionTitles7, sectionContent7, paymentProof }) => {
+const BookingLeftDetails = ({ titles, content, sectionTitles2, sectionContent2, sectionTitles3, sectionContent3, sectionTitles4, sectionContent4, sectionTitles5, sectionContent5, sectionTitles6, sectionContent6, sectionTitles7, sectionContent7, paymentProof, serviceTnC }) => {
 
     const shouldRenderThirdSection = Object.keys(content || {}).length > 0 && Object.keys(sectionContent2 || {}).length > 0 && Object.keys(sectionContent3 || {}).length > 0;
     const shouldRenderFourthSection = Object.keys(sectionContent4 || {}).length > 0;
@@ -11,6 +11,7 @@ const BookingLeftDetails = ({ titles, content, sectionTitles2, sectionContent2, 
 
 
     let parsedPaymentProof = paymentProof;
+    let parsedServiceTnC = serviceTnC;
 
     // If API sends JSON string
     if (typeof paymentProof === 'string') {
@@ -30,6 +31,26 @@ const BookingLeftDetails = ({ titles, content, sectionTitles2, sectionContent2, 
             Array.isArray(parsedPaymentProof)
                 ? parsedPaymentProof.length > 0
                 : typeof parsedPaymentProof === 'string' && parsedPaymentProof.trim() !== ''
+        );
+
+    // If API sends JSON string
+    if (typeof serviceTnC === 'string') {
+        try {
+            const parsed = JSON.parse(serviceTnC);
+
+            if (Array.isArray(parsed)) {
+                parsedServiceTnC = parsed;
+            }
+        } catch {
+            // Normal URL string, nothing to parse
+        }
+    }
+    const shouldRenderServiceTnC =
+        parsedServiceTnC &&
+        (
+            Array.isArray(parsedServiceTnC)
+                ? parsedServiceTnC.length > 0
+                : typeof parsedServiceTnC === 'string' && parsedServiceTnC.trim() !== ''
         );
 
 
@@ -162,6 +183,38 @@ const BookingLeftDetails = ({ titles, content, sectionTitles2, sectionContent2, 
                                     <img
                                         src={parsedPaymentProof}
                                         alt="Payment Proof"
+                                        className={styles.paymentProofImage}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Service Terms and Conditions for RSA offline Booking */}
+            {shouldRenderServiceTnC && (
+                <div className={styles.bookingDescriptionContainer}>
+                    <div className="row">
+                        <div className={`${styles.detailItem} col-12`}>
+                            <span className={styles.label}>
+                                Service Terms and Conditions
+                            </span>
+
+                            <div className={styles.paymentProofContainer}>
+                                {Array.isArray(parsedServiceTnC) ? (
+                                    parsedServiceTnC.map((image, index) => (
+                                        <img
+                                            key={index}
+                                            src={image}
+                                            alt={`Service Terms and Conditions ${index + 1}`}
+                                            className={styles.paymentProofImage}
+                                        />
+                                    ))
+                                ) : (
+                                    <img
+                                        src={parsedServiceTnC}
+                                        alt="Service Terms and Conditions"
                                         className={styles.paymentProofImage}
                                     />
                                 )}

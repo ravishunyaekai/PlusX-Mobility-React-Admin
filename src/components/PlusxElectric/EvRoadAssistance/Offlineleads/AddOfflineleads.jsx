@@ -115,6 +115,7 @@ const AddOfflineleads = () => {
     // =========================
     const [paymentMode, setPaymentMode] = useState(null);
     const [paymentProof, setPaymentProof] = useState([]);
+    const [serviceTnC, setserviceTnC] = useState([]);
 
     const handleGalleryChange = (event) => {
         const selectedFiles = Array.from(event.target.files);
@@ -130,6 +131,22 @@ const AddOfflineleads = () => {
 
     const handleRemoveGalleryImage = (index) => {
         setPaymentProof((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    };
+
+    const handleGalleryChange2 = (event) => {
+        const selectedFiles = Array.from(event.target.files);
+        // const validFiles = selectedFiles.filter(file => file.type.startsWith('image/'));
+        const validFiles = selectedFiles.filter(file => ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type));
+
+        if (validFiles.length !== selectedFiles.length) {
+            toast.error("Invalid file. Only .jpg, .jpeg, .png allowed.");
+            return;
+        }
+        setserviceTnC((prevFiles) => [...prevFiles, ...validFiles]);
+    };
+
+    const handleRemoveGalleryImage2 = (index) => {
+        setserviceTnC((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
 
     // =========================
@@ -744,6 +761,10 @@ const AddOfflineleads = () => {
             newErrors.paymentProof = 'Payment Proof is required.';
         }
 
+        if (!serviceTnC) {
+            newErrors.serviceTnC = 'Service T&C is required.';
+        }
+
         if (!bookingStatus?.value) {
             newErrors.bookingStatus = 'Booking Status is required.';
         }
@@ -808,6 +829,10 @@ const AddOfflineleads = () => {
 
         paymentProof.forEach((file) => {
             formData.append('proof_of_transaction', file);
+        });
+
+        serviceTnC.forEach((file) => {
+            formData.append('service_terms_condition', file);
         });
 
         // Booking Details
@@ -1429,6 +1454,52 @@ const AddOfflineleads = () => {
                                             <div className={styles.imageContainer} key={index}>
                                                 <img alt={`Preview ${index + 1}`} className={styles.previewImage} src={URL.createObjectURL(file)} />
                                                 <button type="button" className={styles.removeButton} onClick={() => handleRemoveGalleryImage(index)}><AiOutlineClose size={20} style={{ padding: "2px" }} /></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>)}
+                        </div>
+
+                        <div className={`col-lg-6`}>
+                            <label className={styles.labelText}>
+                                Service Terms and Conditions
+                            </label>
+                            <div className={`row`}>
+                                <div className="col-xl-10 col-lg-12">
+                                    <div className={styles.uploadContainer}>
+                                        <span className={styles.uploadLabel}>
+                                            {serviceTnC.length > 0
+                                                ? (
+                                                    serviceTnC.length > 2 ? `${serviceTnC[0].name}, ${serviceTnC[1].name}... (${serviceTnC.length - 2} more)` : serviceTnC.map(file => file.name).join(', ')
+                                                )
+                                                : 'Upload Service Terms and Conditions'}
+                                        </span>
+                                        <label
+                                            htmlFor="serviceTnCUpload"
+                                            className={styles.uploadButton}
+                                        >
+                                            <MdOutlineCloudUpload /> Upload
+                                        </label>
+                                        <input
+                                            type="file"
+                                            multiple
+                                            id="serviceTnCUpload"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={handleGalleryChange2}
+                                            className={styles.hiddenInput}
+                                        />
+                                    </div>
+                                    {errors.serviceTnC && serviceTnC.length === 0 && <p className={styles.error} style={{ color: 'red' }}>{errors.serviceTnC}</p>}
+                                </div>
+                            </div>
+                            {serviceTnC?.length > 0 && (<div className={`row`}>
+                                <div className={`col-xl-10 col-lg-12`}>
+                                    <div className={styles.galleryContainer}>
+                                        {serviceTnC?.map((file, index) => (
+                                            <div className={styles.imageContainer} key={index}>
+                                                <img alt={`Preview ${index + 1}`} className={styles.previewImage} src={URL.createObjectURL(file)} />
+                                                <button type="button" className={styles.removeButton} onClick={() => handleRemoveGalleryImage2(index)}><AiOutlineClose size={20} style={{ padding: "2px" }} /></button>
                                             </div>
                                         ))}
                                     </div>

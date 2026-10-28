@@ -122,6 +122,7 @@ const EditOfflineleads = () => {
 
     // Newly selected files
     const [paymentProof, setPaymentProof] = useState([]);
+    const [serviceTnC, setServiceTnC] = useState([]);
 
     // Preview URLs for newly selected files
     const [paymentProofPreviews, setPaymentProofPreviews] =
@@ -129,6 +130,14 @@ const EditOfflineleads = () => {
 
     // Already uploaded files
     const [existingPaymentProof, setExistingPaymentProof] =
+        useState([]);
+
+    // Preview URLs for newly selected files
+    const [serviceTnCPreviews, setServiceTnCPreviews] =
+        useState([]);
+
+    // Already uploaded files
+    const [existingServiceTnC, setexistingServiceTnC] =
         useState([]);
 
     const [paymentMode, setPaymentMode] = useState(null);
@@ -646,6 +655,23 @@ const EditOfflineleads = () => {
         return [paymentProofData];
     };
 
+
+    // =========================================================
+    // Normalize Existing Payment Proof
+    // =========================================================
+
+    const normalizeServiceTnC = serviceTnCData => {
+        if (!serviceTnCData) {
+            return [];
+        }
+
+        if (Array.isArray(serviceTnCData)) {
+            return serviceTnCData;
+        }
+
+        return [serviceTnCData];
+    };
+
     // =========================================================
     // Get Existing Image URL
     // =========================================================
@@ -898,6 +924,16 @@ const EditOfflineleads = () => {
                             normalizePaymentProof(proofData)
                         );
 
+                        // Existing service terms and conditions
+                        const serviceTnCData =
+                            booking.service_terms_and_condition_url ||
+                            booking.service_terms_and_condition ||
+                            [];
+
+                        setexistingServiceTnC(
+                            normalizeServiceTnC(serviceTnCData)
+                        );
+
                         // Booking status
                         setBookingStatus(
                             getBookingStatusOption(booking)
@@ -1021,6 +1057,101 @@ const EditOfflineleads = () => {
         );
 
         setPaymentProofPreviews(prevPreviews => {
+            const previewToRemove =
+                prevPreviews[index];
+
+            if (previewToRemove) {
+                URL.revokeObjectURL(
+                    previewToRemove
+                );
+            }
+
+            return prevPreviews.filter(
+                (_, i) => i !== index
+            );
+        });
+    };
+
+    // =========================================================
+    // File Upload
+    // =========================================================
+
+    const handleGalleryChange2 = event => {
+        const selectedFiles = Array.from(
+            event.target.files || []
+        );
+
+        if (selectedFiles.length === 0) {
+            return;
+        }
+
+        const validFiles = selectedFiles.filter(file =>
+            [
+                'image/jpeg',
+                'image/png',
+                'image/jpg'
+            ].includes(file.type)
+        );
+
+        if (
+            validFiles.length !==
+            selectedFiles.length
+        ) {
+            toast.error(
+                'Invalid file. Only .jpg, .jpeg, .png allowed.'
+            );
+
+            event.target.value = '';
+            return;
+        }
+
+        // =====================================================
+        // Add Files
+        // =====================================================
+
+        setServiceTnC(prevFiles => [
+            ...prevFiles,
+            ...validFiles
+        ]);
+
+        // =====================================================
+        // Create Preview URLs
+        // =====================================================
+
+        const newPreviewUrls =
+            validFiles.map(file =>
+                URL.createObjectURL(file)
+            );
+
+        setServiceTnCPreviews(
+            prevPreviews => [
+                ...prevPreviews,
+                ...newPreviewUrls
+            ]
+        );
+
+        // Allows selecting same file again
+        event.target.value = '';
+
+        // Clear validation error
+        setErrors(prevErrors => ({
+            ...prevErrors,
+            serviceTnC: ''
+        }));
+    };
+
+    // =========================================================
+    // Remove New Service Terms and Conditions
+    // =========================================================
+
+    const handleRemoveGalleryImage2 = index => {
+        setServiceTnC(prevFiles =>
+            prevFiles.filter(
+                (_, i) => i !== index
+            )
+        );
+
+        setServiceTnCPreviews(prevPreviews => {
             const previewToRemove =
                 prevPreviews[index];
 
@@ -1223,6 +1354,18 @@ const EditOfflineleads = () => {
     };
 
     // =========================================================
+    // Remove Existing Service Terms and Conditions
+    // =========================================================
+
+    const handleRemoveExistingTnC = index => {
+        setexistingServiceTnC(prevFiles =>
+            prevFiles.filter(
+                (_, i) => i !== index
+            )
+        );
+    };
+
+    // =========================================================
     // Validation
     // =========================================================
 
@@ -1313,6 +1456,14 @@ const EditOfflineleads = () => {
         ) {
             newErrors.paymentProof =
                 'Payment Proof is required.';
+        }
+
+        if (
+            serviceTnC.length === 0 &&
+            existingServiceTnC.length === 0
+        ) {
+            newErrors.serviceTnC =
+                'Service Terms and Conditions is required.';
         }
 
         // =====================================================
@@ -1408,11 +1559,15 @@ const EditOfflineleads = () => {
         // New Payment Proof Files
         // =====================================================
 
-        // paymentProof.forEach(file => {
-        //     formData.append('payment_proof[]', file);
-        // });
         paymentProof.forEach(file => {
             formData.append('proof_of_transaction', file);
+        });
+        // =====================================================
+        // New Service Terms and Conditions
+        // =====================================================
+
+        serviceTnC.forEach(file => {
+            formData.append('service_terms_and_condition', file);
         });
 
         // =====================================================
@@ -1498,6 +1653,17 @@ const EditOfflineleads = () => {
             });
         };
     }, [paymentProofPreviews]);
+    // =========================================================
+    // Cleanup Preview URLs
+    // =========================================================
+
+    useEffect(() => {
+        return () => {
+            serviceTnCPreviews.forEach(url => {
+                URL.revokeObjectURL(url);
+            });
+        };
+    }, [serviceTnCPreviews]);
 
     // =========================================================
     // Cancel
@@ -2543,6 +2709,297 @@ const EditOfflineleads = () => {
                                                                 }
                                                                 onClick={() =>
                                                                     handleRemoveGalleryImage(
+                                                                        index
+                                                                    )
+                                                                }
+                                                            >
+                                                                <AiOutlineClose
+                                                                    size={
+                                                                        20
+                                                                    }
+                                                                    style={{
+                                                                        padding:
+                                                                            '2px'
+                                                                    }}
+                                                                />
+                                                            </button>
+
+                                                        </div>
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+
+                        </div>
+
+                        {/* Service Terms and Conditions */}
+
+                        <div className="col-lg-6">
+
+                            <label
+                                className={
+                                    styles.labelText
+                                }
+                            >
+                                Service Terms and Conditions
+                            </label>
+
+                            <div className="row">
+
+                                <div className="col-xl-10 col-lg-12">
+
+                                    <div
+                                        className={
+                                            styles.uploadContainer
+                                        }
+                                    >
+
+                                        <span
+                                            className={
+                                                styles.uploadLabel
+                                            }
+                                        >
+                                            {serviceTnC.length >
+                                                0
+                                                ? serviceTnC.length >
+                                                    2
+                                                    ? `${serviceTnC[0].name}, ${serviceTnC[1].name}... (${serviceTnC.length - 2} more)`
+                                                    : serviceTnC
+                                                        .map(
+                                                            file =>
+                                                                file.name
+                                                        )
+                                                        .join(
+                                                            ', '
+                                                        )
+                                                : 'Upload Service Terms and Conditions'}
+                                        </span>
+
+                                        <label
+                                            htmlFor="galleryImage"
+                                            className={
+                                                styles.uploadButton
+                                            }
+                                        >
+                                            <MdOutlineCloudUpload />
+                                            Upload
+                                        </label>
+
+                                        <input
+                                            type="file"
+                                            multiple
+                                            id="galleryImage"
+                                            accept=".jpg,.jpeg,.png"
+                                            onChange={
+                                                handleGalleryChange2
+                                            }
+                                            className={
+                                                styles.hiddenInput
+                                            }
+                                        />
+
+                                    </div>
+
+                                    {errors.serviceTnC &&
+                                        serviceTnC.length ===
+                                        0 &&
+                                        existingServiceTnC.length ===
+                                        0 && (
+                                            <p
+                                                className={
+                                                    styles.error
+                                                }
+                                            >
+                                                {
+                                                    errors.serviceTnC
+                                                }
+                                            </p>
+                                        )}
+
+                                </div>
+                            </div>
+
+                            {/* =================================================
+                                Existing Service T&C
+                            ================================================= */}
+
+                            {existingServiceTnC.length >
+                                0 && (
+                                    <div className="row mt-2">
+
+                                        <div className="col-xl-10 col-lg-12">
+
+                                            <div
+                                                style={{
+                                                    fontWeight: 600,
+                                                    marginBottom:
+                                                        '10px'
+                                                }}
+                                            >
+                                                Existing Payment
+                                                Proof
+                                            </div>
+
+                                            <div
+                                                className={
+                                                    styles.galleryContainer
+                                                }
+                                            >
+
+                                                {existingServiceTnC.map(
+                                                    (
+                                                        file,
+                                                        index
+                                                    ) => {
+                                                        const imageUrl =
+                                                            getExistingImageUrl(
+                                                                file
+                                                            );
+
+                                                        return (
+                                                            <div
+                                                                className={
+                                                                    styles.imageContainer
+                                                                }
+                                                                key={
+                                                                    file?.id ||
+                                                                    index
+                                                                }
+                                                            >
+
+                                                                {imageUrl ? (
+                                                                    <img
+                                                                        src={
+                                                                            imageUrl
+                                                                        }
+                                                                        alt={`Existing Payment Proof ${index +
+                                                                            1
+                                                                            }`}
+                                                                        className={
+                                                                            styles.previewImage
+                                                                        }
+                                                                    />
+                                                                ) : (
+                                                                    <div
+                                                                        style={{
+                                                                            width:
+                                                                                '100%',
+                                                                            height:
+                                                                                '100px',
+                                                                            display:
+                                                                                'flex',
+                                                                            alignItems:
+                                                                                'center',
+                                                                            justifyContent:
+                                                                                'center',
+                                                                            background:
+                                                                                '#f5f5f5',
+                                                                            color:
+                                                                                '#777'
+                                                                        }}
+                                                                    >
+                                                                        Image
+                                                                        not
+                                                                        available
+                                                                    </div>
+                                                                )}
+
+                                                                <button
+                                                                    type="button"
+                                                                    className={
+                                                                        styles.removeButton
+                                                                    }
+                                                                    onClick={() =>
+                                                                        handleRemoveExistingTnC(
+                                                                            index
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <AiOutlineClose
+                                                                        size={
+                                                                            20
+                                                                        }
+                                                                        style={{
+                                                                            padding:
+                                                                                '2px'
+                                                                        }}
+                                                                    />
+                                                                </button>
+
+                                                            </div>
+                                                        );
+                                                    }
+                                                )}
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+
+                            {/* =================================================
+                                Newly Selected Payment Proof
+                            ================================================= */}
+
+                            {serviceTnC.length >
+                                0 && (
+                                    <div className="row mt-2">
+
+                                        <div className="col-xl-10 col-lg-12">
+
+                                            <div
+                                                style={{
+                                                    fontWeight: 600,
+                                                    marginBottom:
+                                                        '10px'
+                                                }}
+                                            >
+                                                New Service T&C
+                                            </div>
+
+                                            <div
+                                                className={
+                                                    styles.galleryContainer
+                                                }
+                                            >
+
+                                                {serviceTnC.map(
+                                                    (
+                                                        file,
+                                                        index
+                                                    ) => (
+                                                        <div
+                                                            className={
+                                                                styles.imageContainer
+                                                            }
+                                                            key={`${file.name}-${file.lastModified}-${index}`}
+                                                        >
+
+                                                            <img
+                                                                src={
+                                                                    serviceTnCPreviews[
+                                                                    index
+                                                                    ]
+                                                                }
+                                                                alt={`Preview ${index +
+                                                                    1
+                                                                    }`}
+                                                                className={
+                                                                    styles.previewImage
+                                                                }
+                                                            />
+
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    styles.removeButton
+                                                                }
+                                                                onClick={() =>
+                                                                    handleRemoveGalleryImage2(
                                                                         index
                                                                     )
                                                                 }
