@@ -126,9 +126,9 @@ const RoadAssistanceOfflineBookingDetails = () => {
                             titles={sectionTitles1}
                             content={sectionContent1}
                             type='evRoadAssitanceBooking'
-                            paymentProof={bookingDetails?.payment_proof || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
+                            paymentProof={bookingDetails?.proof_of_transaction_url || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
                             }
-                            serviceTnC={bookingDetails?.service_terms_condition || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
+                            serviceTnC={bookingDetails?.service_terms_condition_url || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
                             }
                         />
                         <BookingDetailsAccordion history={history} rsa={content} />
