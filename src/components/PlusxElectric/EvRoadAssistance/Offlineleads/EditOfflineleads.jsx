@@ -17,7 +17,7 @@ const EditOfflineleads = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
-
+    const [isBookingNotCompleted, setIsBookingNotCompleted] = useState(false);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [fetchingData, setFetchingData] = useState(true);
@@ -268,6 +268,7 @@ const EditOfflineleads = () => {
                         (driver) => ({
                             value: driver.rsa_name,
                             label: driver.rsa_name,
+                            rsa_id: driver.rsa_id,
                         })
                     );
 
@@ -310,25 +311,15 @@ const EditOfflineleads = () => {
     ];
 
     const paymentModeOptions = [
-        {
-            value: 'cash',
-            label: 'Cash'
-        },
-        {
-            value: 'online',
-            label: 'Online'
-        }
+        { value: 'Cash', label: 'Cash' },
+        { value: 'Online', label: 'Online' }
     ];
 
+    // Keep UI values aligned with the backend order-status codes.
+    // Cancelled booking handling is intentionally excluded.
     const bookingStatusOptions = [
-        {
-            value: 'confirmed',
-            label: 'Confirmed'
-        },
-        {
-            value: 'completed',
-            label: 'Completed'
-        }
+        { value: 'CNF', label: 'Confirmed' },
+        { value: 'PU', label: 'Completed' }
     ];
 
     // =========================================================
@@ -703,42 +694,29 @@ const EditOfflineleads = () => {
             booking?.is_booking_completed ?? ''
         ).trim().toLowerCase();
 
-        // The API's completion flag takes priority.
+        // The explicit completion flag takes priority.
         if (['yes', '1', 'true', 'completed'].includes(completedValue)) {
-            return getDropdownValue(
-                bookingStatusOptions,
-                'completed'
-            );
+            return getDropdownValue(bookingStatusOptions, 'PU');
         }
 
         if (['no', '0', 'false', 'confirmed'].includes(completedValue)) {
-            return getDropdownValue(
-                bookingStatusOptions,
-                'confirmed'
-            );
+            return getDropdownValue(bookingStatusOptions, 'CNF');
         }
 
-        // Fallback when the completion flag is absent.
+        // Fallback to the saved order status when no completion flag exists.
         const orderStatus = String(
-            booking?.order_status ?? ''
+            booking?.booking_status ?? booking?.order_status ?? ''
         ).trim().toUpperCase();
 
         if (['CNF', 'A', 'CONFIRMED'].includes(orderStatus)) {
-            return getDropdownValue(
-                bookingStatusOptions,
-                'confirmed'
-            );
+            return getDropdownValue(bookingStatusOptions, 'CNF');
         }
 
-        if (
-            ['C', 'COM', 'CMP', 'COMPLETED'].includes(orderStatus)
-        ) {
-            return getDropdownValue(
-                bookingStatusOptions,
-                'completed'
-            );
+        if (['PU', 'COM', 'CMP', 'COMPLETED'].includes(orderStatus)) {
+            return getDropdownValue(bookingStatusOptions, 'PU');
         }
 
+        // Cancelled and unknown statuses are not selectable in this form.
         return null;
     };
 
@@ -764,8 +742,10 @@ const EditOfflineleads = () => {
                         const history = response?.data?.history || [];
 
                         // Customer details
-                        setCustomerName(booking.name || '');
-
+                        setCustomerName(booking.customer_name || booking.name || '');
+                        setIsBookingNotCompleted(
+                            String(booking.is_booking_completed || 'Yes').trim().toLowerCase() === 'no'
+                        );
                         setPhoneNumber(
                             String(
                                 booking.mobile_no ||
@@ -776,13 +756,16 @@ const EditOfflineleads = () => {
                                 .slice(-10)
                         );
 
-                        setEmailId(booking.email || '');
+                        setEmailId(booking.email_id || booking.email || '');
                         setBookingCompletedDate(booking.booking_completed_date || '');
 
                         // Country calling code
+                        const savedCountryCode = String(booking.country_code || '+91');
+                        const normalizedCountryCode = savedCountryCode.startsWith('+')
+                            ? savedCountryCode
+                            : `+${savedCountryCode}`;
                         const matchedCountryCode = countryCodeOptions.find(
-                            (option) =>
-                                option.value === booking.country_code
+                            (option) => option.value === normalizedCountryCode
                         );
 
                         if (matchedCountryCode) {
@@ -835,7 +818,7 @@ const EditOfflineleads = () => {
                         }
 
                         // Address and location
-                        setAddress(booking.pickup_address || '');
+                        setAddress(booking.address || booking.pickup_address || '');
 
                         setLocationLink(
                             booking.location_link || ''
@@ -897,12 +880,13 @@ const EditOfflineleads = () => {
                             booking.jump_start_required ?? ''
                         ).trim().toLowerCase();
 
+                        const normalizedJumpValue =
+                            ['yes', '1', 'true'].includes(jumpValue) ? 'yes' :
+                            ['no', '0', 'false'].includes(jumpValue) ? 'no' : '';
+
                         setJumpStartRequired(
-                            ['yes', 'no'].includes(jumpValue)
-                                ? getDropdownValue(
-                                    jumpStartOptions,
-                                    jumpValue
-                                )
+                            normalizedJumpValue
+                                ? getDropdownValue(jumpStartOptions, normalizedJumpValue)
                                 : null
                         );
 
@@ -1366,151 +1350,139 @@ const EditOfflineleads = () => {
     };
 
     // =========================================================
-    // Validation
+    // Validation - follow the reference flow:
+    // incomplete/confirmed bookings only require contact information;
+    // completed bookings require the full booking and service details.
+    // Cancelled-booking handling is intentionally excluded.
     // =========================================================
+
+    const isValidEmail = (value) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+
+    const isValidLocationUrl = (value) => {
+        if (!String(value || '').trim()) return true;
+        try {
+            const parsed = new URL(value.trim());
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+        } catch {
+            return false;
+        }
+    };
 
     const validateForm = () => {
         const newErrors = {};
+        const isCompletingNow = bookingStatus?.value === 'PU';
+        const isIncompleteBooking = isBookingNotCompleted && !isCompletingNow;
 
-        // =====================================================
-        // Customer Details
-        // =====================================================
+        if (!bookingStatus?.value) {
+            newErrors.bookingStatus = 'Booking Status is required.';
+        }
 
+        if (isIncompleteBooking) {
+            const hasPhone = Boolean(phoneNumber.trim());
+            const hasEmail = Boolean(emailId.trim());
+
+            if (!hasPhone && !hasEmail) {
+                newErrors.phoneNumber = 'Please enter Phone Number or Email ID.';
+                newErrors.emailId = 'Please enter Phone Number or Email ID.';
+            }
+
+            if (hasPhone && !/^\d{10}$/.test(phoneNumber.trim())) {
+                newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
+            }
+
+            if (hasEmail && !isValidEmail(emailId)) {
+                newErrors.emailId = 'Please enter a valid email ID.';
+            }
+
+            if (!isValidLocationUrl(locationLink)) {
+                newErrors.locationLink = 'Please enter a valid URL.';
+            }
+
+            setErrors(newErrors);
+            return Object.keys(newErrors).length === 0;
+        }
+
+        // Full validation applies when the booking is already completed or
+        // the user is changing an incomplete booking to Completed.
         if (!customerName.trim()) {
-            newErrors.customerName =
-                'Customer Name is required.';
+            newErrors.customerName = 'Customer Name is required.';
         }
 
         if (!phoneNumber.trim()) {
-            newErrors.phoneNumber =
-                'Phone Number is required.';
-        } else if (
-            !/^[0-9]{10}$/.test(phoneNumber)
-        ) {
-            newErrors.phoneNumber =
-                'Please enter a valid 10 digit phone number.';
+            newErrors.phoneNumber = 'Phone Number is required.';
+        } else if (!/^\d{10}$/.test(phoneNumber.trim())) {
+            newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
         }
 
-        // if (!emailId.trim()) {
-        //     newErrors.emailId =
-        //         'Email ID is required.';
-        // } else if (
-        //     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        //         emailId
-        //     )
-        // ) {
-        //     newErrors.emailId =
-        //         'Please enter a valid email ID.';
-        // }
-
-        if (!state?.value) {
-            newErrors.state = 'State is required.';
+        if (!emailId.trim()) {
+            newErrors.emailId = 'Email ID is required.';
+        } else if (!isValidEmail(emailId)) {
+            newErrors.emailId = 'Please enter a valid email ID.';
         }
 
-        if (!city?.value) {
-            newErrors.city = 'City is required.';
+        if (!state?.value) newErrors.state = 'State is required.';
+        if (!city?.value) newErrors.city = 'City is required.';
+        if (!locationLink.trim()) newErrors.locationLink = 'Location Link is required.';
+        if (!address.trim()) newErrors.address = 'Address is required.';
+        if (!price.trim()) newErrors.price = 'Price including GST is required.';
+        else if (!Number.isFinite(Number(price)) || Number(price) < 0) {
+            newErrors.price = 'Please enter a valid price.';
         }
 
-        if (!locationLink.trim()) {
-            newErrors.locationLink =
-                'Location Link is required.';
-        }
-
-        if (!address.trim()) {
-            newErrors.address =
-                'Address is required.';
-        }
-
-        if (!price.trim()) {
-            newErrors.price =
-                'Price including GST is required.';
-        }
-
-        // =====================================================
-        // Vehicle Details
-        // =====================================================
-
-        if (!vehicleMake?.value) {
-            newErrors.vehicleMake = 'Vehicle Make is required.';
-        }
-
-        if (!vehicleModel?.value) {
-            newErrors.vehicleModel = 'Vehicle Model is required.';
-        }
-
-        if (!batteryLevel?.value) {
+        if (!vehicleMake?.value) newErrors.vehicleMake = 'Vehicle Make is required.';
+        if (!vehicleModel?.value) newErrors.vehicleModel = 'Vehicle Model is required.';
+        if (batteryLevel?.value === undefined || batteryLevel?.value === null || batteryLevel?.value === '') {
             newErrors.batteryLevel = 'Battery Level is required.';
         }
+        if (!jumpStartRequired?.value) newErrors.jumpStartRequired = 'Jump Start Required is required.';
 
-        if (!jumpStartRequired?.value) {
-            newErrors.jumpStartRequired = 'Jump Start Required is required.';
+        if (isCompletingNow) {
+            if (!paymentMode?.value) {
+                newErrors.paymentMode = 'Mode of Payment is required.';
+            }
+
+            if (String(paymentMode?.value || '').toLowerCase() === 'online' &&
+                paymentProof.length === 0 && existingPaymentProof.length === 0) {
+                newErrors.paymentProof = 'Payment Proof is required for Online payment.';
+            }
+
+            if (serviceTnC.length === 0 && existingServiceTnC.length === 0) {
+                newErrors.serviceTnC = 'Service T&C is required.';
+            }
+
+            if (!bookingCompletedDate) {
+                newErrors.bookingCompletedDate = 'Booking Completed Date is required.';
+            }
+
+            if (!String(bookingCompletedBy || '').trim()) {
+                newErrors.bookingCompletedBy = 'Booking Completed By is required.';
+            }
         }
 
-        if (!paymentMode?.value) {
-            newErrors.paymentMode = 'Mode of Payment is required.';
-        }
-
-        if (
-            paymentProof.length === 0 &&
-            existingPaymentProof.length === 0
-        ) {
-            newErrors.paymentProof =
-                'Payment Proof is required.';
-        }
-
-        if (
-            serviceTnC.length === 0 &&
-            existingServiceTnC.length === 0
-        ) {
-            newErrors.serviceTnC =
-                'Service Terms and Conditions is required.';
-        }
-
-        // =====================================================
-        // Booking Details
-        // =====================================================
-
-        if (!bookingStatus?.value) {
-            newErrors.bookingStatus =
-                'Booking Status is required.';
-        }
-
-        if (
-            bookingStatus?.value === 'completed' &&
-            !bookingCompletedBy.trim()
-        ) {
-            newErrors.bookingCompletedBy =
-                'Booking Completed By is required.';
+        if (!isValidLocationUrl(locationLink)) {
+            newErrors.locationLink = 'Please enter a valid URL.';
         }
 
         setErrors(newErrors);
-
-        return (
-            Object.keys(newErrors).length === 0
-        );
+        return Object.keys(newErrors).length === 0;
     };
 
     // =========================================================
     // Submit / Update
     // =========================================================
 
-    const handleSubmit = e => {
+    const handleSubmit = (e) => {
         e.preventDefault();
+        if (loading) return;
 
-        const isValid = validateForm();
-
-        if (!isValid) {
-            toast.error('Some fields are missing.');
+        if (!validateForm()) {
+            toast.error('Some fields are missing or invalid.');
             return;
         }
 
-        if (loading) {
-            return;
-        }
-
-        const userDetails = getUserDetails();
-
-        if (!userDetails) {
+        const currentUserDetails = getUserDetails();
+        if (!currentUserDetails?.access_token) {
             toast.error('User session expired. Please login again.');
             navigate('/login');
             return;
@@ -1519,101 +1491,100 @@ const EditOfflineleads = () => {
         setLoading(true);
 
         const formData = new FormData();
+        const appendIfSet = (key, value) => {
+            if (value !== undefined && value !== null && value !== '') {
+                formData.append(key, value);
+            }
+        };
 
-        // =====================================================
-        // Common
-        // =====================================================
-        formData.append('status', status == 1 ? 'completed' : 'not completed');
+        const currentBookingStatus = bookingStatus?.value;
+        const isCompletingNow = currentBookingStatus === 'PU';
+        const isCompletedBooking = !isBookingNotCompleted || isCompletingNow;
 
-        formData.append('userId', userDetails?.user_id ?? '');
-        formData.append('email', userDetails?.email ?? '');
-        formData.append('id', id ?? '');
+        appendIfSet('userId', currentUserDetails.user_id);
+        appendIfSet('email', currentUserDetails.email);
+        appendIfSet('request_id', id);
+        appendIfSet('id', id);
+        formData.append('is_booking_completed', isCompletedBooking ? 'Yes' : 'No');
+        appendIfSet('booking_status', currentBookingStatus);
 
-        // =====================================================
-        // Customer Details
-        // =====================================================
+        // Send any values that are present. For an incomplete booking the
+        // backend can save contact details without requiring the full form.
+        appendIfSet('customer_name', customerName.trim());
+        appendIfSet('phone_number', phoneNumber.trim());
+        appendIfSet('email_id', emailId.trim());
+        appendIfSet('country_code', countryCode || '+91');
+        appendIfSet('state', state?.value);
+        appendIfSet('city', city?.value);
+        appendIfSet('location_link', locationLink.trim());
+        appendIfSet('address', address.trim());
+        appendIfSet('price', price.trim());
+        appendIfSet('vehicle_make', vehicleMake?.value);
+        appendIfSet('vehicle_model', vehicleModel?.value);
 
-        formData.append('customer_name', customerName.trim());
-        formData.append('phone_number', phoneNumber.trim());
-        formData.append('email_id', emailId.trim());
-        formData.append('state', state?.value ?? '');
-        formData.append('city', city?.value ?? '');
-        formData.append('location_link', locationLink.trim());
-        formData.append('address', address.trim());
-        formData.append('price', price.trim());
+        // Keep 0 as a valid battery-level value.
+        if (batteryLevel?.value !== undefined && batteryLevel?.value !== null && batteryLevel?.value !== '') {
+            // API stores battery level as 0/1; UI labels are 0% / more_than_5%.
+            formData.append(
+                'battery_level',
+                batteryLevel.value === '0%' ? '0' : '1'
+            );
+        }
+        if (jumpStartRequired?.value) {
+            formData.append(
+                'jump_start_required',
+                jumpStartRequired.value === 'yes' ? '1' : '0'
+            );
+        }
 
-        // =====================================================
-        // Vehicle Details
-        // =====================================================
+        if (isCompletingNow) {
+            appendIfSet('mode_of_payment', paymentMode?.value);
+            appendIfSet('payment_status', 'Paid');
+            appendIfSet('booking_completed_by', String(bookingCompletedBy || '').trim());
+            appendIfSet('driver_name', String(bookingCompletedBy || '').trim());
+            const selectedDriver = driverOptions.find(
+                (driver) => driver.value === String(bookingCompletedBy || '').trim()
+            );
+            appendIfSet('rsa_id', selectedDriver?.rsa_id);
+            appendIfSet('booking_completed_date', bookingCompletedDate);
+        } else if (paymentMode?.value) {
+            // Preserve an optional payment mode on an incomplete booking.
+            appendIfSet('mode_of_payment', paymentMode.value);
+        }
 
-        formData.append('vehicle_make', vehicleMake?.value ?? '');
-        formData.append('vehicle_model', vehicleModel?.value ?? '');
-        formData.append('battery_level', batteryLevel?.value ?? '');
-        formData.append('jump_start_required', jumpStartRequired?.value ?? '');
-        // =====================================================
-        // Payment Details
-        // =====================================================
+        // Append only newly selected files; existing files are already stored.
+        if (Array.isArray(paymentProof)) {
+            paymentProof.forEach((file) => {
+                if (typeof File !== 'undefined' && file instanceof File) {
+                    formData.append('proof_of_transaction', file);
+                }
+            });
+        }
 
-        formData.append('mode_of_payment', paymentMode?.value ?? '');
-        // =====================================================
-        // New Payment Proof Files
-        // =====================================================
-
-        paymentProof.forEach(file => {
-            formData.append('proof_of_transaction', file);
-        });
-        // =====================================================
-        // New Service Terms and Conditions
-        // =====================================================
-
-        serviceTnC.forEach(file => {
-            formData.append('service_terms_and_condition', file);
-        });
-
-        // =====================================================
-        // Existing Payment Proof
-        // =====================================================
-
-        /*
-         * This contains only the existing files that
-         * the user has NOT removed.
-         */
-
-        // formData.append('existing_payment_proof', JSON.stringify(existingPaymentProof));
-
-        // =====================================================
-        // Booking Details
-        // =====================================================
-
-        formData.append('booking_status', bookingStatus?.value ?? '');
-        formData.append('request_id', id ?? '');
-        formData.append(
-            'booking_completed_by',
-            bookingCompletedBy
-        );
-        formData.append(
-            'booking_completed_date',
-            bookingCompletedDate
-        );
-
-        // =====================================================
-        // Update API
-        // =====================================================
+        if (isCompletedBooking && Array.isArray(serviceTnC)) {
+            serviceTnC.forEach((file) => {
+                if (typeof File !== 'undefined' && file instanceof File) {
+                    formData.append('service_terms_condition', file);
+                }
+            });
+        }
 
         postRequestWithTokenAndFile(
-            `ev-road-assistance-edit-offline-booking`,
+            'ev-road-assistance-edit-offline-booking',
             formData,
-            response => {
-
+            (response) => {
                 if (response?.code === 200 || response?.status === 1) {
-                    toast.success(getResponseMessage(response, 'Booking updated successfully.'));
-
+                    toast.success(
+                        getResponseMessage(response, 'Offline RSA booking updated successfully.')
+                    );
                     setTimeout(() => {
                         setLoading(false);
                         navigate('/electric/ev-road-assistance/rsa-offline-leads');
                     }, 1000);
                 } else {
-                    toast.error(getResponseMessage(response, 'Something went wrong while updating booking.'));
+                    toast.error(
+                        getResponseMessage(response, 'Something went wrong while updating the booking.')
+                    );
                     setLoading(false);
                 }
             }
@@ -2780,7 +2751,7 @@ const EditOfflineleads = () => {
                                         </span>
 
                                         <label
-                                            htmlFor="galleryImage"
+                                            htmlFor="serviceTnCUpload"
                                             className={
                                                 styles.uploadButton
                                             }
@@ -2792,7 +2763,7 @@ const EditOfflineleads = () => {
                                         <input
                                             type="file"
                                             multiple
-                                            id="galleryImage"
+                                            id="serviceTnCUpload"
                                             accept=".jpg,.jpeg,.png"
                                             onChange={
                                                 handleGalleryChange2
@@ -3084,7 +3055,7 @@ const EditOfflineleads = () => {
 
                                                 if (
                                                     selectedOption?.value !==
-                                                    'completed'
+                                                    'PU'
                                                 ) {
                                                     setBookingCompletedBy(
                                                         ''
@@ -3134,7 +3105,7 @@ const EditOfflineleads = () => {
                                                 bookingCompletedDate: '',
                                             }));
                                         }}
-                                        disabled={bookingStatus?.value !== 'completed'}
+                                        disabled={bookingStatus?.value !== 'PU'}
                                     />
 
                                     {errors.bookingCompletedDate && (

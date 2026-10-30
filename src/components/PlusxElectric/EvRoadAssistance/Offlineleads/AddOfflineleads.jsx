@@ -481,10 +481,18 @@ const AddOfflineleads = () => {
         { value: 'online', label: 'Online' },
     ];
 
-    const bookingStatusOptions = [
-        { value: 'confirmed', label: 'Confirmed' },
-        { value: 'completed', label: 'Completed' },
-    ];
+    const bookingStatusOptions = useMemo(() => {
+        if (status === '0') {
+            return [
+                { value: 'confirmed', label: 'Confirmed' }
+            ];
+        }
+
+        return [
+            { value: 'confirmed', label: 'Confirmed' },
+            { value: 'completed', label: 'Completed' }
+        ];
+    }, [status]);
 
     // =========================
     // Normalize Vehicle API Data
@@ -699,82 +707,118 @@ const AddOfflineleads = () => {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!customerName.trim()) {
-            newErrors.customerName = 'Customer Name is required.';
-        }
+        // =========================================
+        // STATUS = 0
+        // Either Phone Number OR Email is required
+        // All other fields are optional
+        // =========================================
+        if (status === '0') {
 
-        if (!phoneNumber.trim()) {
-            newErrors.phoneNumber = 'Phone Number is required.';
-        } else if (!/^[0-9]{10}$/.test(phoneNumber)) {
-            newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
-        }
+            const hasPhone = phoneNumber.trim() !== '';
+            const hasEmail = emailId.trim() !== '';
 
-        if (!emailId.trim()) {
-            newErrors.emailId = 'Email ID is required.';
-        } else if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailId)
-        ) {
-            newErrors.emailId = 'Please enter a valid email ID.';
-        }
+            if (!hasPhone && !hasEmail) {
+                newErrors.phoneNumber = 'Please enter either Phone Number or Email ID.';
+                newErrors.emailId = 'Please enter either Phone Number or Email ID.';
+            }
 
-        if (!state?.value) {
-            newErrors.state = 'State is required.';
-        }
+            // Validate phone only if entered
+            if (hasPhone && !/^[0-9]{10}$/.test(phoneNumber)) {
+                newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
+            }
 
-        if (!city?.value) {
-            newErrors.city = 'City is required.';
-        }
+            // Validate email only if entered
+            if (
+                hasEmail &&
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailId)
+            ) {
+                newErrors.emailId = 'Please enter a valid email ID.';
+            }
 
-        if (!locationLink.trim()) {
-            newErrors.locationLink = 'Location Link is required.';
-        }
+        } else {
 
-        if (!address.trim()) {
-            newErrors.address = 'Address is required.';
-        }
+            // =========================================
+            // STATUS = 1
+            // Existing validation remains unchanged
+            // =========================================
 
-        if (!price.trim()) {
-            newErrors.price = 'Price including GST is required.';
-        }
+            if (!customerName.trim()) {
+                newErrors.customerName = 'Customer Name is required.';
+            }
 
-        if (!vehicleMake?.value) {
-            newErrors.vehicleMake = 'Vehicle Make is required.';
-        }
+            if (!phoneNumber.trim()) {
+                newErrors.phoneNumber = 'Phone Number is required.';
+            } else if (!/^[0-9]{10}$/.test(phoneNumber)) {
+                newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
+            }
 
-        if (!vehicleModel?.value) {
-            newErrors.vehicleModel = 'Vehicle Model is required.';
-        }
+            if (!emailId.trim()) {
+                newErrors.emailId = 'Email ID is required.';
+            } else if (
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailId)
+            ) {
+                newErrors.emailId = 'Please enter a valid email ID.';
+            }
 
-        if (!batteryLevel?.value) {
-            newErrors.batteryLevel = 'Battery Level is required.';
-        }
+            if (!state?.value) {
+                newErrors.state = 'State is required.';
+            }
 
-        if (!jumpStartRequired?.value) {
-            newErrors.jumpStartRequired = 'Jump Start Required is required.';
-        }
+            if (!city?.value) {
+                newErrors.city = 'City is required.';
+            }
 
-        if (!paymentMode?.value) {
-            newErrors.paymentMode = 'Mode of Payment is required.';
-        }
+            if (!locationLink.trim()) {
+                newErrors.locationLink = 'Location Link is required.';
+            }
 
-        if (!paymentProof) {
-            newErrors.paymentProof = 'Payment Proof is required.';
-        }
+            if (!address.trim()) {
+                newErrors.address = 'Address is required.';
+            }
 
-        if (!serviceTnC) {
-            newErrors.serviceTnC = 'Service T&C is required.';
-        }
+            if (!price.trim()) {
+                newErrors.price = 'Price including GST is required.';
+            }
 
-        if (!bookingStatus?.value) {
-            newErrors.bookingStatus = 'Booking Status is required.';
-        }
+            if (!vehicleMake?.value) {
+                newErrors.vehicleMake = 'Vehicle Make is required.';
+            }
 
-        if (
-            bookingStatus?.value === 'completed' &&
-            !bookingCompletedBy.trim()
-        ) {
-            newErrors.bookingCompletedBy =
-                'Booking Completed By is required.';
+            if (!vehicleModel?.value) {
+                newErrors.vehicleModel = 'Vehicle Model is required.';
+            }
+
+            if (!batteryLevel?.value) {
+                newErrors.batteryLevel = 'Battery Level is required.';
+            }
+
+            if (!jumpStartRequired?.value) {
+                newErrors.jumpStartRequired = 'Jump Start Required is required.';
+            }
+
+            if (!paymentMode?.value) {
+                newErrors.paymentMode = 'Mode of Payment is required.';
+            }
+
+            if (paymentProof.length === 0) {
+                newErrors.paymentProof = 'Payment Proof is required.';
+            }
+
+            if (serviceTnC.length === 0) {
+                newErrors.serviceTnC = 'Service T&C is required.';
+            }
+
+            if (!bookingStatus?.value) {
+                newErrors.bookingStatus = 'Booking Status is required.';
+            }
+
+            if (
+                bookingStatus?.value === 'completed' &&
+                !bookingCompletedBy.trim()
+            ) {
+                newErrors.bookingCompletedBy =
+                    'Booking Completed By is required.';
+            }
         }
 
         setErrors(newErrors);
@@ -802,6 +846,7 @@ const AddOfflineleads = () => {
         const formData = new FormData();
 
         formData.append('status', status == 1 ? 'completed' : 'not completed');
+        formData.append('is_booking_completed', status == 1 ? 'Yes' : 'No');
         formData.append('userId', userDetails?.user_id ?? '');
         formData.append('email', userDetails?.email ?? '');
 
