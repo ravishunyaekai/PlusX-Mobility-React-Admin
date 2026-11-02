@@ -158,6 +158,19 @@ const AddOfflineleads = () => {
     const [driverOptions, setDriverOptions] = useState([]);
     const [driverListLoading, setDriverListLoading] = useState(false);
 
+    // Lead Details are displayed only when the URL contains status=0.
+    const leadStatusOptions = [
+        { value: 'CNF', label: 'Confirmed' },
+        { value: 'NC', label: 'Not Converted' },
+        { value: 'PU', label: 'Completed' },
+        { value: 'C', label: 'Cancelled' },
+    ];
+    const [leadStatus, setLeadStatus] = useState(
+        status === '0' ? leadStatusOptions[0] : null
+    );
+    const [reasonForNonConversion, setReasonForNonConversion] = useState('');
+    const [leadRemarks, setLeadRemarks] = useState('');
+
     // =========================
     // Fetch Driver List
     // =========================
@@ -722,6 +735,18 @@ const AddOfflineleads = () => {
                 newErrors.emailId = 'Please enter either Phone Number or Email ID.';
             }
 
+            if (!leadStatus?.value) {
+                newErrors.leadStatus = 'Lead Status is required.';
+            }
+
+            if (leadStatus?.value === 'NC' && !reasonForNonConversion.trim()) {
+                newErrors.reasonForNonConversion = 'Reason for Non-Conversion is required when Lead Status is Not Converted.';
+            }
+
+            if (!leadRemarks.trim()) {
+                newErrors.leadRemarks = 'Remarks / Notes are required.';
+            }
+
             // Validate phone only if entered
             if (hasPhone && !/^[0-9]{10}$/.test(phoneNumber)) {
                 newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
@@ -850,27 +875,33 @@ const AddOfflineleads = () => {
         formData.append('userId', userDetails?.user_id ?? '');
         formData.append('email', userDetails?.email ?? '');
 
+        if (status === '0') {
+            formData.append('lead_status', leadStatus?.value ?? '');
+            formData.append('reason_for_non_conversion', reasonForNonConversion.trim());
+            formData.append('lead_remarks', leadRemarks.trim());
+        }
+
         // Customer Details
         formData.append('customer_name', customerName.trim());
         formData.append('phone_number', phoneNumber);
         formData.append('email_id', emailId.trim());
-        formData.append('state', state.value);
-        formData.append('city', city.value);
+        formData.append('state', state?.value ?? '');
+        formData.append('city', city?.value ?? '');
         formData.append('location_link', locationLink.trim());
         formData.append('address', address.trim());
         formData.append('price', price);
 
         // Vehicle Details
-        formData.append('vehicle_make', vehicleMake.value);
-        formData.append('vehicle_model', vehicleModel.value);
-        formData.append('battery_level', batteryLevel.value);
+        formData.append('vehicle_make', vehicleMake?.value ?? '');
+        formData.append('vehicle_model', vehicleModel?.value ?? '');
+        formData.append('battery_level', batteryLevel?.value ?? '');
         formData.append(
             'jump_start_required',
-            jumpStartRequired.value
+            jumpStartRequired?.value ?? ''
         );
 
         // Payment Details
-        formData.append('payment_mode', paymentMode.value);
+        formData.append('payment_mode', paymentMode?.value ?? '');
 
         paymentProof.forEach((file) => {
             formData.append('proof_of_transaction', file);
@@ -881,7 +912,7 @@ const AddOfflineleads = () => {
         });
 
         // Booking Details
-        formData.append('booking_status', bookingStatus.value);
+        formData.append('booking_status', bookingStatus?.value ?? '');
         formData.append(
             'booking_completed_by',
             bookingCompletedBy
@@ -947,6 +978,83 @@ const AddOfflineleads = () => {
                     className={styles.formSection}
                     onSubmit={handleSubmit}
                 >
+
+                    {status === '0' && (
+                        <>
+                            <div className={`row`}>
+                                <div className={`col-xl-11 col-lg-12`}>
+                                    <label className={styles.featureLabel}>Lead Details</label>
+                                </div>
+                            </div>
+
+                            <div className="row">
+                                <div className="col-lg-6">
+                                    <label className={styles.labelText}>Lead Status</label>
+                                    <div className="row">
+                                        <div className="col-xl-10 col-lg-12">
+                                            <CustomDropdown
+                                                options={leadStatusOptions}
+                                                value={leadStatus}
+                                                onChange={(option) => {
+                                                    setLeadStatus(option || null);
+                                                    setErrors((prev) => ({ ...prev, leadStatus: '' }));
+                                                }}
+                                                labelledBy="Select Lead Status"
+                                                closeOnChangedValue={true}
+                                                closeOnSelect={true}
+                                            />
+                                            {errors.leadStatus && (
+                                                <p className={styles.error}>{errors.leadStatus}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="col-lg-6">
+                                    <label className={styles.labelText}>Reason for Non-Conversion</label>
+                                    <div className="row">
+                                        <div className="col-xl-10 col-lg-12">
+                                            <input
+                                                type="text"
+                                                autoComplete="off"
+                                                placeholder="Enter reason for non-conversion"
+                                                className={styles.inputField}
+                                                value={reasonForNonConversion}
+                                                onChange={(e) => {
+                                                    setReasonForNonConversion(e.target.value);
+                                                    setErrors((prev) => ({ ...prev, reasonForNonConversion: '' }));
+                                                }}
+                                            />
+                                            {errors.reasonForNonConversion && (
+                                                <p className={styles.error}>{errors.reasonForNonConversion}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="col-lg-6">
+                                    <label className={styles.labelText}>Remarks / Notes</label>
+                                    <div className="row">
+                                        <div className="col-xl-10 col-lg-12">
+                                            <textarea
+                                                rows={3}
+                                                placeholder="Enter additional details about the lead"
+                                                className={styles.inputField}
+                                                value={leadRemarks}
+                                                onChange={(e) => {
+                                                    setLeadRemarks(e.target.value);
+                                                    setErrors((prev) => ({ ...prev, leadRemarks: '' }));
+                                                }}
+                                            />
+                                            {errors.leadRemarks && (
+                                                <p className={styles.error}>{errors.leadRemarks}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
 
                     {/* =====================================================
                         CUSTOMER DETAILS
