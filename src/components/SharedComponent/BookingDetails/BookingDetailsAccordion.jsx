@@ -5,45 +5,45 @@ import styles from './bookingdetails.module.css';
 import moment from 'moment';
 
 
-const BookingDetailsAccordion = ({history, rsa, imageUrl, fieldMapping, title }) => {
-    
+const BookingDetailsAccordion = ({ history, rsa, imageUrl, fieldMapping, title }) => {
+
     const statusTitles = {
-        P   : 'Open',
-        CNF : 'Booking Confirmed',
-        A   : 'Assigned',
-        ER  : 'Enroute',
-        RL  : 'Reached Location',
-        CS  : 'Charging Started',
-        CC  : 'Charging Completed',
-        PU  : 'Picked Up',
-        VP  : 'Vehicle Pickup',
-        RS  : 'Reached Charging Spot',
-        WC  : 'Work Completed',
-        DO  : 'Drop Off',
-        C   : "Cancelled",
-        RO  : 'Charging Van Reached at Office',
-        RSB : 'Rescheduled Booking',
-        RPD : 'Rescheduled Booking'
+        'P'   : 'Open',
+        'PNR': 'Payment Not Received',
+        'CNF': 'Booking Confirmed',
+        'A': 'Assigned',
+        'ER': 'Enroute',
+        'RL': 'Charging Van Reached at Location',
+        'CS': 'Charging Started',
+        'CC': 'Charging Completed',
+        'PU': 'Completed',
+        'VP': 'Vehicle Pickup',
+        'RS': 'Reached Charging Spot',
+        'WC': 'Work Completed',
+        'DO': 'Drop Off',
+        'C': 'Cancelled',
+        'RO': 'Charging Van Reached at Office',
+        'NC': 'Not Converted'
     };
 
     const sections = history?.map((item) => ({
-        title       : statusTitles[item?.order_status] || 'Unknown Status',
-        details     : item.details,
-        time        : item.created_at ? moment(item.created_at).format('Do MMM YYYY, h:mm:ss A') : null,
-        rsa_name    : item?.rsa_name,
-        showRSA     : item?.order_status !== 'CNF',
+        title: statusTitles[item?.order_status] || 'Unknown Status',
+        details: item.details,
+        time: item.created_at ? moment(item.created_at).format('Do MMM YYYY, h:mm:ss A') : null,
+        rsa_name: item?.rsa_name,
+        showRSA: item?.order_status !== 'CNF',
         // showInvoice : item?.order_status === 'PU',
 
-        showImage    : item?.order_status === 'CS' || item?.order_status === 'CC' ||item?.order_status === 'PU' || item?.order_status === 'WC',
+        showImage: item?.order_status === 'CS' || item?.order_status === 'CC' || item?.order_status === 'PU' || item?.order_status === 'WC',
         // imageUrl  : rsa.imageUrl + ''+item?.image,
         // imageUrls    : (item?.order_status === 'CS' || item?.order_status === 'PU') ? item?.image.split('*').map(img => rsa.imageUrl + img) : [],
-        imageUrls    : ( item?.image && (item?.image != '' || item?.image != null ) ) ? item?.image.split('*').map(img => rsa.imageUrl + img) : [],
-        order_status : item?.order_status,
-        cancel_by    : item?.cancel_by === 'Admin' ?  'Admin' : rsa?.customerName,
-        reason       : item?.reason,
-        podId        : rsa?.podId || '',
-        podName      : rsa?.podName || '',
-        remarks      : item?.remarks || '',
+        imageUrls: (item?.image && (item?.image != '' || item?.image != null)) ? item?.image.split('*').map(img => rsa.imageUrl + img) : [],
+        order_status: item?.order_status,
+        cancel_by: item?.cancel_by === 'Admin' ? 'Admin' : rsa?.customerName,
+        reason: item?.reason,
+        podId: rsa?.podId || '',
+        podName: rsa?.podName || '',
+        remarks: item?.remarks || '',
     }));
     //  (Array.isArray(item.images.split('*')) ?   : [rsa.imageUrl + item?.image]) 
 
@@ -51,14 +51,14 @@ const BookingDetailsAccordion = ({history, rsa, imageUrl, fieldMapping, title })
     const handleAccordionToggle = (key) => {
         setActiveKey(activeKey === key ? null : key);
     };
-    
+
     return (
         <div className={styles.accordionContainer}>
             <div className={styles.header}>
                 <div className={styles.status}>{title || "Order Status"}</div>
             </div>
             <Accordion activeKey={activeKey} className={styles.accordion}>
-                        
+
                 {sections?.map((section, index) => (
                     <Accordion.Item eventKey={index.toString()} key={index} className={styles.accordionItem}>
                         <Accordion.Header onClick={() => handleAccordionToggle(index.toString())} className={styles.accordionHeader}>
@@ -73,15 +73,15 @@ const BookingDetailsAccordion = ({history, rsa, imageUrl, fieldMapping, title })
                             )}
                             {section.order_status === 'C' && (
                                 <>
-                                    <p className={styles.accodionPTag}><strong>Cancelled By :</strong> { section?.cancel_by } <br /></p>
+                                    <p className={styles.accodionPTag}><strong>Cancelled By :</strong> {section?.cancel_by} <br /></p>
                                     {/* <p className={styles.accodionPTag}><strong>Reason :</strong> { section?.reason } <br /> </p>  */}
                                 </>
                             )}
                             {section.order_status === 'CS' && (
-                                <p className={styles.accodionPTag}><strong>Charging Van Name :</strong> { section?.podName }</p>
+                                <p className={styles.accodionPTag}><strong>Charging Van Name :</strong> {section?.podName}</p>
                             )}
                             {section.remarks && (
-                                <p className={styles.accodionPTag}><strong>Remarks :</strong> { section?.remarks }</p>
+                                <p className={styles.accodionPTag}><strong>Remarks :</strong> {section?.remarks}</p>
                             )}
                             {section.showImage && section.imageUrls.length > 0 && (
                                 <div>

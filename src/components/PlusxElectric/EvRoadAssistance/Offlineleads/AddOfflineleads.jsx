@@ -10,6 +10,30 @@ import { AiOutlineClose } from 'react-icons/ai';
 import 'react-toastify/dist/ReactToastify.css';
 import CustomDropdown from '../../../SharedComponent/UI/CustomDropdown/CustomDropdown';
 
+export const reasonForNonConversionOptions = [
+    { value: 'price_concern', label: 'Price Concern' },
+    { value: 'service_not_available', label: 'Service Not Available' },
+    { value: 'customer_not_interested', label: 'Customer Not Interested' },
+    { value: 'customer_unreachable', label: 'Customer Unreachable' },
+    { value: 'customer_will_book_later', label: 'Customer Will Book Later' },
+    { value: 'b2b_leads', label: 'B2B Leads' },
+    { value: 'other', label: 'Other' },
+];
+
+export const reasonForNonConversionFilterOptions = [
+    { value: '', label: 'Select Reason' },
+    ...reasonForNonConversionOptions,
+];
+
+export const findReasonForNonConversionOption = (value) =>
+    reasonForNonConversionOptions.find((option) => option.value === value) || null;
+
+export const getReasonForNonConversionLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '';
+    const option = findReasonForNonConversionOption(value);
+    return option?.label || String(value);
+};
+
 const AddOfflineleads = () => {
     const location = useLocation();
     const status = new URLSearchParams(location.search).get("status");
@@ -152,11 +176,6 @@ const AddOfflineleads = () => {
     // =========================
     // Booking Details
     // =========================
-    const [bookingStatus, setBookingStatus] = useState(null);
-    const [bookingCompletedDate, setBookingCompletedDate] = useState('');
-    const [bookingCompletedBy, setBookingCompletedBy] = useState('');
-    const [driverOptions, setDriverOptions] = useState([]);
-    const [driverListLoading, setDriverListLoading] = useState(false);
 
     // Lead Details are displayed only when the URL contains status=0.
     const leadStatusOptions = [
@@ -165,10 +184,18 @@ const AddOfflineleads = () => {
         { value: 'PU', label: 'Completed' },
         { value: 'C', label: 'Cancelled' },
     ];
+    const incompleteBookingStatusValues = ['NC'];
+    const defaultIncompleteBookingStatus =
+        leadStatusOptions.find((option) => option.value === 'NC') || null;
     const [leadStatus, setLeadStatus] = useState(
-        status === '0' ? leadStatusOptions[0] : null
+        status === '0' ? leadStatusOptions[1] : null
     );
-    const [reasonForNonConversion, setReasonForNonConversion] = useState('');
+    const [bookingStatus, setBookingStatus] = useState(status == 1 ? null : defaultIncompleteBookingStatus);
+    const [bookingCompletedDate, setBookingCompletedDate] = useState('');
+    const [bookingCompletedBy, setBookingCompletedBy] = useState('');
+    const [driverOptions, setDriverOptions] = useState([]);
+    const [driverListLoading, setDriverListLoading] = useState(false);
+    const [reasonForNonConversion, setReasonForNonConversion] = useState(null);
     const [leadRemarks, setLeadRemarks] = useState('');
 
     // =========================
@@ -739,7 +766,7 @@ const AddOfflineleads = () => {
                 newErrors.leadStatus = 'Lead Status is required.';
             }
 
-            if (leadStatus?.value === 'NC' && !reasonForNonConversion.trim()) {
+            if (leadStatus?.value === 'NC' && !reasonForNonConversion?.value) {
                 newErrors.reasonForNonConversion = 'Reason for Non-Conversion is required when Lead Status is Not Converted.';
             }
 
@@ -877,7 +904,7 @@ const AddOfflineleads = () => {
 
         if (status === '0') {
             formData.append('lead_status', leadStatus?.value ?? '');
-            formData.append('reason_for_non_conversion', reasonForNonConversion.trim());
+            formData.append('reason_for_non_conversion', reasonForNonConversion?.value ?? '');
             formData.append('lead_remarks', leadRemarks.trim());
         }
 
@@ -1014,16 +1041,16 @@ const AddOfflineleads = () => {
                                     <label className={styles.labelText}>Reason for Non-Conversion</label>
                                     <div className="row">
                                         <div className="col-xl-10 col-lg-12">
-                                            <input
-                                                type="text"
-                                                autoComplete="off"
-                                                placeholder="Enter reason for non-conversion"
-                                                className={styles.inputField}
+                                            <CustomDropdown
+                                                options={reasonForNonConversionFilterOptions}
                                                 value={reasonForNonConversion}
-                                                onChange={(e) => {
-                                                    setReasonForNonConversion(e.target.value);
+                                                onChange={(option) => {
+                                                    setReasonForNonConversion(option || null);
                                                     setErrors((prev) => ({ ...prev, reasonForNonConversion: '' }));
                                                 }}
+                                                labelledBy="Select Reason for Non-Conversion"
+                                                closeOnChangedValue={true}
+                                                closeOnSelect={true}
                                             />
                                             {errors.reasonForNonConversion && (
                                                 <p className={styles.error}>{errors.reasonForNonConversion}</p>
@@ -1689,7 +1716,9 @@ const AddOfflineleads = () => {
                             <div className="row">
                                 <div className="col-xl-10 col-lg-12">
                                     <CustomDropdown
-                                        options={bookingStatusOptions}
+                                        options={status == 1
+                                            ? leadStatusOptions
+                                            : leadStatusOptions.filter((option) => incompleteBookingStatusValues.includes(option.value))}
                                         value={bookingStatus}
                                         onChange={setBookingStatus}
                                         labelledBy="Select Booking Status"

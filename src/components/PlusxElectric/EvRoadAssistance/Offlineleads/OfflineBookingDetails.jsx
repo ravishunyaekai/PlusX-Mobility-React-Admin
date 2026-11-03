@@ -12,18 +12,19 @@ import { formatIndianNumber } from '../../../../utils/statusMapping.js';
 const statusMapping = {
     'PNR': 'Payment Not Received',
     'CNF': 'Booking Confirmed',
-    'A'  : 'Assigned',
-    'ER' : 'Enroute',
-    'RL' : 'Charging Van Reached at Location',
-    'CS' : 'Charging Started',
-    'CC' : 'Charging Completed',
-    'PU' : 'Charging Van Picked Up',
-    'VP' : 'Vehicle Pickup',
-    'RS' : 'Reached Charging Spot',
-    'WC' : 'Work Completed',
-    'DO' : 'Drop Off',
-    'C'  : 'Cancel',
-    'RO' : 'Charging Van Reached at Office',
+    'A': 'Assigned',
+    'ER': 'Enroute',
+    'RL': 'Charging Van Reached at Location',
+    'CS': 'Charging Started',
+    'CC': 'Charging Completed',
+    'PU': 'Completed',
+    'VP': 'Vehicle Pickup',
+    'RS': 'Reached Charging Spot',
+    'WC': 'Work Completed',
+    'DO': 'Drop Off',
+    'C': 'Cancelled',
+    'RO': 'Charging Van Reached at Office',
+    'NC': 'Not Converted'
 };
 
 const RoadAssistanceOfflineBookingDetails = () => {
@@ -77,6 +78,7 @@ const RoadAssistanceOfflineBookingDetails = () => {
         podName: bookingDetails?.pod_name,
         // custBookingCount : bookingDetails?.cust_booking_count || 0,
         customerName: bookingDetails?.name,
+        customerEmail: bookingDetails?.email,
         customerContact: `${bookingDetails?.country_code} ${bookingDetails?.contact_no}`,
         imageUrl: bookingDetails?.imageUrl,
     };
@@ -116,20 +118,36 @@ const RoadAssistanceOfflineBookingDetails = () => {
         modeOfPayment: bookingDetails?.mode_of_payment,
         paymentStatus: bookingDetails?.payment_status,
     }
+
+    const sectionTitles2 = {
+        bookingStatus: "Lead Status",
+        price: "Reason for Non-Conversion",
+        vehicle: "Remarks / Notes",
+    }
+
+    const sectionContent2 = {
+        bookingStatus: statusMapping[bookingDetails?.lead_status] || bookingDetails?.lead_status,
+        price: statusMapping[bookingDetails?.reason_for_non_conversion] || bookingDetails?.reason_for_non_conversion,
+        vehicle: bookingDetails?.lead_remarks,
+    }
+
     return (
         <div className='main-container'>
             {loading ? <Loader /> :
                 <>
-                    <BookingDetailsHeader content={content} titles={headerTitles} sectionContent={sectionContent1} type='evRoadAssitanceBooking' feedBack={feedBack} />
+                    <BookingDetailsHeader content={content} titles={headerTitles} sectionContent={sectionContent1} type='evRoadAssitanceOfflineBooking' feedBack={feedBack} />
                     <div className={styles.bookingDetailsSection}>
+                        <BookingLeftDetails
+                            titles={sectionTitles2}
+                            content={sectionContent2}
+                            type='evRoadAssitanceBooking'
+                        />
                         <BookingLeftDetails
                             titles={sectionTitles1}
                             content={sectionContent1}
                             type='evRoadAssitanceBooking'
-                            paymentProof={bookingDetails?.proof_of_transaction_url || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
-                            }
-                            serviceTnC={bookingDetails?.service_terms_condition_url || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
-                            }
+                            paymentProof={bookingDetails?.proof_of_transaction_url}
+                            serviceTnC={bookingDetails?.service_terms_condition_url}
                         />
                         <BookingDetailsAccordion history={history} rsa={content} />
                     </div>

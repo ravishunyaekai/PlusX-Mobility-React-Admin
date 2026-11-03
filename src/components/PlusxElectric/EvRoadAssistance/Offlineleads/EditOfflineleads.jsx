@@ -10,14 +10,41 @@ import { AiOutlineClose } from 'react-icons/ai';
 import 'react-toastify/dist/ReactToastify.css';
 import CustomDropdown, { CustomDropdownDisabled } from '../../../SharedComponent/UI/CustomDropdown/CustomDropdown';
 
+export const reasonForNonConversionOptions = [
+    { value: 'price_concern', label: 'Price Concern' },
+    { value: 'service_not_available', label: 'Service Not Available' },
+    { value: 'customer_not_interested', label: 'Customer Not Interested' },
+    { value: 'customer_unreachable', label: 'Customer Unreachable' },
+    { value: 'customer_will_book_later', label: 'Customer Will Book Later' },
+    { value: 'b2b_leads', label: 'B2B Leads' },
+    { value: 'other', label: 'Other' },
+];
+
+export const reasonForNonConversionFilterOptions = [
+    { value: '', label: 'Select Reason' },
+    ...reasonForNonConversionOptions,
+];
+
+export const findReasonForNonConversionOption = (value) =>
+    reasonForNonConversionOptions.find((option) => option.value === value) || null;
+
+export const getReasonForNonConversionLabel = (value) => {
+    if (value === null || value === undefined || value === '') return '';
+    const option = findReasonForNonConversionOption(value);
+    return option?.label || String(value);
+};
+
 const EditOfflineleads = () => {
     const location = useLocation();
-    const status = new URLSearchParams(location.search).get("status");
+    const [status, setStatus] = useState('0');
+
+    const getStatusFromLeadStatus = (selectedLeadStatus) => {
+        return selectedLeadStatus?.value === 'NC' ? '1' : '0';
+    };
 
     const navigate = useNavigate();
     const { id } = useParams();
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails'));
-    const [isBookingNotCompleted, setIsBookingNotCompleted] = useState(false);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [fetchingData, setFetchingData] = useState(true);
@@ -31,6 +58,40 @@ const EditOfflineleads = () => {
 
     const lastLookupRef = useRef('');
     const lookupRequestRef = useRef(0);
+    const normalizeLeadStatus = (value) => {
+        const normalized = String(value || '').trim().toUpperCase();
+
+        const statusMap = {
+            CONFIRMED: 'CNF',
+            CNF: 'CNF',
+            'NOT CONVERTED': 'NC',
+            'NOT_CONVERTED': 'NC',
+            NC: 'NC',
+            COMPLETED: 'PU',
+            PU: 'PU',
+            CANCELLED: 'C',
+            CANCELED: 'C',
+            C: 'C',
+        };
+
+        return statusMap[normalized] || '';
+    };
+
+    const normalizeReasonValue = (value) => {
+        if (!value) return null;
+
+        const normalized = String(value)
+            .trim()
+            .toLowerCase()
+            .replace(/[\s-]+/g, '_');
+
+        return (
+            reasonForNonConversionOptions.find(
+                option => option.value.toLowerCase() === normalized ||
+                    option.label.toLowerCase() === String(value).trim().toLowerCase()
+            ) || null
+        );
+    };
 
     // =========================================================
     // Customer Details
@@ -44,6 +105,23 @@ const EditOfflineleads = () => {
     const [locationLink, setLocationLink] = useState('');
     const [address, setAddress] = useState('');
     const [price, setPrice] = useState('');
+
+    // Lead Details are displayed only when the URL contains status=0.
+    const leadStatusOptions = [
+        { value: 'CNF', label: 'Confirmed' },
+        { value: 'NC', label: 'Not Converted' },
+        { value: 'PU', label: 'Completed' },
+        { value: 'C', label: 'Cancelled' },
+    ];
+
+    const [leadStatus, setLeadStatus] = useState(null);
+    const [cancellationRemarks, setCancellationRemarks] = useState('');
+    const [reasonForNonConversion, setReasonForNonConversion] = useState(null);
+    const [leadRemarks, setLeadRemarks] = useState('');
+    const [driverMatch, setDriverMatch] = useState({ rsa_id: null, name: null });
+    const [isBookingNotCompleted, setIsBookingNotCompleted] = useState(false);
+    const [lockedContact, setLockedContact] = useState({ mobile: false, email: false });
+
 
     // =========================
     // State Dropdown Options - India
@@ -319,7 +397,9 @@ const EditOfflineleads = () => {
     // Cancelled booking handling is intentionally excluded.
     const bookingStatusOptions = [
         { value: 'CNF', label: 'Confirmed' },
-        { value: 'PU', label: 'Completed' }
+        { value: 'NC', label: 'Not Converted' },
+        { value: 'PU', label: 'Completed' },
+        { value: 'C', label: 'Cancelled' },
     ];
 
     // =========================================================
@@ -690,11 +770,28 @@ const EditOfflineleads = () => {
     // Fetch Existing Booking
     // =========================================================
     const getBookingStatusOption = (booking) => {
+        const orderStatus = String(
+            booking?.order_status ?? booking?.booking_status ?? ''
+        ).trim().toUpperCase();
+
+        // Use order_status as the primary source.
+        if (orderStatus === 'NC' || orderStatus === 'NOT CONVERTED') {
+            return getDropdownValue(bookingStatusOptions, 'NC');
+        }
+
+        if (['PU', 'COM', 'CMP', 'COMPLETED'].includes(orderStatus)) {
+            return getDropdownValue(bookingStatusOptions, 'PU');
+        }
+
+        if (['CNF', 'A', 'CONFIRMED'].includes(orderStatus)) {
+            return getDropdownValue(bookingStatusOptions, 'CNF');
+        }
+
+        // Fallback to is_booking_completed only if order_status is missing.
         const completedValue = String(
             booking?.is_booking_completed ?? ''
         ).trim().toLowerCase();
 
-        // The explicit completion flag takes priority.
         if (['yes', '1', 'true', 'completed'].includes(completedValue)) {
             return getDropdownValue(bookingStatusOptions, 'PU');
         }
@@ -703,20 +800,6 @@ const EditOfflineleads = () => {
             return getDropdownValue(bookingStatusOptions, 'CNF');
         }
 
-        // Fallback to the saved order status when no completion flag exists.
-        const orderStatus = String(
-            booking?.booking_status ?? booking?.order_status ?? ''
-        ).trim().toUpperCase();
-
-        if (['CNF', 'A', 'CONFIRMED'].includes(orderStatus)) {
-            return getDropdownValue(bookingStatusOptions, 'CNF');
-        }
-
-        if (['PU', 'COM', 'CMP', 'COMPLETED'].includes(orderStatus)) {
-            return getDropdownValue(bookingStatusOptions, 'PU');
-        }
-
-        // Cancelled and unknown statuses are not selectable in this form.
         return null;
     };
 
@@ -740,6 +823,21 @@ const EditOfflineleads = () => {
                     ) {
                         const booking = response?.data?.booking || {};
                         const history = response?.data?.history || [];
+                        // Lead Details
+                        const savedLeadStatus = normalizeLeadStatus(booking.lead_status);
+
+                        const selectedLeadStatus =
+                            getDropdownValue(leadStatusOptions, savedLeadStatus) ||
+                            getDropdownValue(leadStatusOptions, 'CNF');
+
+                        setLeadStatus(selectedLeadStatus);
+
+                        // NC = status 1; all other statuses = status 0
+                        setStatus(savedLeadStatus === 'NC' ? '1' : '0');
+                        setReasonForNonConversion(
+                            normalizeReasonValue(booking.reason_for_non_conversion)
+                        );
+                        setLeadRemarks(booking.lead_remarks || '');
 
                         // Customer details
                         setCustomerName(booking.customer_name || booking.name || '');
@@ -882,7 +980,7 @@ const EditOfflineleads = () => {
 
                         const normalizedJumpValue =
                             ['yes', '1', 'true'].includes(jumpValue) ? 'yes' :
-                            ['no', '0', 'false'].includes(jumpValue) ? 'no' : '';
+                                ['no', '0', 'false'].includes(jumpValue) ? 'no' : '';
 
                         setJumpStartRequired(
                             normalizedJumpValue
@@ -1371,40 +1469,74 @@ const EditOfflineleads = () => {
 
     const validateForm = () => {
         const newErrors = {};
+
         const isCompletingNow = bookingStatus?.value === 'PU';
-        const isIncompleteBooking = isBookingNotCompleted && !isCompletingNow;
+
+        const isIncompleteBooking =
+            isBookingNotCompleted && !isCompletingNow;
+
+        const isCompletedBooking =
+            !isBookingNotCompleted || isCompletingNow;
+
+        // =========================================
+        // LEAD DETAILS VALIDATION
+        // =========================================
+
+        if (
+            leadStatus?.value === 'NC' &&
+            !reasonForNonConversion?.value
+        ) {
+            newErrors.reasonForNonConversion =
+                'Reason for Non-Conversion is required.';
+        }
+
+        // =========================================
+        // INCOMPLETE BOOKING VALIDATION
+        // =========================================
+
+        if (isIncompleteBooking) {
+
+            const hasPhone = Boolean(phoneNumber.trim());
+            const hasEmail = Boolean(emailId.trim());
+
+            if (!hasPhone && !hasEmail) {
+                newErrors.phoneNumber =
+                    'Please enter Phone Number or Email ID.';
+
+                newErrors.emailId =
+                    'Please enter Phone Number or Email ID.';
+            }
+
+            if (hasPhone && !/^\d{10}$/.test(phoneNumber.trim())) {
+                newErrors.phoneNumber =
+                    'Please enter a valid 10 digit phone number.';
+            }
+
+            if (hasEmail && !isValidEmail(emailId)) {
+                newErrors.emailId =
+                    'Please enter a valid email ID.';
+            }
+
+            if (
+                locationLink.trim() &&
+                !isValidLocationUrl(locationLink)
+            ) {
+                newErrors.locationLink = 'Please enter a valid URL.';
+            }
+
+            setErrors(newErrors);
+
+            return Object.keys(newErrors).length === 0;
+        }
+
+        // =========================================
+        // FULL BOOKING VALIDATION
+        // =========================================
 
         if (!bookingStatus?.value) {
             newErrors.bookingStatus = 'Booking Status is required.';
         }
 
-        if (isIncompleteBooking) {
-            const hasPhone = Boolean(phoneNumber.trim());
-            const hasEmail = Boolean(emailId.trim());
-
-            if (!hasPhone && !hasEmail) {
-                newErrors.phoneNumber = 'Please enter Phone Number or Email ID.';
-                newErrors.emailId = 'Please enter Phone Number or Email ID.';
-            }
-
-            if (hasPhone && !/^\d{10}$/.test(phoneNumber.trim())) {
-                newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
-            }
-
-            if (hasEmail && !isValidEmail(emailId)) {
-                newErrors.emailId = 'Please enter a valid email ID.';
-            }
-
-            if (!isValidLocationUrl(locationLink)) {
-                newErrors.locationLink = 'Please enter a valid URL.';
-            }
-
-            setErrors(newErrors);
-            return Object.keys(newErrors).length === 0;
-        }
-
-        // Full validation applies when the booking is already completed or
-        // the user is changing an incomplete booking to Completed.
         if (!customerName.trim()) {
             newErrors.customerName = 'Customer Name is required.';
         }
@@ -1412,7 +1544,8 @@ const EditOfflineleads = () => {
         if (!phoneNumber.trim()) {
             newErrors.phoneNumber = 'Phone Number is required.';
         } else if (!/^\d{10}$/.test(phoneNumber.trim())) {
-            newErrors.phoneNumber = 'Please enter a valid 10 digit phone number.';
+            newErrors.phoneNumber =
+                'Please enter a valid 10 digit phone number.';
         }
 
         if (!emailId.trim()) {
@@ -1421,50 +1554,91 @@ const EditOfflineleads = () => {
             newErrors.emailId = 'Please enter a valid email ID.';
         }
 
-        if (!state?.value) newErrors.state = 'State is required.';
-        if (!city?.value) newErrors.city = 'City is required.';
-        if (!locationLink.trim()) newErrors.locationLink = 'Location Link is required.';
-        if (!address.trim()) newErrors.address = 'Address is required.';
-        if (!price.trim()) newErrors.price = 'Price including GST is required.';
-        else if (!Number.isFinite(Number(price)) || Number(price) < 0) {
-            newErrors.price = 'Please enter a valid price.';
+        if (!state?.value) {
+            newErrors.state = 'State is required.';
         }
 
-        if (!vehicleMake?.value) newErrors.vehicleMake = 'Vehicle Make is required.';
-        if (!vehicleModel?.value) newErrors.vehicleModel = 'Vehicle Model is required.';
-        if (batteryLevel?.value === undefined || batteryLevel?.value === null || batteryLevel?.value === '') {
-            newErrors.batteryLevel = 'Battery Level is required.';
-        }
-        if (!jumpStartRequired?.value) newErrors.jumpStartRequired = 'Jump Start Required is required.';
-
-        if (isCompletingNow) {
-            if (!paymentMode?.value) {
-                newErrors.paymentMode = 'Mode of Payment is required.';
-            }
-
-            if (String(paymentMode?.value || '').toLowerCase() === 'online' &&
-                paymentProof.length === 0 && existingPaymentProof.length === 0) {
-                newErrors.paymentProof = 'Payment Proof is required for Online payment.';
-            }
-
-            if (serviceTnC.length === 0 && existingServiceTnC.length === 0) {
-                newErrors.serviceTnC = 'Service T&C is required.';
-            }
-
-            if (!bookingCompletedDate) {
-                newErrors.bookingCompletedDate = 'Booking Completed Date is required.';
-            }
-
-            if (!String(bookingCompletedBy || '').trim()) {
-                newErrors.bookingCompletedBy = 'Booking Completed By is required.';
-            }
+        if (!city?.value) {
+            newErrors.city = 'City is required.';
         }
 
-        if (!isValidLocationUrl(locationLink)) {
+        if (!locationLink.trim()) {
+            newErrors.locationLink = 'Location Link is required.';
+        } else if (!isValidLocationUrl(locationLink)) {
             newErrors.locationLink = 'Please enter a valid URL.';
         }
 
+        if (!address.trim()) {
+            newErrors.address = 'Address is required.';
+        }
+
+        if (!price.trim()) {
+            newErrors.price = 'Price including GST is required.';
+        } else if (
+            !Number.isFinite(Number(price)) ||
+            Number(price) < 0
+        ) {
+            newErrors.price = 'Please enter a valid price.';
+        }
+
+        if (!vehicleMake?.value) {
+            newErrors.vehicleMake = 'Vehicle Make is required.';
+        }
+
+        if (!vehicleModel?.value) {
+            newErrors.vehicleModel = 'Vehicle Model is required.';
+        }
+
+        if (!batteryLevel?.value) {
+            newErrors.batteryLevel = 'Battery Level is required.';
+        }
+
+        if (!jumpStartRequired?.value) {
+            newErrors.jumpStartRequired =
+                'Jump Start Required is required.';
+        }
+
+        // =========================================
+        // PAYMENT VALIDATION
+        // =========================================
+
+        if (!paymentMode?.value) {
+            newErrors.paymentMode = 'Mode of Payment is required.';
+        }
+
+        if (!String(bookingCompletedBy || '').trim()) {
+            newErrors.bookingCompletedBy =
+                'Booking Completed By is required.';
+        }
+
+        if (
+            String(paymentMode?.value || '').toLowerCase() === 'online' &&
+            paymentProof.length === 0 &&
+            existingPaymentProof.length === 0
+        ) {
+            newErrors.paymentProof =
+                'Payment Proof is required for Online payment.';
+        }
+
+        // =========================================
+        // COMPLETION VALIDATION
+        // =========================================
+
+        if (isCompletingNow && !bookingCompletedDate) {
+            newErrors.bookingCompletedDate =
+                'Booking Completed Date is required.';
+        }
+
+        if (
+            serviceTnC.length === 0 &&
+            existingServiceTnC.length === 0
+        ) {
+            newErrors.serviceTnC =
+                'Service T&C is required.';
+        }
+
         setErrors(newErrors);
+
         return Object.keys(newErrors).length === 0;
     };
 
@@ -1474,6 +1648,7 @@ const EditOfflineleads = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         if (loading) return;
 
         if (!validateForm()) {
@@ -1482,6 +1657,7 @@ const EditOfflineleads = () => {
         }
 
         const currentUserDetails = getUserDetails();
+
         if (!currentUserDetails?.access_token) {
             toast.error('User session expired. Please login again.');
             navigate('/login');
@@ -1491,6 +1667,7 @@ const EditOfflineleads = () => {
         setLoading(true);
 
         const formData = new FormData();
+
         const appendIfSet = (key, value) => {
             if (value !== undefined && value !== null && value !== '') {
                 formData.append(key, value);
@@ -1501,73 +1678,132 @@ const EditOfflineleads = () => {
         const isCompletingNow = currentBookingStatus === 'PU';
         const isCompletedBooking = !isBookingNotCompleted || isCompletingNow;
 
+        // Common fields
         appendIfSet('userId', currentUserDetails.user_id);
         appendIfSet('email', currentUserDetails.email);
         appendIfSet('request_id', id);
         appendIfSet('id', id);
-        formData.append('is_booking_completed', isCompletedBooking ? 'Yes' : 'No');
-        appendIfSet('booking_status', currentBookingStatus);
 
-        // Send any values that are present. For an incomplete booking the
-        // backend can save contact details without requiring the full form.
-        appendIfSet('customer_name', customerName.trim());
-        appendIfSet('phone_number', phoneNumber.trim());
-        appendIfSet('email_id', emailId.trim());
-        appendIfSet('country_code', countryCode || '+91');
-        appendIfSet('state', state?.value);
-        appendIfSet('city', city?.value);
-        appendIfSet('location_link', locationLink.trim());
-        appendIfSet('address', address.trim());
-        appendIfSet('price', price.trim());
-        appendIfSet('vehicle_make', vehicleMake?.value);
-        appendIfSet('vehicle_model', vehicleModel?.value);
+        // Lead details
+        appendIfSet('lead_status', leadStatus?.value);
+        appendIfSet('status', status);
 
-        // Keep 0 as a valid battery-level value.
-        if (batteryLevel?.value !== undefined && batteryLevel?.value !== null && batteryLevel?.value !== '') {
-            // API stores battery level as 0/1; UI labels are 0% / more_than_5%.
-            formData.append(
-                'battery_level',
-                batteryLevel.value === '0%' ? '0' : '1'
-            );
-        }
-        if (jumpStartRequired?.value) {
-            formData.append(
-                'jump_start_required',
-                jumpStartRequired.value === 'yes' ? '1' : '0'
-            );
-        }
+        // Booking completion status - append only once
+        formData.append(
+            'is_booking_completed',
+            isCompletedBooking ? 'Yes' : 'No'
+        );
 
-        if (isCompletingNow) {
-            appendIfSet('mode_of_payment', paymentMode?.value);
-            appendIfSet('payment_status', 'Paid');
-            appendIfSet('booking_completed_by', String(bookingCompletedBy || '').trim());
-            appendIfSet('driver_name', String(bookingCompletedBy || '').trim());
-            const selectedDriver = driverOptions.find(
-                (driver) => driver.value === String(bookingCompletedBy || '').trim()
-            );
-            appendIfSet('rsa_id', selectedDriver?.rsa_id);
-            appendIfSet('booking_completed_date', bookingCompletedDate);
-        } else if (paymentMode?.value) {
-            // Preserve an optional payment mode on an incomplete booking.
-            appendIfSet('mode_of_payment', paymentMode.value);
-        }
+        // Common customer and vehicle details
+        const appendCustomerAndVehicleDetails = () => {
+            appendIfSet('customer_name', customerName.trim());
+            appendIfSet('phone_number', phoneNumber.trim());
+            appendIfSet('email_id', emailId.trim());
+            appendIfSet('country_code', countryCode || '+91');
 
-        // Append only newly selected files; existing files are already stored.
-        if (Array.isArray(paymentProof)) {
-            paymentProof.forEach((file) => {
-                if (typeof File !== 'undefined' && file instanceof File) {
-                    formData.append('proof_of_transaction', file);
+            appendIfSet('state', state?.value);
+            appendIfSet('city', city?.value);
+
+            appendIfSet('location_link', locationLink.trim());
+            appendIfSet('address', address.trim());
+            appendIfSet('price', price.trim());
+
+            appendIfSet('vehicle_make', vehicleMake?.value);
+            appendIfSet('vehicle_model', vehicleModel?.value);
+
+            // Preserve 0 as a valid battery-level value
+            if (
+                batteryLevel?.value !== undefined &&
+                batteryLevel?.value !== null &&
+                batteryLevel?.value !== ''
+            ) {
+                formData.append(
+                    'battery_level',
+                    batteryLevel.value === '0%' ? '0' : '1'
+                );
+            }
+
+            if (jumpStartRequired?.value !== undefined &&
+                jumpStartRequired?.value !== null &&
+                jumpStartRequired?.value !== '') {
+                formData.append(
+                    'jump_start_required',
+                    jumpStartRequired.value === 'yes' ? '1' : '0'
+                );
+            }
+        };
+
+        // Append booking-related details
+        const appendBookingDetails = () => {
+            appendIfSet('booking_status', currentBookingStatus);
+
+            if (currentBookingStatus === 'C') {
+                appendIfSet('cancellation_remarks', cancellationRemarks);
+            } else {
+                appendIfSet('mode_of_payment', paymentMode?.value);
+
+                if (paymentMode?.value) {
+                    formData.append('payment_status', 'Paid');
                 }
-            });
+
+                appendIfSet(
+                    'booking_completed_by',
+                    String(bookingCompletedBy || '').trim()
+                );
+
+                appendIfSet(
+                    'driver_name',
+                    String(bookingCompletedBy || '').trim()
+                );
+
+                const selectedDriver = driverOptions.find(
+                    (driver) =>
+                        driver.value === String(bookingCompletedBy || '').trim()
+                );
+
+                appendIfSet('rsa_id', selectedDriver?.rsa_id);
+
+                if (currentBookingStatus === 'PU' && bookingCompletedDate) {
+                    formData.append(
+                        'booking_completed_date',
+                        bookingCompletedDate
+                    );
+                }
+
+                // Append newly selected payment proof files only
+                if (Array.isArray(paymentProof)) {
+                    paymentProof.forEach((file) => {
+                        if (typeof File !== 'undefined' && file instanceof File) {
+                            formData.append('proof_of_transaction', file);
+                        }
+                    });
+                }
+
+                // Append service T&C files for completed bookings
+                if (isCompletedBooking && Array.isArray(serviceTnC)) {
+                    serviceTnC.forEach((file) => {
+                        if (typeof File !== 'undefined' && file instanceof File) {
+                            formData.append('service_terms_condition', file);
+                        }
+                    });
+                }
+            }
+        };
+
+        if (!isBookingNotCompleted) {
+            // Completed booking: send all customer and vehicle details
+            appendCustomerAndVehicleDetails();
+            appendBookingDetails();
+        } else {
+            // Incomplete booking: send available customer and vehicle details
+            appendCustomerAndVehicleDetails();
+            appendBookingDetails();
         }
 
-        if (isCompletedBooking && Array.isArray(serviceTnC)) {
-            serviceTnC.forEach((file) => {
-                if (typeof File !== 'undefined' && file instanceof File) {
-                    formData.append('service_terms_condition', file);
-                }
-            });
-        }
+        console.log(
+            'Edit Offline RSA Booking Payload:',
+            Object.fromEntries(formData.entries())
+        );
 
         postRequestWithTokenAndFile(
             'ev-road-assistance-edit-offline-booking',
@@ -1575,16 +1811,24 @@ const EditOfflineleads = () => {
             (response) => {
                 if (response?.code === 200 || response?.status === 1) {
                     toast.success(
-                        getResponseMessage(response, 'Offline RSA booking updated successfully.')
+                        getResponseMessage(
+                            response,
+                            'Offline RSA booking updated successfully.'
+                        )
                     );
+
                     setTimeout(() => {
                         setLoading(false);
                         navigate('/electric/ev-road-assistance/rsa-offline-leads');
                     }, 1000);
                 } else {
                     toast.error(
-                        getResponseMessage(response, 'Something went wrong while updating the booking.')
+                        getResponseMessage(
+                            response,
+                            'Something went wrong while updating the booking.'
+                        )
                     );
+
                     setLoading(false);
                 }
             }
@@ -1690,6 +1934,119 @@ const EditOfflineleads = () => {
                     }
                     onSubmit={handleSubmit}
                 >
+
+                    {status == '1' && (
+                        <>
+                            <div className="row">
+                                <div className="col-xl-11 col-lg-12">
+                                    <label className={styles.featureLabel}>
+                                        Lead Details
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="row">
+
+                                <div className="col-lg-6">
+                                    <label className={styles.labelText}>
+                                        Lead Status
+                                    </label>
+
+                                    <div className="row">
+                                        <div className="col-xl-10 col-lg-12">
+                                            <CustomDropdown
+                                                options={leadStatusOptions}
+                                                value={leadStatus}
+                                                onChange={(selectedOption) => {
+                                                    setLeadStatus(selectedOption);
+                                                    setStatus(getStatusFromLeadStatus(selectedOption));
+
+                                                    if (selectedOption?.value !== 'NC') {
+                                                        setReasonForNonConversion(null);
+                                                        setLeadRemarks('');
+                                                    }
+                                                }}
+                                                placeholder="Select Lead Status"
+                                            />
+
+                                            {errors.leadStatus && (
+                                                <p className={styles.error}>
+                                                    {errors.leadStatus}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {leadStatus?.value === 'NC' && (
+                                    <>
+                                        <div className="col-lg-6">
+                                            <label className={styles.labelText}>
+                                                Reason for Non-Conversion
+                                            </label>
+
+                                            <div className="row">
+                                                <div className="col-xl-10 col-lg-12">
+                                                    <CustomDropdown
+                                                        options={reasonForNonConversionOptions}
+                                                        value={reasonForNonConversion}
+                                                        onChange={(option) => {
+                                                            setReasonForNonConversion(option || null);
+
+                                                            setErrors(prev => ({
+                                                                ...prev,
+                                                                reasonForNonConversion: '',
+                                                            }));
+                                                        }}
+                                                        labelledBy="Select Reason for Non-Conversion"
+                                                        closeOnChangedValue={true}
+                                                        closeOnSelect={true}
+                                                    />
+
+                                                    {errors.reasonForNonConversion && (
+                                                        <p className={styles.error}>
+                                                            {errors.reasonForNonConversion}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="col-lg-6">
+                                            <label className={styles.labelText}>
+                                                Remarks / Notes
+                                            </label>
+
+                                            <div className="row">
+                                                <div className="col-xl-10 col-lg-12">
+                                                    <textarea
+                                                        rows={3}
+                                                        placeholder="Enter additional details about the lead"
+                                                        className={styles.inputField}
+                                                        value={leadRemarks}
+                                                        onChange={(e) => {
+                                                            setLeadRemarks(e.target.value);
+
+                                                            setErrors(prev => ({
+                                                                ...prev,
+                                                                leadRemarks: '',
+                                                            }));
+                                                        }}
+                                                    />
+
+                                                    {errors.leadRemarks && (
+                                                        <p className={styles.error}>
+                                                            {errors.leadRemarks}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </>
+                    )}
 
                     {/* =================================================
                         CUSTOMER DETAILS

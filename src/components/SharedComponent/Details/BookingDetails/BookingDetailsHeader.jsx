@@ -115,6 +115,33 @@ const BookingDetailsHeader = ({ content, titles, packageTitles, packageContent, 
                         </div>
                     </div>
                 )}
+                {type === 'evRoadAssitanceOfflineBooking' && (
+                    <div className="col-xl-3 col-lg-6 col-12">
+                        <div className={styles.detailsHeaderSection}>
+                            <div className={styles.detailsImageSection}></div>
+                            <div className={styles.infoBlock}>
+                                <span className={styles.infoHeading}>
+                                    {titles.customerDetailsTitle}
+                                </span>
+                                {content.customerName && (
+                                    <span className={styles.infoHeadText}>
+                                        {content.customerName}
+                                    </span>
+                                )}
+                                {content.customerEmail && (
+                                    <span className={styles.infoHeadText}>
+                                        {content.customerEmail}
+                                    </span>
+                                )}
+                                {content.customerContact && (
+                                    <span className={styles.infoHeadText}>
+                                        {content.customerContact}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {type === "portableChargerBooking" && packageContent && (
                     <div className="col-xl-3 col-lg-6 col-12">
                         <div className={styles.detailsHeaderSection}>
