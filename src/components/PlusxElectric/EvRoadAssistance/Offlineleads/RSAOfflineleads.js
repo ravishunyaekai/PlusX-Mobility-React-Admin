@@ -17,6 +17,7 @@ import List from '../../../SharedComponent/List/List';
 import { formatIndianNumber } from '../../../../utils/statusMapping';
 
 const statusMapping = {
+    'PNR': 'Payment Not Received',
     'CNF': 'Booking Confirmed',
     'A': 'Assigned',
     'ER': 'Enroute',
@@ -24,10 +25,15 @@ const statusMapping = {
     'CS': 'Charging Started',
     'CC': 'Charging Completed',
     'PU': 'Completed',
+    'VP': 'Vehicle Pickup',
+    'RS': 'Reached Charging Spot',
+    'WC': 'Work Completed',
+    'DO': 'Drop Off',
     'C': 'Cancelled',
     'RO': 'Charging Van Reached at Office',
-    'PNR': 'Payment Not Received',
-};
+    'NC': 'Not Converted'
+}
+
 const dynamicFilters = [
     {
         label: 'Status',

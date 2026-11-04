@@ -831,6 +831,7 @@ const EditOfflineleads = () => {
                             getDropdownValue(leadStatusOptions, 'CNF');
 
                         setLeadStatus(selectedLeadStatus);
+                        setBookingStatus(selectedLeadStatus);
 
                         // NC = status 1; all other statuses = status 0
                         setStatus(savedLeadStatus === 'NC' ? '1' : '0');
@@ -1008,8 +1009,8 @@ const EditOfflineleads = () => {
 
                         // Existing service terms and conditions
                         const serviceTnCData =
-                            booking.service_terms_and_condition_url ||
-                            booking.service_terms_and_condition ||
+                            booking.service_terms_condition_url ||
+                            booking.service_terms_condition ||
                             [];
 
                         setexistingServiceTnC(
@@ -1033,6 +1034,12 @@ const EditOfflineleads = () => {
                             latestHistory?.driver_name ||
                             ''
                         );
+
+                        const hasNCInHistory = history.some(
+                            (item) => String(item.order_status).trim().toUpperCase() === 'NC'
+                        );
+
+                        setStatus(hasNCInHistory ? '1' : '0');
 
                         setErrors({});
                     } else {
@@ -2126,13 +2133,22 @@ const EditOfflineleads = () => {
 
                                         {/* Country Code - 40% */}
                                         <div className={styles.countryCodeWrapper}>
-                                            <CustomDropdownDisabled
-                                                options={countryCodeOptions}
-                                                value={selectedCountryCode}
-                                                onChange={handleCountryCodeChange}
-                                                placeholder="+91"
-                                                isDisabled={true}
-                                            />
+                                            {!(isBookingNotCompleted && bookingStatus?.value !== 'PU') ?
+                                                <CustomDropdown
+                                                    options={countryCodeOptions}
+                                                    value={selectedCountryCode}
+                                                    onChange={handleCountryCodeChange}
+                                                    placeholder="+91"
+                                                />
+                                                :
+                                                <CustomDropdownDisabled
+                                                    options={countryCodeOptions}
+                                                    value={selectedCountryCode}
+                                                    onChange={handleCountryCodeChange}
+                                                    placeholder="+91"
+                                                    isDisabled={true}
+                                                />
+                                            }
 
                                             {errors.countryCode && (
                                                 <p
@@ -2153,7 +2169,7 @@ const EditOfflineleads = () => {
                                                 className={
                                                     styles.inputField
                                                 }
-                                                disabled={true}
+                                                disabled={(isBookingNotCompleted && bookingStatus?.value !== 'PU')}
                                                 value={
                                                     phoneNumber
                                                 }
@@ -2230,7 +2246,7 @@ const EditOfflineleads = () => {
                                         value={
                                             emailId
                                         }
-                                        disabled={true}
+                                        disabled={(isBookingNotCompleted && bookingStatus?.value !== 'PU')}
                                         // onChange={e =>
                                         //     setEmailId(
                                         //         e.target.value
@@ -3397,6 +3413,9 @@ const EditOfflineleads = () => {
                                         onChange={
                                             selectedOption => {
                                                 setBookingStatus(
+                                                    selectedOption
+                                                );
+                                                setLeadStatus(
                                                     selectedOption
                                                 );
 

@@ -1020,10 +1020,13 @@ const AddOfflineleads = () => {
                                     <div className="row">
                                         <div className="col-xl-10 col-lg-12">
                                             <CustomDropdown
-                                                options={leadStatusOptions}
+                                                options={status == 1
+                                                    ? leadStatusOptions
+                                                    : leadStatusOptions.filter((option) => incompleteBookingStatusValues.includes(option.value))}
                                                 value={leadStatus}
                                                 onChange={(option) => {
                                                     setLeadStatus(option || null);
+                                                    setBookingStatus(option || null);
                                                     setErrors((prev) => ({ ...prev, leadStatus: '' }));
                                                 }}
                                                 labelledBy="Select Lead Status"
@@ -1720,7 +1723,33 @@ const AddOfflineleads = () => {
                                             ? leadStatusOptions
                                             : leadStatusOptions.filter((option) => incompleteBookingStatusValues.includes(option.value))}
                                         value={bookingStatus}
-                                        onChange={setBookingStatus}
+                                        onChange={selectedOption => {
+                                            setBookingStatus(
+                                                selectedOption
+                                            );
+                                            setLeadStatus(
+                                                selectedOption
+                                            );
+
+                                            setErrors(
+                                                prev => ({
+                                                    ...prev,
+                                                    bookingStatus:
+                                                        '',
+                                                    bookingCompletedBy:
+                                                        ''
+                                                })
+                                            );
+
+                                            if (
+                                                selectedOption?.value !==
+                                                'PU'
+                                            ) {
+                                                setBookingCompletedBy(
+                                                    ''
+                                                );
+                                            }
+                                        }}
                                         labelledBy="Select Booking Status"
                                         closeOnChangedValue={true}
                                         closeOnSelect={true}
