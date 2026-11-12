@@ -392,6 +392,17 @@ const List = ({ list, tableHeaders, listData, keyMapping, pageHeading, onDeleteS
                                         </>
                                     )}
 
+                                    {pageHeading === "EV Road Assistance Van List" && (
+                                        <>
+                                            {access.includes('view') && (
+                                                <img src={View} alt="view" onClick={() => handleClickEvent('/electric/ev-road-assistance/charging-van-details', data.pod_id)} />
+                                            )}
+                                            {access.includes('edit') && (
+                                                <img src={Edit} alt='edit' onClick={() => handleClickEvent('/electric/ev-road-assistance/edit-charging-van', data.pod_id)} />
+                                            )}
+                                        </>
+                                    )}
+
                                     {pageHeading === "Mobile EV Charging Area List" && (
                                         <>
                                             {access.includes('edit') && (

@@ -192,6 +192,10 @@ import SessionDetails from "../components/PlusxElectric/CommunityList/SessionDet
 import AppSignupDetailsElectric from "../components/AppSignUp/AppSignupDetails/AppSignupDetailsElectric.jsx";
 import PanelRouteGuard from "./PanelRouteGuard.jsx";
 import RoadAssistanceOfflineBookingDetails from "../components/PlusxElectric/EvRoadAssistance/Offlineleads/OfflineBookingDetails.jsx";
+import RsaDeviceList from "../components/PlusxElectric/PodDevice/Device/RsaDeviceList.jsx";
+import AddRsaDevice from "../components/PlusxElectric/PodDevice/Device/AddRsaDevice.jsx";
+import EditRsaDevice from "../components/PlusxElectric/PodDevice/Device/EditRsaDevice.jsx";
+import RsaDeviceDetails from "../components/PlusxElectric/PodDevice/Device/RsaDeviceDetails.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -616,6 +620,22 @@ export const router = createBrowserRouter([
                     }, {
                         path: "failed-booking-details/:requestId",
                         element: <FailedRSABookingDetails />,
+                    },
+                    // Pod Device Route
+                    {
+                        path: "charging-van-list",
+                        element: <RsaDeviceList />,
+                    },
+                    {
+                        path: "add-charging-van",
+                        element: <AddRsaDevice />,
+                    },
+                    {
+                        path: "edit-charging-van/:podId",
+                        element: <EditRsaDevice />,
+                    }, {
+                        path: "charging-van-details/:podId",
+                        element: <RsaDeviceDetails />,
                     },
                 ],
             },

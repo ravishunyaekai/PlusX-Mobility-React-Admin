@@ -319,8 +319,51 @@ const EditOfflineleads = () => {
     const [bookingStatus, setBookingStatus] = useState(null);
     const [bookingCompletedDate, setBookingCompletedDate] = useState('');
     const [bookingCompletedBy, setBookingCompletedBy] = useState('');
+    const [bookingVan, setBookingVan] = useState('');
     const [driverOptions, setDriverOptions] = useState([]);
+    const [vanOptions, setVanOptions] = useState([]);
     const [driverListLoading, setDriverListLoading] = useState(false);
+    const [vanListLoading, setVanListLoading] = useState(false);
+
+    // =========================
+    // Fetch Van List
+    // =========================
+    useEffect(() => {
+        if (!userDetails?.access_token) return;
+
+        setVanListLoading(true);
+
+        postRequestWithToken(
+            'all-rsa-van-list',
+            {
+                email: userDetails?.email,
+                userId: userDetails?.user_id,
+                service_type: 'EV Roadside Assistance',
+            },
+            (response) => {
+                if (
+                    response?.code === 200 &&
+                    response?.status === 1
+                ) {
+                    const options = (response?.data || []).map(
+                        (driver) => ({
+                            value: driver.value,
+                            label: driver.label,
+                        })
+                    );
+
+                    setVanOptions(options);
+                } else {
+                    toast.error(
+                        response?.message?.[0] ||
+                        'Unable to fetch vans.'
+                    );
+                }
+
+                setVanListLoading(false);
+            }
+        );
+    }, [userDetails?.access_token]);
 
     // =========================
     // Fetch Driver List
@@ -3534,6 +3577,53 @@ const EditOfflineleads = () => {
                                     {errors.bookingCompletedBy && (
                                         <p className={styles.error}>
                                             {errors.bookingCompletedBy}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Booking Completed By */}
+                        <div className="col-lg-6">
+                            <label className={styles.labelText}>
+                                Select RSA Van
+                            </label>
+
+                            <div className="row">
+                                <div className="col-xl-10 col-lg-12">
+                                    <CustomDropdown
+                                        options={vanOptions}
+                                        value={
+                                            vanOptions.find(
+                                                (driver) =>
+                                                    driver.value === bookingVan
+                                            ) || null
+                                        }
+                                        onChange={(selectedOption) => {
+                                            setBookingVan(
+                                                selectedOption?.value || ''
+                                            );
+
+                                            setErrors((prev) => ({
+                                                ...prev,
+                                                bookingVan: '',
+                                            }));
+                                        }}
+                                        placeholder={
+                                            vanListLoading
+                                                ? 'Loading vans...'
+                                                : vanOptions.length === 0
+                                                    ? 'No vans available'
+                                                    : 'Select RSA Van'
+                                        }
+                                        labelledBy="Select RSA Van"
+                                        closeOnChangedValue={true}
+                                        closeOnSelect={true}
+                                    />
+
+                                    {errors.bookingVan && (
+                                        <p className={styles.error}>
+                                            {errors.bookingVan}
                                         </p>
                                     )}
                                 </div>
