@@ -5,21 +5,25 @@
   padding: 20px;
   color: #ffffff;
 }
+
 .addStationContainer::-webkit-scrollbar {
   display: none;
 }
+
 .addHeading {
   color: #00b26b;
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
 }
+
 .addShopInputContainer {
   width: 100%;
   display: flex;
   flex-direction: column;
   row-gap: 6px;
 }
+
 .formSection {
   display: flex;
   flex-direction: column;
@@ -27,28 +31,34 @@
 }
 
 .labelText {
-  font-size: 1.5rem;
+  font-size: 16px;
+  font-weight: 500;
   color: #000;
   margin-bottom: 10px;
 }
+
 .addShopLabel {
   font-size: 18px;
   color: #00b26b;
   font-weight: 500;
 }
+
 .row {
   display: flex;
   justify-content: space-between;
   column-gap: 20px;
 }
+
 .openSection {
   width: 100px;
   color: #00b26b;
 }
+
 .featureDivision {
   position: relative;
   margin-bottom: 5px;
 }
+
 .inputField {
   outline: none;
   background-color: #f9f9f9;
@@ -61,6 +71,7 @@
   border: 2px solid #00b26b;
   box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.322);
 }
+
 .inputFieldFull {
   width: 100%;
   padding: 10px;
@@ -123,11 +134,13 @@
   align-items: center;
   column-gap: 20px;
 }
+
 .selectWrapper {
   position: relative;
   display: inline-block;
   width: 100%;
 }
+
 .selectField {
   outline: none;
   background-color: #f9f9f9;
@@ -151,6 +164,7 @@
   font-size: 16px;
   color: #ffffff;
 }
+
 .addButton {
   background-color: #00b26b;
   display: flex;
@@ -163,13 +177,16 @@
   justify-content: center;
   column-gap: 10px;
 }
+
 .addButton img {
   width: 16px;
 }
+
 .addButton span {
   font-size: 18px;
   font-weight: 600;
 }
+
 .scheduleSection {
   margin-top: 10px;
   display: flex;
@@ -198,10 +215,12 @@
   justify-content: space-between;
   margin-bottom: 10px;
 }
+
 .dayLabel {
   width: 100px;
   color: #00b26b;
 }
+
 .timeField {
   outline: none;
   width: 80%;
@@ -213,6 +232,7 @@
   border: 2px solid #00b26b;
   border-radius: 10px;
 }
+
 .textAreaField {
   outline: none;
   background-color: #f9f9f9;
@@ -223,6 +243,7 @@
   font-size: 16px;
   width: 100%;
 }
+
 .addShopAddressSection {
   display: flex;
   flex-direction: column;
@@ -230,20 +251,24 @@
   width: 100%;
   gap: 6px;
 }
+
 .addShopAddress {
   display: flex;
   column-gap: 20px;
   row-gap: 6px;
   width: 100%;
 }
+
 .timeSlotContainer {
   display: flex;
   flex-direction: column;
   row-gap: 14px;
 }
+
 .classTimeslot {
   width: 100px;
 }
+
 .inputLabel {
   width: 40%;
   display: flex;
@@ -324,6 +349,7 @@
   border-radius: 4px;
   font-size: 4px;
 }
+
 /* End the file upload section */
 
 .galleryContainer {
@@ -399,6 +425,7 @@
   font-weight: 600;
   border: 2px solid #00b26b;
 }
+
 .editCancelBtn:hover {
   background-color: #f9f9f9;
   color: #00b26b;
@@ -433,7 +460,8 @@
   display: flex;
   align-items: center;
   cursor: pointer;
-  gap: 10px; /* Space between the slider and text */
+  gap: 10px;
+  /* Space between the slider and text */
 }
 
 /* Toggle button area */
@@ -445,6 +473,7 @@
   height: 34px;
   transition: border-color 0.3s ease, background-color 0.3s ease;
 }
+
 .toggleButton.activeToggle {
   border-color: #00b26b;
 }
@@ -506,7 +535,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
 .mapButton {
@@ -528,7 +557,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.5rem;
+  font-size: 16px;
   color: #000;
   margin-bottom: 10px;
 }
@@ -595,7 +624,7 @@
 }
 
 /* Green dot inside when checked */
-.checkboxInput:checked + .checkmark::after {
+.checkboxInput:checked+.checkmark::after {
   content: "";
   position: absolute;
   top: 2px;
@@ -608,13 +637,15 @@
 
 @media (max-width: 1440px) {
   .labelText {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
   }
+
   .featureLabel {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
   }
+
   .featureButton {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
   }
 }
 
@@ -627,27 +658,32 @@
 
 @media (max-width: 1280px) {
   .labelText {
-    font-size: 1rem;
+    /* font-size: 1rem; */
   }
+
   .featureLabel {
-    font-size: 1rem;
+    /* font-size: 1rem; */
   }
+
   .featureButton {
-    font-size: 1rem;
+    /* font-size: 1rem; */
   }
 }
 
 @media (max-width: 992px) {
   .checkboxText {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
+
   .labelText {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
+
   .featureLabel {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
+
   .featureButton {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
 }

@@ -36,7 +36,8 @@
 }
 
 .labelText {
-  font-size: 1.5rem;
+  font-size: 16px;
+  font-weight: 500;
   color: #000;
   margin-bottom: 10px;
 }
@@ -515,7 +516,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
 .mapButton {
@@ -537,7 +538,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.5rem;
+  font-size: 16px;
   color: #000;
   margin-bottom: 10px;
 }
@@ -656,13 +657,13 @@
 
 @media (max-width: 1440px) {
   .labelText {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
   }
   .featureLabel {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
   }
   .featureButton {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
   }
 }
 
@@ -675,28 +676,28 @@
 
 @media (max-width: 1280px) {
   .labelText {
-    font-size: 1rem;
+    /* font-size: 1rem; */
   }
   .featureLabel {
-    font-size: 1rem;
+    /* font-size: 1rem; */
   }
   .featureButton {
-    font-size: 1rem;
+    /* font-size: 1rem; */
   }
 }
 
 @media (max-width: 992px) {
   .checkboxText {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
   .labelText {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
   .featureLabel {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
   .featureButton {
-    font-size: 0.9rem;
+    /* font-size: 0.9rem; */
   }
 }
 
