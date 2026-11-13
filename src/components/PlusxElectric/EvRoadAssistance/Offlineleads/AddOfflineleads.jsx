@@ -207,7 +207,7 @@ const AddOfflineleads = () => {
     useEffect(() => {
         if (!userDetails?.access_token) return;
 
-        setDriverListLoading(true);
+        setVanListLoading(true);
 
         postRequestWithToken(
             'all-rsa-van-list',
@@ -895,7 +895,7 @@ const AddOfflineleads = () => {
                 newErrors.paymentMode = 'Mode of Payment is required.';
             }
 
-            if (paymentProof.length === 0) {
+            if (paymentMode?.value != 'cash' && paymentProof.length === 0) {
                 newErrors.paymentProof = 'Payment Proof is required.';
             }
 
@@ -908,11 +908,17 @@ const AddOfflineleads = () => {
             }
 
             if (
-                bookingStatus?.value === 'completed' &&
-                !bookingCompletedBy.trim()
+                bookingStatus?.value === 'PU' &&
+                !bookingCompletedBy?.trim()
             ) {
                 newErrors.bookingCompletedBy =
                     'Booking Completed By is required.';
+            }
+            if (
+                bookingStatus?.value === 'PU' &&
+                !bookingVan?.trim()
+            ) {
+                newErrors.bookingVan = 'Please select a Van.';
             }
         }
 
@@ -983,14 +989,9 @@ const AddOfflineleads = () => {
 
         // Booking Details
         formData.append('booking_status', bookingStatus?.value ?? '');
-        formData.append(
-            'booking_completed_by',
-            bookingCompletedBy
-        );
-        formData.append(
-            'booking_completed_date',
-            bookingCompletedDate
-        );
+        formData.append('booking_completed_by', bookingCompletedBy ?? '');
+        formData.append('pod_id', bookingVan ?? '');
+        formData.append('booking_completed_date', bookingCompletedDate);
 
         postRequestWithTokenAndFile(
             'ev-road-assistance-add-offline-booking',
@@ -1829,7 +1830,7 @@ const AddOfflineleads = () => {
                                                 bookingCompletedDate: '',
                                             }));
                                         }}
-                                        disabled={bookingStatus?.value !== 'completed'}
+                                        disabled={bookingStatus?.value !== 'PU'}
                                     />
 
                                     {errors.bookingCompletedDate && (
@@ -1888,52 +1889,51 @@ const AddOfflineleads = () => {
                             </div>
                         </div>
 
-                        {/* Select RSA Van */}
-                        <div className="col-lg-6">
-                            <label className={styles.labelText}>
-                                Select RSA Van
-                            </label>
+                        {/* Select Van */}
+                        {status == '1' && (
+                            <div className="col-lg-6">
+                                <label className={styles.labelText}>
+                                    Select Van
+                                </label>
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <CustomDropdown
-                                        options={VanOptions}
-                                        value={
-                                            VanOptions.find(
-                                                (van) =>
-                                                    van.value === bookingVan
-                                            ) || null
-                                        }
-                                        onChange={(selectedOption) => {
-                                            setBookingVan(
-                                                selectedOption?.value || ''
-                                            );
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <CustomDropdown
+                                            options={VanOptions}
+                                            value={
+                                                VanOptions.find(
+                                                    (van) => van.value === bookingVan
+                                                ) || null
+                                            }
+                                            onChange={(selectedOption) => {
+                                                setBookingVan(selectedOption?.value || '');
 
-                                            setErrors((prev) => ({
-                                                ...prev,
-                                                bookingVan: '',
-                                            }));
-                                        }}
-                                        placeholder={
-                                            vanListLoading
-                                                ? 'Loading vans...'
-                                                : driverOptions.length === 0
-                                                    ? 'No vans available'
-                                                    : 'Select RSA Van'
-                                        }
-                                        labelledBy="Select RSA Van"
-                                        closeOnChangedValue={true}
-                                        closeOnSelect={true}
-                                    />
+                                                setErrors((prev) => ({
+                                                    ...prev,
+                                                    bookingVan: ''
+                                                }));
+                                            }}
+                                            placeholder={
+                                                vanListLoading
+                                                    ? 'Loading vans...'
+                                                    : VanOptions.length === 0
+                                                        ? 'No vans available'
+                                                        : 'Select Van'
+                                            }
+                                            labelledBy="Select Van"
+                                            closeOnChangedValue={true}
+                                            closeOnSelect={true}
+                                        />
 
-                                    {errors.bookingVan && (
-                                        <p className={styles.error}>
-                                            {errors.bookingVan}
-                                        </p>
-                                    )}
+                                        {errors.bookingVan && (
+                                            <p className={styles.error}>
+                                                {errors.bookingVan}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
 
                     </div>

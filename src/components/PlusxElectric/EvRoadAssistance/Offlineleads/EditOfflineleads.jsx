@@ -346,9 +346,9 @@ const EditOfflineleads = () => {
                     response?.status === 1
                 ) {
                     const options = (response?.data || []).map(
-                        (driver) => ({
-                            value: driver.value,
-                            label: driver.label,
+                        (van) => ({
+                            value: String(van.value),
+                            label: van.label,
                         })
                     );
 
@@ -1083,7 +1083,9 @@ const EditOfflineleads = () => {
                         );
 
                         setStatus(hasNCInHistory ? '1' : '0');
+                        const savedVan = booking?.pod_name || '';
 
+                        setBookingVan(String(savedVan));
                         setErrors({});
                     } else {
                         toast.error(
@@ -1661,6 +1663,11 @@ const EditOfflineleads = () => {
                 'Booking Completed By is required.';
         }
 
+        // Van validation for completed bookings
+        if (isCompletingNow && !bookingVan) {
+            newErrors.bookingVan = 'Please select a Van.';
+        }
+
         if (
             String(paymentMode?.value || '').toLowerCase() === 'online' &&
             paymentProof.length === 0 &&
@@ -1812,6 +1819,12 @@ const EditOfflineleads = () => {
                 );
 
                 appendIfSet('rsa_id', selectedDriver?.rsa_id);
+
+                // Selected Van
+                if (currentBookingStatus === 'PU') {
+                    console.log(bookingVan)
+                    appendIfSet('pod_id', bookingVan);
+                }
 
                 if (currentBookingStatus === 'PU' && bookingCompletedDate) {
                     formData.append(
@@ -3583,52 +3596,52 @@ const EditOfflineleads = () => {
                             </div>
                         </div>
 
-                        {/* Booking Completed By */}
-                        <div className="col-lg-6">
-                            <label className={styles.labelText}>
-                                Select RSA Van
-                            </label>
+                        {/* Select Van - show only when booking is completed */}
+                        {bookingStatus?.value === 'PU' && (
+                            <div className="col-lg-6">
+                                <label className={styles.labelText}>
+                                    Select Van
+                                </label>
 
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <CustomDropdown
-                                        options={vanOptions}
-                                        value={
-                                            vanOptions.find(
-                                                (driver) =>
-                                                    driver.value === bookingVan
-                                            ) || null
-                                        }
-                                        onChange={(selectedOption) => {
-                                            setBookingVan(
-                                                selectedOption?.value || ''
-                                            );
+                                <div className="row">
+                                    <div className="col-xl-10 col-lg-12">
+                                        <CustomDropdown
+                                            options={vanOptions}
+                                            value={
+                                                vanOptions.find(
+                                                    (van) => van.value === bookingVan
+                                                ) || null
+                                            }
+                                            onChange={(selectedOption) => {
+                                                setBookingVan(selectedOption?.value || '');
 
-                                            setErrors((prev) => ({
-                                                ...prev,
-                                                bookingVan: '',
-                                            }));
-                                        }}
-                                        placeholder={
-                                            vanListLoading
-                                                ? 'Loading vans...'
-                                                : vanOptions.length === 0
-                                                    ? 'No vans available'
-                                                    : 'Select RSA Van'
-                                        }
-                                        labelledBy="Select RSA Van"
-                                        closeOnChangedValue={true}
-                                        closeOnSelect={true}
-                                    />
+                                                setErrors((prev) => ({
+                                                    ...prev,
+                                                    bookingVan: '',
+                                                }));
+                                            }}
+                                            placeholder={
+                                                vanListLoading
+                                                    ? 'Loading vans...'
+                                                    : vanOptions.length === 0
+                                                        ? 'No vans available'
+                                                        : 'Select Van'
+                                            }
+                                            labelledBy="Select Van"
+                                            closeOnChangedValue={true}
+                                            closeOnSelect={true}
+                                        />
 
-                                    {errors.bookingVan && (
-                                        <p className={styles.error}>
-                                            {errors.bookingVan}
-                                        </p>
-                                    )}
+                                        {errors.bookingVan && (
+                                            <p className={styles.error}>
+                                                {errors.bookingVan}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
+
                     </div>
 
                     {/* =================================================
