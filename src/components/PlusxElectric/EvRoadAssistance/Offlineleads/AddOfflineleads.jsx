@@ -1106,7 +1106,7 @@ const AddOfflineleads = () => {
                                     </div>
                                 </div>
 
-                                <div className="col-lg-6">
+                                {reasonForNonConversion?.value == 'other' && <div className="col-lg-6">
                                     <label className={styles.labelText}>Remarks / Notes</label>
                                     <div className="row">
                                         <div className="col-xl-10 col-lg-12">
@@ -1125,7 +1125,7 @@ const AddOfflineleads = () => {
                                             )}
                                         </div>
                                     </div>
-                                </div>
+                                </div>}
                             </div>
                         </>
                     )}
@@ -1628,33 +1628,7 @@ const AddOfflineleads = () => {
                         </div>
 
                         {/* Payment Proof */}
-                        {/* <div className="col-lg-6">
-                            <label className={styles.labelText}>
-                                Payment Proof
-                            </label>
-
-                            <div className="row">
-                                <div className="col-xl-10 col-lg-12">
-                                    <input
-                                        type="file"
-                                        className={styles.inputField}
-                                        accept="image/*,.pdf"
-                                        onChange={(e) => {
-                                            setPaymentProof(
-                                                e.target.files?.[0] || null
-                                            );
-                                        }}
-                                    />
-
-                                    {errors.paymentProof && (
-                                        <p className={styles.error}>
-                                            {errors.paymentProof}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div> */}
-                        <div className={`col-lg-6`}>
+                        {paymentMode?.value == 'online' && <div className={`col-lg-6`}>
                             <label className={styles.labelText}>
                                 Payment Proof
                             </label>
@@ -1686,7 +1660,7 @@ const AddOfflineleads = () => {
                                     </div>
                                 </div>
                             </div>)}
-                        </div>
+                        </div>}
 
                         <div className={`col-lg-6`}>
                             <label className={styles.labelText}>

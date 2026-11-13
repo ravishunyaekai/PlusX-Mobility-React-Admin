@@ -196,6 +196,7 @@ import RsaDeviceList from "../components/PlusxElectric/PodDevice/Device/RsaDevic
 import AddRsaDevice from "../components/PlusxElectric/PodDevice/Device/AddRsaDevice.jsx";
 import EditRsaDevice from "../components/PlusxElectric/PodDevice/Device/EditRsaDevice.jsx";
 import RsaDeviceDetails from "../components/PlusxElectric/PodDevice/Device/RsaDeviceDetails.jsx";
+import AddEditChargingPackage from "../components/PlusxElectric/HomeCharger/ChargingPackages/AddChargingPackage.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -572,6 +573,14 @@ export const router = createBrowserRouter([
                     {
                         path: "charging-package-list",
                         element: <ChargingPackageList />,
+                    },
+                    {
+                        path: "add-package",
+                        element: <AddEditChargingPackage />,
+                    },
+                    {
+                        path: "edit-package/:id",
+                        element: <AddEditChargingPackage />,
                     },
                     // End Pod Device Route  
                 ],

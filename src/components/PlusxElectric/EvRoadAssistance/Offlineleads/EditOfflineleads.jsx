@@ -432,8 +432,8 @@ const EditOfflineleads = () => {
     ];
 
     const paymentModeOptions = [
-        { value: 'Cash', label: 'Cash' },
-        { value: 'Online', label: 'Online' }
+        { value: 'cash', label: 'Cash' },
+        { value: 'online', label: 'Online' }
     ];
 
     // Keep UI values aligned with the backend order-status codes.
@@ -2075,7 +2075,7 @@ const EditOfflineleads = () => {
                                             </div>
                                         </div>
 
-                                        <div className="col-lg-6">
+                                        {reasonForNonConversion?.value == 'other' && <div className="col-lg-6">
                                             <label className={styles.labelText}>
                                                 Remarks / Notes
                                             </label>
@@ -2104,7 +2104,7 @@ const EditOfflineleads = () => {
                                                     )}
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div>}
                                     </>
                                 )}
                             </div>
@@ -2846,7 +2846,7 @@ const EditOfflineleads = () => {
 
                         {/* Payment Proof */}
 
-                        <div className="col-lg-6">
+                        {paymentMode?.value == 'online' && <div className="col-lg-6">
 
                             <label
                                 className={
@@ -3134,7 +3134,7 @@ const EditOfflineleads = () => {
                                     </div>
                                 )}
 
-                        </div>
+                        </div>}
 
                         {/* Service Terms and Conditions */}
 
