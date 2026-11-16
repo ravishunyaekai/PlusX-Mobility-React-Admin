@@ -118,8 +118,8 @@ const RoadAssistanceBookingDetails = () => {
                             titles={sectionTitles1}
                             content={sectionContent1}
                             type='evRoadAssitanceBooking'
-                            paymentProof={bookingDetails?.payment_proof || "https://plusx.s3.ap-south-1.amazonaws.com/_uploads/mobility/banner/1770291687147-rsabanner.png"
-                            }
+                            paymentProof={bookingDetails?.payment_proof || bookingDetails?.proof_of_transaction_url}
+                            serviceTnC={bookingDetails?.service_terms_condition_url}
                         />
                         <BookingDetailsAccordion history={history} rsa={content} />
                     </div>
