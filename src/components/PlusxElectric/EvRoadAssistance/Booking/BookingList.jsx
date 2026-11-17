@@ -18,6 +18,7 @@ import Custommodal from '../../../SharedComponent/CustomModal/CustomModal.jsx';
 import Loader from "../../../SharedComponent/Loader/Loader";
 import EmptyList from "../../../SharedComponent/EmptyList/EmptyList";
 import { formatIndianNumber } from '../../../../utils/statusMapping.js';
+import CustomVanModal from '../../../SharedComponent/CustomModal/CustomVanModal.jsx';
 
 const statusMapping = {
     'CNF': 'Booking Confirmed',
@@ -63,13 +64,16 @@ const RoadAssistanceBookingList = () => {
     const navigate = useNavigate();
     const [chargerBookingList, setChargerBookingList] = useState([]);
     const [rsaList, setRsaList] = useState([])
+    const [vanList, setVanList] = useState([])
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalCount, setTotalCount] = useState(null);
     const [filters, setFilters] = useState({ start_date: null, end_date: null });
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isVanModalOpen, setIsVanModalOpen] = useState(false);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
     const [selectedDriverId, setSelectedDriverId] = useState(null);
+    const [selectedVanId, setSelectedVanId] = useState(null);
     const [selectedRiderId, setSelectedRiderId] = useState(null);
     // const [refresh, setRefresh]                       = useState(false)
     const [showPopup, setShowPopup] = useState(false);
@@ -171,7 +175,7 @@ const RoadAssistanceBookingList = () => {
         };
         postRequestWithToken('all-rsa-list', rsaObj, async (response) => {
             if (response.code === 200) {
-                setRsaList(response?.data)
+                setRsaList(response?.data ?? [])
             } else {
                 console.log('error in rsa-listt api', response);
             }
@@ -181,6 +185,26 @@ const RoadAssistanceBookingList = () => {
     };
     const closeModal = () => {
         setIsModalOpen(false);
+        setSelectedBookingId(null);
+    };
+    const openVanModal = (bookingId) => {
+        const vanObj = {
+            userId: userDetails?.user_id,
+            email: userDetails?.email,
+        };
+        postRequestWithToken('ev-road-assistance-van-list', vanObj, async (response) => {
+            if (response.code === 200) {
+                console.log('ev-road-assistance-van-list', response)
+                setVanList(response?.data ?? []);
+            } else {
+                console.log('error in ev-road-assistance-van-list api', response);
+            }
+        });
+        setSelectedBookingId(bookingId);
+        setIsVanModalOpen(true);
+    };
+    const closeVanModal = () => {
+        setIsVanModalOpen(false);
         setSelectedBookingId(null);
     };
     const handleDriverSelect = (driver) => {
@@ -209,6 +233,32 @@ const RoadAssistanceBookingList = () => {
             }
         })
     }
+    const handleVanSelect = (Van) => {
+        setSelectedVanId(Van);
+    };
+    const assignVan = () => {
+        const obj = {
+            userId: userDetails?.user_id,
+            email: userDetails?.email,
+            pod_id: selectedVanId,
+            booking_id: selectedBookingId,
+        };
+        postRequestWithToken('ev-road-assistance-assign-van', obj, async (response) => {
+            if (response.code === 200) {
+                const message = Array.isArray(response.message) ? response.message[0] : response.message;
+                toast(message, { type: 'success' });
+                setIsVanModalOpen(false);
+                setSelectedVanId(null);
+                setTimeout(() => {
+                    fetchList(currentPage, filters, rowSelected);
+                }, 2000);
+            } else {
+                const message = Array.isArray(response.message) ? response.message[0] : response.message;
+                toast(message, { type: 'error' });
+                console.log('error in ev-road-assistance-assign-van', response);
+            }
+        });
+    };
     const handleRowperPagePage = (limit) => {
         setARowSelected(limit);
     };
@@ -230,13 +280,13 @@ const RoadAssistanceBookingList = () => {
             {loading ? <Loader /> :
                 chargerBookingList.length === 0 ? (
                     <EmptyList
-                        tableHeaders={["Booking Date", "Booking ID", "Customer Name", "Price", "Status", "City", "Driver Name", "Driver Assign", "Action", ""]}
+                        tableHeaders={["Booking Date", "Booking ID", "Customer Name", "Price", "Status", "City", "Driver Assign", , "Van Assign", "Action", ""]}
                         message="No data available"
                     />
                 ) : (
                     <>
                         <List
-                            tableHeaders={["Booking Date", "Booking ID", "Customer Name", "Price", "Status", "City", "Driver Name", "Driver Assign", "Action", ""]}
+                            tableHeaders={["Booking Date", "Booking ID", "Customer Name", "Price", "Status", "City", "Driver Assign", , "Van Assign", "Action", ""]}
                             listData={chargerBookingList}
                             pageHeading="EV Road Assistance Booking List"
                             keyMapping={[
@@ -246,20 +296,46 @@ const RoadAssistanceBookingList = () => {
                                 { key: 'price', label: 'Price', format: (price) => (price ? `${formatIndianNumber(price.toFixed(2))} INR` : '0 INR') },
                                 { key: 'order_status', label: 'Status', format: (status) => statusMapping[status] || status },
                                 { key: 'city', label: 'City' },
-                                { key: 'rsa_name', label: 'Driver Name' },
                                 {
                                     key: 'driver_assign',
                                     label: 'Driver Assign',
-                                    relatedKeys: ['order_status'],
+                                    relatedKeys: ['order_status', 'rsa_name'],
                                     format: (data, key, relatedKeys) => {
-                                        const isBookingConfirmed = ['CNF', 'A'].includes(data[relatedKeys[0]]);
+                                        const isBookingConfirmed = ['CNF', 'A'].includes(data.order_status);
+                                        const driverName = data.rsa_name;
 
-                                        return (isBookingConfirmed && !data.rsa_name) ? (
+                                        if (driverName) {
+                                            return <span>{driverName}</span>;
+                                        }
+
+                                        return isBookingConfirmed && userDetails.departmentId == 1 ? (
                                             <img
                                                 src={AddDriver}
                                                 className={"logo"}
                                                 onClick={() => openModal(data.request_id)}
                                                 alt="Assign Driver"
+                                            />
+                                        ) : null;
+                                    }
+                                },
+                                {
+                                    key: 'van_assign',
+                                    label: 'Van Assign',
+                                    relatedKeys: ['order_status', 'van_id'],
+                                    format: (data, key, relatedKeys) => {
+                                        const isBookingConfirmed = ['CNF', 'A'].includes(data.order_status);
+                                        const vanId = data.van_id ?? data.pod_id;
+
+                                        if (vanId) {
+                                            return <span>{vanId}</span>;
+                                        }
+
+                                        return isBookingConfirmed && userDetails.departmentId == 1 ? (
+                                            <img
+                                                src={AddDriver}
+                                                className="logo"
+                                                onClick={() => openVanModal(data.request_id)}
+                                                alt="Assign Van"
                                             />
                                         ) : null;
                                     }
@@ -300,6 +376,14 @@ const RoadAssistanceBookingList = () => {
                 bookingId={selectedBookingId}
                 onSelectDriver={handleDriverSelect}
                 onAssignDriver={assignDriver}
+            />
+            <CustomVanModal
+                isOpen={isVanModalOpen}
+                onClose={closeVanModal}
+                driverList={vanList}
+                bookingId={selectedBookingId}
+                onSelectDriver={handleVanSelect}
+                onAssignDriver={assignVan}
             />
 
             {showPopup && (
