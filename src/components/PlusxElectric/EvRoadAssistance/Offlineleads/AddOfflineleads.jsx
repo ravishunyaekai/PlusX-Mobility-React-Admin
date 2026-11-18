@@ -813,7 +813,7 @@ const AddOfflineleads = () => {
                 newErrors.reasonForNonConversion = 'Reason for Non-Conversion is required when Lead Status is Not Converted.';
             }
 
-            if (!leadRemarks.trim()) {
+            if (reasonForNonConversion?.value ==' other' && !leadRemarks.trim()) {
                 newErrors.leadRemarks = 'Remarks / Notes are required.';
             }
 
@@ -923,7 +923,14 @@ const AddOfflineleads = () => {
         }
 
         setErrors(newErrors);
+        // Remove keys with empty values
+        const filteredErrors = Object.fromEntries(
+            Object.entries(newErrors).filter(([key, value]) => value !== '')
+        );
 
+        setErrors(filteredErrors);
+
+        return Object.keys(filteredErrors).length === 0;
         return Object.keys(newErrors).length === 0;
     };
 
@@ -934,6 +941,7 @@ const AddOfflineleads = () => {
         e.preventDefault();
 
         if (!validateForm()) {
+            console.log("errors",errors)
             toast.error('Some fields are missing.');
             return;
         }
@@ -959,7 +967,7 @@ const AddOfflineleads = () => {
 
         // Customer Details
         formData.append('customer_name', customerName.trim());
-        formData.append('phone_number', phoneNumber);
+        formData.append('mobile_no', phoneNumber);
         formData.append('email_id', emailId.trim());
         formData.append('state', state?.value ?? '');
         formData.append('city', city?.value ?? '');
@@ -977,7 +985,7 @@ const AddOfflineleads = () => {
         );
 
         // Payment Details
-        formData.append('payment_mode', paymentMode?.value ?? '');
+        formData.append('mode_of_payment', paymentMode?.value ?? '');
 
         paymentProof.forEach((file) => {
             formData.append('proof_of_transaction', file);
@@ -990,7 +998,7 @@ const AddOfflineleads = () => {
         // Booking Details
         formData.append('booking_status', bookingStatus?.value ?? '');
         formData.append('booking_completed_by', bookingCompletedBy ?? '');
-        formData.append('pod_id', bookingVan ?? '');
+        formData.append('podId', bookingVan ?? '');
         formData.append('booking_completed_date', bookingCompletedDate);
 
         postRequestWithTokenAndFile(

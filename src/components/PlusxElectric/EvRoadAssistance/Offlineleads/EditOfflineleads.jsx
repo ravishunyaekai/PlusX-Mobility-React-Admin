@@ -1754,7 +1754,7 @@ const EditOfflineleads = () => {
         // Common customer and vehicle details
         const appendCustomerAndVehicleDetails = () => {
             appendIfSet('customer_name', customerName.trim());
-            appendIfSet('phone_number', phoneNumber.trim());
+            appendIfSet('mobile_no', phoneNumber.trim());
             appendIfSet('email_id', emailId.trim());
             appendIfSet('country_code', countryCode || '+91');
 
@@ -1823,7 +1823,7 @@ const EditOfflineleads = () => {
                 // Selected Van
                 if (currentBookingStatus === 'PU') {
                     console.log(bookingVan)
-                    appendIfSet('pod_id', bookingVan);
+                    appendIfSet('podId', bookingVan);
                 }
 
                 if (currentBookingStatus === 'PU' && bookingCompletedDate) {
