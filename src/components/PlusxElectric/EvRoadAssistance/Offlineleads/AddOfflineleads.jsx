@@ -265,6 +265,7 @@ const AddOfflineleads = () => {
                         (driver) => ({
                             value: driver.rsa_name,
                             label: driver.rsa_name,
+                            rsa_id: driver.rsa_id,
                         })
                     );
 
@@ -813,7 +814,7 @@ const AddOfflineleads = () => {
                 newErrors.reasonForNonConversion = 'Reason for Non-Conversion is required when Lead Status is Not Converted.';
             }
 
-            if (reasonForNonConversion?.value ==' other' && !leadRemarks.trim()) {
+            if (reasonForNonConversion?.value == ' other' && !leadRemarks.trim()) {
                 newErrors.leadRemarks = 'Remarks / Notes are required.';
             }
 
@@ -941,7 +942,7 @@ const AddOfflineleads = () => {
         e.preventDefault();
 
         if (!validateForm()) {
-            console.log("errors",errors)
+            console.log("errors", errors)
             toast.error('Some fields are missing.');
             return;
         }
@@ -997,7 +998,13 @@ const AddOfflineleads = () => {
 
         // Booking Details
         formData.append('booking_status', bookingStatus?.value ?? '');
-        formData.append('booking_completed_by', bookingCompletedBy ?? '');
+
+        const selectedDriver = driverOptions.find(
+            (driver) => driver.value === bookingCompletedBy
+        );
+        formData.append('booking_completed_by', selectedDriver?.value ?? '');
+        formData.append('driver_name', selectedDriver?.value ?? '');
+        formData.append('rsa_id', selectedDriver?.rsa_id ?? '');
         formData.append('podId', bookingVan ?? '');
         formData.append('booking_completed_date', bookingCompletedDate);
 
